@@ -1,0 +1,136 @@
+*{
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+}
+body{
+  position: relative;
+}
+#header{
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  top: 0;
+  height: 90px;
+}
+ul li a {
+color: #000;
+}
+ul li a:hover {
+color: #00a8ff;
+}
+ul li a.active {
+color: #00a8ff;
+}
+.loading{
+  color: #999;
+  background-color: #999;
+}
+.sec-home{
+  height: 600px;
+  z-index: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+.for-contact{
+  backdrop-filter: blur(5px);
+      background-color: rgba(10, 38, 71, 0.8);
+}
+.header_1{
+  margin: 0;
+  z-index: 2;
+}
+.header_2{
+  z-index: 5;
+}
+.header_3{
+  height: 50px;
+}
+.home_contact{
+  height: 500px;
+  background-image: url(%PUBLIC_URL%/image/istockphoto-1131381748-612x612.jpg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.contact1{
+  height: 400px;
+  background-position: 0 -70px;
+  background-size: cover;
+}
+.contact2{
+  background-color: #13289D;
+  z-index: 0;
+  opacity: 0.8;
+}
+.login-site{
+  min-height: 600px;
+  margin-top:100px;
+  padding-top: 50px;
+  padding-bottom: 80px
+}
+.login1{
+  --bs-nav-link-color: var(--bs-white);
+  --bs-nav-pills-link-active-color: var(--bs-primary);
+  --bs-nav-pills-link-active-bg: var(--bs-white);
+}
+.btn-cus{
+  cursor: pointer;
+  border: #13289D;
+}
+@media screen and (min-width:500px) {
+  .car{
+      width: 300px;
+  }
+  .card-home{
+      width: 20rem;
+      backdrop-filter: blur(5px);
+      background-color: rgba(255, 255, 255, 0.8);
+  }
+  .list-home{
+      width: 100%;
+  }
+  .product-detail1{
+    padding: 13px;
+    width:100px;
+    height: 100px
+  }
+  .product-detail1>p{
+    font-size: 15px;
+  }
+  .product-detail2{
+    width: 400px;
+    height: 250px;
+  }
+}
+@media screen and (min-width:1000px) {
+  .car{
+      width: 400px;
+      margin-right: 100px;
+  }
+  .card-home{
+      width: 35rem;
+      backdrop-filter: blur(5px);
+      background-color: rgba(255, 255, 255, 0.8);
+  }
+  .list-home{
+      width: 80%;
+  }
+  .product-detail1{
+    padding: 30px;
+    width:150px;
+    height: 150px
+  }
+  .product-detail1>p{
+    font-size: 18px;
+  }
+  .product-detail2{
+    width: 200px;
+    height: 250px;
+  }
+}
+.curved {
+  background: #2c3e50;
+  border-bottom-left-radius: 50% 14%;
+  border-bottom-right-radius: 50% 14%;
+}

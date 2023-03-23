@@ -1,0 +1,25 @@
+composer require laravel/ui
+
+
+1.Create Database DB_petshop
+2. $ php artisan migrate or php artisan migrate:fresh
+3. $ php artisan db:seed --class=insert_type_products
+4. $ php artisan db:seed --class=insert_breed
+5. $ php artisan db:seed --class=insert_products
+6. $ php artisan db:seed --class=insert_user
+7. $ php artisan db:seed --class=insert_comments
+8. $ php artisan db:seed --class=insert_cart
+9. $ php artisan db:seed --class=insert_order
+
+??? Middleware auto check admin to enter Admin site
+Create Middleware to check admin 
+
+php artisan make:middleware AdminLogin
+
+BUT to get Middleware class work
+must add routeMiddleware
+
+    protected $routeMiddleware =[
+        ...
+        'AdminLogin' => \App\Http\Middleware\AdminLogin::class
+    ]

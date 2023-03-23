@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <base href="{{asset('')}}">
+        <title>Laravel</title>
+        <link rel="shortcut icon" type="image/x-icon" href="public/favicon.ico">
+        <!-- Fonts -->
+        <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{asset('resources/css/app.css')}}">
+        <link rel="stylesheet" href="{{asset('resources/css/theme.min.css')}}">
+        <!-- Styles -->
+        {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"> --}}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.3.0/css/all.css">
+        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.3.0/css/sharp-solid.css">
+        <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.3.0/css/sharp-regular.css">
+        {{-- <script src="{{ asset('../resources/js/app.js') }}" defer></script> --}}
+        {{-- Libary --}}
+        <link href="/node_modules/slick-carousel/slick/slick.css" rel="stylesheet" />
+        <link href="/node_modules/slick-carousel/slick/slick-theme.css" rel="stylesheet" />
+        <link href="/node_modules/tiny-slider/dist/tiny-slider.css" rel="stylesheet">
+        <link rel="stylesheet" href="node_modules/feather-webfont/dist/feather-icons.css">
+        <link rel="stylesheet" href="node_modules/simplebar/dist/simplebar.css">
+        <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', 'G-M8S4MT3EYG');
+          </script>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 13px;
+            }
+            body{
+                position: relative;
+                
+            }
+            #header{
+                z-index: 2;
+                margin: 0;
+                padding: 0;
+                font-family: 'Poppins', sans-serif;
+                top: 0;
+                height: 90px
+            }
+            ul li a {
+                color: #000;
+            }
+
+            ul li a:hover {
+                color: #00a8ff;
+            }
+
+            ul li a.active {
+                color: #00a8ff;
+            }
+            .active2, .active1{
+                background-color: #ffffff !important;
+            }
+            option{
+                font-size: 1.1rem;
+            }
+
+            .loading{
+                color: #999;
+                background-color: #999;
+            }
+            .sec-home{
+                height: 600px;
+                z-index: 0;
+                font-family: 'Montserrat', sans-serif;
+            }
+            .for-contact{
+                backdrop-filter: blur(5px);
+                    background-color: rgba(10, 38, 71, 0.8);
+                }
+                .header_1{
+                margin: 0;
+                z-index: 2;
+            }
+            .header_2{
+                z-index: 5;
+            }
+            .header_3>p,a{
+                font-size: 1.2rem;
+            }
+            .nav-link{
+                font-size: 1.3rem;
+            }
+            .header_3{
+                height: 50px;
+            }
+            .home_contact{
+                height: 500px;
+                background-image: url('../image/istockphoto-1131381748-612x612.jpg');
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: contain;
+            }
+            .contact1{
+                height: 400px;
+                background-position: 0 -70px;
+                background-size: cover;
+            }
+            .contact2{
+                background-color: #13289D;
+                z-index: 0;
+                opacity: 0.8;
+            }
+            
+            .login-site{
+                min-height: 600px;
+                padding-bottom: 80px
+            }
+            .login1{
+                --bs-nav-link-color: var(--bs-white);
+                --bs-nav-pills-link-active-color: var(--bs-primary);
+                --bs-nav-pills-link-active-bg: var(--bs-white);
+            }
+            .product-list-site{
+                background-color: #2c3e50;
+                box-shadow: #000 0 2px 5px;
+                height: 140px;
+            }
+            .btn-cus{
+              cursor: pointer;
+            }
+            .btn-cus:hover .fa-light{
+                font-weight: 900;
+            }
+            @media screen and (min-width:500px) {
+                .car{
+                    width: 300px;
+                }
+                .card-home{
+                    width: 20rem;
+                    backdrop-filter: blur(5px);
+                    background-color: rgba(255, 255, 255, 0.8);
+                }
+                .list-home{
+                    width: 100%;
+                }
+                .product-detail1{
+                    padding: 13px;
+                width:100px;
+                height: 100px
+                }
+                .product-detail1>p{
+                    font-size: 15px;
+                }
+                .product-detail2{
+                    width: 400px;
+                height: 250px;
+            }
+            
+            .card-item{
+                    height: 320px;
+                }
+                label{
+                    font-size: 1.1rem;
+                }
+
+            }
+            @media screen and (min-width:1000px) {
+                label{
+                    font-size: 1.2rem;
+                }
+                .car{
+                    width: 400px;
+                    margin-right: 100px;
+                }
+                .card-home{
+                    width: 35rem;
+                    backdrop-filter: blur(5px);
+                    background-color: rgba(255, 255, 255, 0.8);
+                }
+                .list-home{
+                    width: 80%;
+                }
+                
+                .product-detail1{
+                    padding: 30px;
+                    width:150px;
+                    height: 150px
+                }
+                .product-detail1>p{
+                    font-size: 18px;
+                }
+                .product-detail2{
+                width: 200px;
+                height: 250px;
+            }
+                .card-item{
+                    height: 420px;
+                }
+
+            }
+            .curved {
+                background: #2c3e50;
+                border-bottom-left-radius: 50% 14%;
+                border-bottom-right-radius: 50% 14%;
+            }
+            .active-profie{
+                background-color: #7743DB;
+                box-shadow: box-shadow: rgba(0, 0, 0, 0.15) 2.4px 2.4px 3.2px;;
+            }
+            .active-profie > a{
+                color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        @include('layout.header')
+        @yield('content')
+        @yield('modal')
+        @include('layout.footer')
+        
+        <!-- Libs JS -->
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
+        <script src="node_modules/slick-carousel/slick/slick.js"></script>
+        <script src="node_modules/slick-carousel/slick/slick.min.js"></script>
+        <script src="node_modules/tiny-slider/dist/min/tiny-slider.js"></script>
+        <script src="node_modules/jquery-countdown/dist/jquery.countdown.min.js"></script>
+        <script src="resources/js/slick-slider.js"></script>
+        <script src="resources/js/theme.min.js"></script>
+        <script src="resources/js/countdown.js"></script>
+        <script src="resources/js/zoom.js"></script>
+        @yield('script')
+        <script>
+            $(document).ready(function(){
+                $('.btn_showcart').click(function(){
+                    $.get(window.location.origin+"/index.php/ajax/cart/listcart",function(data){
+                        $('#listCart').html(data);
+                    })
+                })
+            })
+        </script>
+    </body>
+    </html>
+    
