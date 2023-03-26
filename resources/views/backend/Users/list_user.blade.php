@@ -39,7 +39,7 @@
                     @foreach ($users as $user)
                     <tr>
                         <td>{{$user->id_user}}</td>
-                        <td>{{$user->name}}</td>
+                        <td><a href="#!" class="text-primary btn-user-order" data-bs-toggle="modal" data-bs-target="#userOrderModal" data-iduser="{{$user->id_user}}">{{$user->name}}</a></td>
                         <td>{{$user->gender == 1? "Male": ($user->gender == 2?"Female":($user->gender==3?"Other":"Unknow"))}}</td>
                         <td>{{$user->address}}</td>
                         <td>{{$user->email}}</td>
@@ -64,12 +64,49 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="userOrderModal" tabindex="-1" aria-labelledby="userOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content p-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fs-3 fw-bold" id="userOrderModalLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table  table-striped">
+            <thead>
+                <tr class="bg-danger">
+                    <th>No</th>
+                    <th>Date</th>
+                    <th style="width: 30%">Order Pet</th>
+                    <th>Customer Name</th>
+                    <th style="width: 20%">Address</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="order_modal" class="table-group-divider">
+                
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+        </div>
+      </div>
+    </div>
+  </div>
 @endsection
 @section('admin_script')
     <script>
         $(document).ready(function(){
             $('#sortType').change(function(){
                 window.location.assign(window.location.pathname+'?sortType='+$(this).val());
+            });
+            $('.btn-user-order').click(function(){
+                // alert(window.location.origin+'/index.php/ajax/userorder/'+$(this).data('iduser'));
+                $.get(window.location.origin+'/index.php/ajax/userorder/'+$(this).data('iduser'),function(data){
+                    console.log(data);
+                    $('#order_modal').html(data);
+                })
             })
         })
     </script>

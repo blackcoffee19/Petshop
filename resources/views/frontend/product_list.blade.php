@@ -107,7 +107,7 @@
         <div class="col-md-9 col-sm-8 row ms-2" id="list-pets">
             @if (count($list_pets)>0)
                 @foreach ($list_pets as $pet)
-                    <div class="card col-sm-5 col-md-4 col-lg-3 mx-sm-auto ms-md-2 p-0 mb-3 card-item" >
+                    <div class="card col-sm-5 col-md-4 col-lg-3 mx-sm-auto ms-md-2 p-0 mb-3" >
                         <div class="card-header d-flex flex-row justify-content-between align-items-center">
                             <div>
                             @if ($pet->sale !=0)
@@ -123,20 +123,25 @@
                             </div>
                             <a class="btn-action {{Auth::check()? 'addFav':''}}" 
                                 {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle='tooltip' data-bs-html='true' title='Wishlist' data-bs-idproduct=$pet->id_product"}} >
-                                <i class="bi {{Auth::check() ? (count(Auth::user()->Favourite->where('id_product','=',$pet->id_product))>0 ? 'bi-heart-fill text-danger' : 'bi-heart'): 'bi-heart'}}"></i></a>
+                                <i class="bi fs-4 {{Auth::check() ? (count(Auth::user()->Favourite->where('id_product','=',$pet->id_product))>0 ? 'bi-heart-fill text-danger' : 'bi-heart'): 'bi-heart'}}"></i></a>
                         </div>
-                        <div class="card-img-top h-50 d-flex flex-row justify-content-center align-content-center" style="height: 230px;">
+                        <div class="card-img-top h-50 d-flex flex-row justify-content-center align-content-center position-relative" style="height: 230px;">
                             <a class="h-100" href="{{route('productdetail',[$pet->id_product])}}">
-                                <img src="{{asset('/resources/image/pet/'.$pet['image'])}}" class="rounded-0 img-fluid h-100" style="max-height: 220px;object-fit: cover" alt="{{$pet->id_product}}" >
+                                <img src="{{asset('/resources/image/pet/'.$pet['image'])}}" class="rounded-0 img-fluid h-100" style="max-height: 220px;object-fit: cover{{$pet->quantity == 0? ';filter: blur(4px)': ''}}" alt="{{$pet->id_product}}" >
                             </a>
+                            @if ($pet->quantity ==0)
+                                <div class="position-absolute w-100" style="z-index: 2; top:10px">
+                                  <img src="{{asset('resources/image/icons/sold-out.svg')}}" style="height:200px" class="img-fluid" alt="">
+                                </div>
+                            @endif
                         </div>
                         <div class="card-body h-50 d-flex flex-column justify-content-center"  style=" text-align: center;">
                             <a href="{{route('productdetail',[$pet->id_product])}}" class="card-title h4 text-decoration-none text-dark">{{$pet->product_name}}</a>
                             <p class="card-text d-md-none d-lg-block text-black-50 fw-light">Age: {{$pet->age}}
-                            <br>Gender: {{$pet->gender}}</p>
+                            <br>Gender: {{$pet->gender == 1? "Male" : ($pet->gender == 2 ? "Female": "Unknow")}}</p>
                             <p class="card-text text-black-50">Price:
                             <span class="ms-5 fs-5 text-dark">${{$pet->per_price}}</span></p>
-                            <div class="d-flex flex-row justify-content-around align-content-center">
+                            <div class="d-flex flex-column justify-content-center align-content-center">
                                 <p class="text-warning">
                                     @for ($i = 0; $i < $pet->rating; $i++)
                                         <i class="fa-solid text-warning fa-star h5"></i>
@@ -145,9 +150,14 @@
                                     <i class="fa-solid text-secondary fa-star h5"></i>
                                     @endfor
                                 </p>
-                                <a href="{{route('productdetail',[$pet->id_product])}}" class="me-2">
-                                    <i class="fa-sharp h4 fa-solid fa-cart-plus"></i>
-                                </a>
+                                <div class="row">
+                                    <a href="{{route('productdetail',[$pet->id_product])}}" class="me-1 btn col-3 mx-auto">
+                                        <i class="fa-sharp h4 fa-solid fa-cart-plus"></i>
+                                    </a>
+                                    <a role="button" class="btn col-3 mx-auto compare_pet" data-bs-toggle="tooltip" data-bs-html="true" title="Compare"  data-bs-product="{{$pet->id_product}}">
+                                        <i class="bi bi-arrow-left-right h4"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -162,6 +172,38 @@
     </div>
 
 </div>
+@endsection
+@section('modal')
+<div class="toast-container position-fixed end-50" style="bottom: 20px" >
+    <div id="liveToast2" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    </div>
+</div>
+<div data-bs-toggle="tooltip"  title="Show Compare" class="position-fixed rounded-circle bottom-0 start-0 p-3 animate__animated animate__heartBeat animate__infinite {{!Session::has('compare')?'d-none':''}}" id="btn-compare">
+  <button role="button" class="btn btn-primary shadow" id="show_compare" data-bs-toggle="modal" data-bs-target="#comparePet">
+    <i class="bi bi-arrow-left-right"></i>
+  </button>
+</div>
+<div class="modal fade" id="comparePet" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a class="btn btn-outline-danger" href="{{route('removeCmp')}}">
+          <i class="bi bi-x-circle-fill text-danger"></i>
+          Clean
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-8">
+        <div class="row">
+          <table class="table table-hover">
+            <tbody id="compare_detail">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>   
 @endsection
 @section('script')
     <script>
@@ -178,6 +220,21 @@
                 $(this).children().toggleClass('bi-heart').toggleClass('bi-heart-fill text-danger');
                 $.get(window.location.origin+'/index.php/ajax/favourite/'+$(this).data('bsIdproduct'),function(data){
                   $('.countFav').html(data);
+            })
+          });
+          $('.compare_pet').click(function(){
+            const toast = new bootstrap.Toast($('#liveToast2'))
+            toast.show();
+            if($('#btn-compare').hasClass('d-none')){
+              $('#btn-compare').removeClass('d-none');
+            }
+            $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
+              $('#liveToast2').html(data);  
+            })
+          });
+          $('#show_compare').click(function(){
+            $.get(window.location.origin+"/index.php/ajax/compare/showcompare",function(data){
+              $('#compare_detail').html(data);  
             })
           });
             // $("input[name='breed[]']:checked")change(function(){

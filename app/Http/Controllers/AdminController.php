@@ -372,11 +372,6 @@ class AdminController extends Controller
         return view('backend.Users.edit_user',compact('state','site','user'));
     }
     public function post_edituser (Request $req, $id){
-        $req->validate([
-            "pass2"=>"same:pass1"
-        ],[
-            "pass2.same"=>"Re-enter password not match"
-        ]);
         $user_edit = User::where('id_user','=',$id)->first();
         $user_edit->name=$req["user_name"];
         if(count(User::where('email','=',$req["email"])->where('id_user','!=',$id)->get())>0){
@@ -387,7 +382,17 @@ class AdminController extends Controller
         $user_edit->phone_number= $req["phone"];
         $user_edit->dob= $req["user_birth"];
         $user_edit->admin = $req["admin"];
-        $user_edit->password = bcrypt($req["pass2"]);
+        if(isset($req["changeUserPass"])){
+            $req->validate([
+                "pass1"=>"required",
+                "pass2"=>"required|same:pass1"
+            ],[
+                "pass1.required"=>"Enter new password for user. If you don't want change user's password, then un-check",
+                "pass2.required"=>"Enter re password for user",
+                "pass2.same"=>"Re-enter password not match"
+            ]);
+            $user_edit->password = bcrypt($req["pass2"]);
+        }
         if($req["checkImg"]=="on" && $req->hasFile('img_user')){
             $file = $req->file('img_user');
             $type = $file->getClientOriginalExtension();
@@ -423,36 +428,35 @@ class AdminController extends Controller
     }
 //
 // ORDERS
-    public function get_listorder( Request $req){
-        $sortType = $req->sort;
+    public function get_listorder( $sort = null){
         $state = "Order";
-        switch($sortType){
+        switch($sort){
             case "created_at":
-                $orders = Order::orderBy("created_at","desc")->get();
+                $orders = Order::orderBy("created_at","desc")->paginate(6);
                 break;
             case "status":
-                $orders = Order::orderBy("status","desc")->get();
+                $orders = Order::orderBy("status","desc")->paginate(6);
                 break;
             case "user":
-                $orders = Order::where("order_code",'LIKE','%user%')->get();
+                $orders = Order::where("order_code",'LIKE','%user%')->paginate(6);
                 break;
             case "guest":
-                $orders = Order::where("order_code",'LIKE','%guest%')->get();
+                $orders = Order::where("order_code",'LIKE','%guest%')->paginate(6);
                 break;
             case "cod":
-                $orders = Order::where("method",'=','cod')->get();
+                $orders = Order::where("method",'=','cod')->paginate(6);
                 break;
             case "credit":
-                $orders = Order::where("method",'=','credit')->get();
+                $orders = Order::where("method",'=','credit')->paginate(6);
                 break;
             case "all":
-                $orders = Order::all();
+                $orders = Order::paginate(6);
                 break;
             default:
-                $orders = Order::all();
+                $orders = Order::paginate(6);
                 break;
         }
-        return view('backend.Orders.list_orders',compact('state','orders','sortType'));      
+        return view('backend.Orders.list_orders',compact('state','orders','sort'));      
     }
     public function get_editorder($id){
         $state = "Order";
@@ -460,4 +464,25 @@ class AdminController extends Controller
         return view('backend.Orders.edit_order',compact('state','order'));
     }
 //
+
+    public function ajax_orderUser($id)
+    {
+        $str ="";
+        $user_orders = Order::where('id_user','=',$id)->orderBy('created_at','desc')->get();
+        if(count($user_orders) == 0){
+            $str.="<tr><td colspan='7' class='text-center text-muted fs-3'>User didn't order any thing</td></tr>";
+        }
+        for($i =0;$i<count($user_orders); $i++){
+            $num = $i+1;
+            $sum=0;
+            $str.="<tr><td>$num</td><td>".date('d/m/Y H:i:s',strtotime($user_orders[$i]->created_at)) ."</td><td><table class='table'><thead><tr><th>Name</th><th>Type</th><th>Qty</th><th>Price</th></tr></thead><tbody>";
+            foreach($user_orders[$i]->Cart as $cart){
+                $sum += $cart->qty * $cart->Product->per_price;
+                $str.="<tr><td>".$cart->Product->product_name."</td><td>".$cart->Product->Breed->TypeProduct->name_type."</td><td>".$cart->qty."</td><td> $".$cart->Product->per_price."</td></tr>";
+            }
+            $str.="</tbody><tfoot><tr><td colspan='2'>Total</td><td colspan='2' class='text-danger'>$$sum</td></tr></tfoot></table></td><td>".$user_orders[$i]->cus_name."</td><td>".$user_orders[$i]->cus_address."</td><td>".$user_orders[$i]->method."</td><td>".$user_orders[$i]->status."</td></tr>";
+        }
+
+        echo $str;
+    }
 }

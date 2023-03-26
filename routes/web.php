@@ -50,6 +50,10 @@ Route::get('/ajax/modal/{id}',[MyController::class,'modal_product']);
 Route::get('/ajax/{id}',[MyController::class,'addToCart2']);
 Route::get('/ajax/cart/listcart',[MyController::class,'modalCart']);
 Route::get('/ajax/favourite/{id}',[MyController::class,'add_favourite']);
+Route::get('/ajax/addcompare/{id}',[MyController::class,'addCompare']);
+Route::get('/ajax/compare/showcompare',[MyController::class,'showCompare']);
+Route::get('/delcompare/{id}',[MyController::class,'delCompare'])->name('delCmp');
+Route::get('/removeCmp',[MyController::class,'removeCompare'])->name('removeCmp');
 // Auth::routes();
 Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
     Route::get('/dashboard',[AdminController::class,'get_dashboard'])->name('dashboard');
@@ -91,11 +95,12 @@ Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
         Route::get('/deleteuser/{id}',[AdminController::class,'deleteUser'])->name('deleteUser');
     });
     Route::group(["prefix"=>"orders"],function(){
-        Route::get('/',[AdminController::class,'get_listorder'])->name('listorder');
+        Route::get('/{sort?}',[AdminController::class,'get_listorder'])->name('listorder');
         Route::get('/editorder/{id}',[AdminController::class,'get_editorder'])->name('editorder');
         Route::post('/editorder/{id}',[AdminController::class,'post_editorder'])->name('editorder');
         Route::get('/deleteorder/{id}',[AdminController::class,'deleteOrder'])->name('deleteOrder');
     });
 });
+Route::get('/ajax/userorder/{id}',[AdminController::class,'ajax_orderUser']);
 Route::get('/admin',[AdminController::class,'get_login'])->name('admin_login');
 Route::post('/admin',[AdminController::class,'post_login'])->name('admin_login');

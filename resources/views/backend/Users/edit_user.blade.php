@@ -65,12 +65,15 @@
                     @else
                         <div class="mb-3 form-check-inline">
                             <input type="checkbox" name="changeUserPass" id="changeUserPass" class="form-check-input">
-                            <label for="changeUserPass" class="form-check-label"></label>
+                            <label for="changeUserPass" class="form-check-label">Change password for user</label>
                         </div>
                         <div class="mb-3 form-floating">
                             <input type="password" class="form-control" id="pass1" name="pass1" >
-                            <label for="pass1" class="form-label">Enter password</label>
+                            <label for="pass1" class="form-label">New password</label>
                             <span id="invalid_pass1" class="text-danger"></span>
+                            @if ($errors->has('pass1'))
+                                <span class="text-danger">{{$errors->first('pass1')}}</span>
+                            @endif
                         </div>
                         <div class="mb-3 form-floating">
                             <input type="password" class="form-control" id="pass2" name="pass2">

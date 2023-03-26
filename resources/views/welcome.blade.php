@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.3.0/css/sharp-regular.css">
         {{-- <script src="{{ asset('../resources/js/app.js') }}" defer></script> --}}
         {{-- Libary --}}
+        <link rel="stylesheet" href="/node_modules/animate.css/animate.min.css">
         <link href="/node_modules/slick-carousel/slick/slick.css" rel="stylesheet" />
         <link href="/node_modules/slick-carousel/slick/slick-theme.css" rel="stylesheet" />
         <link href="/node_modules/tiny-slider/dist/tiny-slider.css" rel="stylesheet">
@@ -51,17 +52,6 @@
                 top: 0;
                 height: 90px
             }
-            ul li a {
-                color: #000;
-            }
-
-            ul li a:hover {
-                color: #00a8ff;
-            }
-
-            ul li a.active {
-                color: #00a8ff;
-            }
             .active2, .active1{
                 background-color: #ffffff !important;
             }
@@ -72,11 +62,6 @@
             .loading{
                 color: #999;
                 background-color: #999;
-            }
-            .sec-home{
-                height: 600px;
-                z-index: 0;
-                font-family: 'Montserrat', sans-serif;
             }
             .for-contact{
                 backdrop-filter: blur(5px);
@@ -135,73 +120,6 @@
             }
             .btn-cus:hover .fa-light{
                 font-weight: 900;
-            }
-            @media screen and (min-width:500px) {
-                .car{
-                    width: 300px;
-                }
-                .card-home{
-                    width: 20rem;
-                    backdrop-filter: blur(5px);
-                    background-color: rgba(255, 255, 255, 0.8);
-                }
-                .list-home{
-                    width: 100%;
-                }
-                .product-detail1{
-                    padding: 13px;
-                width:100px;
-                height: 100px
-                }
-                .product-detail1>p{
-                    font-size: 15px;
-                }
-                .product-detail2{
-                    width: 400px;
-                height: 250px;
-            }
-            
-            .card-item{
-                    height: 320px;
-                }
-                label{
-                    font-size: 1.1rem;
-                }
-
-            }
-            @media screen and (min-width:1000px) {
-                label{
-                    font-size: 1.2rem;
-                }
-                .car{
-                    width: 400px;
-                    margin-right: 100px;
-                }
-                .card-home{
-                    width: 35rem;
-                    backdrop-filter: blur(5px);
-                    background-color: rgba(255, 255, 255, 0.8);
-                }
-                .list-home{
-                    width: 80%;
-                }
-                
-                .product-detail1{
-                    padding: 30px;
-                    width:150px;
-                    height: 150px
-                }
-                .product-detail1>p{
-                    font-size: 18px;
-                }
-                .product-detail2{
-                width: 200px;
-                height: 250px;
-            }
-                .card-item{
-                    height: 420px;
-                }
-
             }
             .curved {
                 background: #2c3e50;

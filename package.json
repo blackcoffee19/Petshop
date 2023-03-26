@@ -15,6 +15,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "animate.css": "^4.1.1",
         "bootstrap-icons": "^1.10.3",
         "feather-webfont": "^4.22.3",
         "jquery-countdown": "^2.2.0",

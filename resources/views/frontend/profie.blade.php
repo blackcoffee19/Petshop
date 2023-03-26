@@ -118,30 +118,84 @@
             <div class="collapse" id="favourite">
                 <h3 class="ms-4 mt-4">Your Favourites</h3>
                 <hr class="ms-4 mb-3">
-                <div class="ms-4">
-                    <table class="table table-responsive">
-                        <thead>
+                <div class="ms-4 table-responsive">
+                    <form action="{{route('favourite')}}" method="post">
+                        @csrf
+                        <table class="table text-nowrap table-with-checkbox">
+                          <thead class="table-light">
                             <tr>
-                                <th>
-                                    Your favourite
-                                </th>
-                                <th>
-                                    View
-                                </th>
+                              <th>
+                                <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" id="checkAll" name="checkAll">
+                                  <label class="form-check-label" for="checkAll">
+                                  </label>
+                                </div>
+                              </th>
+                              <th>Pet Image</th>
+                              <th>Pet Name</th>
+                              <th>Amount</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                              <th>Remove</th>
                             </tr>
-                        </thead>
-                        <tbody>
+                          </thead>
+                          <tbody>
+                            @if(count(Auth::user()->Favourite)== 0)
+                              <tr >
+                                <td colspan="6">There are no any pet in your favourite list</td>
+                              </tr>
+                            @else                    
+                              @foreach (Auth::user()->Favourite as $fav)
+                              <tr>
+                                <td class="align-middle">
+                                  <div class="form-check">
+                                    <input class="form-check-input" name="checkFav[]" type="checkbox" value="{{$fav->id_fa}}" id="checkFav">
+                                  </div>
+                                </td>
+                                <td class="align-middle">
+                                  <a href="{{route('productdetail',$fav->id_product)}}"><img src="{{asset('resources/image/pet/'.$fav->Product->image)}}" class="icon-shape" width="80" height="80" alt="" style="object-fit: cover"></a>
+                                </td>
+                                <td class="align-middle">
+                                  <div>
+                                    <h5 class="fs-6 mb-0"><a href="{{route('productdetail',$fav->id_product)}}" class="text-inherit">{{$fav->Product->product_name}}</a></h5>
+                                    <small>{{$fav->Product->Breed->TypeProduct->name_type}}</small>
+                                  </div>
+                                </td>
+                                <td class="align-middle">${{$fav->Product->per_price}}</td>
+                                <td class="align-middle">
+                                  @if ($fav->Product->quantity>0)
+                                  <span class="badge bg-success">In Stock</span></td>
+                                  @else
+                                  <span class="badge bg-danger">Out of Stock</span>
+                                  @endif
+                                <td class="align-middle">
+                                  @if ($fav->Product->quantity>0)
+                                  <div class="btn btn-primary btn-sm"><a>Add to Cart</a></div>
+                                  @else
+                                  <div class="btn btn-dark btn-sm"><a>Contact us</a></div>
+                                  @endif
+                                </td>
+                                <td class="align-middle "><a href="#" class="text-muted" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Delete">
+                                    <i class="feather-icon icon-trash-2"></i>
+                                  </a>
+                                </td>
+                              </tr> 
+                            @endforeach
+                            @endif
+                          </tbody>
+                          <tfoot>
                             <tr>
-                                <td>
-                                    <img src="./alaska.png" alt="" class="border rounded me-4" height="100" style="max-width: 100;">
-                                    Dog name
-                                </td>
-                                <td>
-                                    <a href="" class="text-decoration-none">View more</a>
-                                </td>
+                              <td colspan="5">
+                                <input type="submit" class="btn btn-outline-danger" name="removeFav" value="Remove Selected Pets">
+                              </td>
+                              <td colspan="2">
+                                <input type="submit" class="btn btn-primary" name="addToCart" value="Buy now">
+                              </td>
                             </tr>
-                        </tbody>
-                    </table>
+                          </tfoot>
+                        </table>
+                      </form>
                 </div>
             </div>
             <div class="collapse col-lg-8 mx-auto col-md-12" id="comment">

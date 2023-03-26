@@ -187,13 +187,6 @@
 
             </form>
           </div>
-          {{-- <div class="col-md-2 col-xxl-3 d-none d-lg-block">
-            <!-- Button trigger modal -->
-            <button type="button" class="btn  btn-outline-gray-400 text-muted" data-bs-toggle="modal"
-              data-bs-target="#locationModal">
-              <i class="feather-icon icon-map-pin me-2"></i>Location
-            </button>
-          </div> --}}
           <div class="col-lg-4 col-xxl-3 text-end d-none d-lg-block mx-auto">
             <div class="list-inline">
               @if (Auth::check())
@@ -233,7 +226,6 @@
                             }
                             echo $sum;
                         @endphp
-
                       </span>
                       @endif
                       @if (Session::has("cart"))
@@ -256,12 +248,16 @@
               <div class="list-inline-item">
                   @if (Auth::check())
                       <a class="text-muted"  href="{{route('profie')}}">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-user">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                          </svg>
+                        @if (Auth::user()->image)
+                            <img src="{{asset('resources/image/user/'.Auth::user()->image)}}" alt="" class="img-thumbnail rounded-circle" style="width: 40px; height: 40px;object-fit: cover">
+                        @else
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="feather feather-user">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        @endif
                           {{Auth::user()->name}}
                       </a>
                       <a href="{{route('signout')}}" class="text-muted" >
@@ -332,12 +328,6 @@
               </span>
             </div>
           </form>
-          {{-- <div class="mt-2">
-            <button type="button" class="btn  btn-outline-gray-400 text-muted w-100 " data-bs-toggle="modal"
-              data-bs-target="#locationModal">
-              <i class="feather-icon icon-map-pin me-2"></i>Pick Location
-            </button>
-          </div> --}}
         </div>
         <div class="d-block d-lg-none mb-4">
           <a class="btn btn-primary w-100 d-flex justify-content-center align-items-center" data-bs-toggle="collapse"
@@ -396,6 +386,13 @@
                 Contact
               </a>
             </li>
+            @if (Auth::check() && Auth::user()->admin ==1)
+            <li class="nav-item dropdown">
+              <a class="nav-link" href="{{route('dashboard')}}" >
+                  Admin Site
+              </a>
+            </li>   
+            @endif
           </ul>
         </div>
         <div class="d-block d-lg-none h-100" data-simplebar="">
@@ -417,9 +414,7 @@
                     <h4 class="text-primary ps-3  text-uppercase">{{$type->name_type}}</h4>
                     @foreach ($type->Breed as $breed)
                     <a class="dropdown-item text-capitalize" href="{{route('productlist',[$type->name_type,$breed->breed_name])}}">{{$breed->breed_name}}</a>
-                        
                     @endforeach
-                    
                   </div>
                   @endforeach
                 </div>
@@ -482,152 +477,7 @@
         You’ve got FREE delivery. Start <a href="#!" class="alert-link">checkout now!</a>
       </div>
       <ul class="list-group list-group-flush" id="listCart">
-        {{-- <span style="display: none">{{$sum =0}}</span>
-          <!-- list group -->
-          @if (Auth::check())
-          @foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $cart)
-            <span class="d-none">{{$sum += $cart->Product->per_price * $cart->qty}}</span>
-            <li class="list-group-item py-3 ps-0 border-top border-bottom">
-                <!-- row -->
-                <div class="row align-items-center">
-                  <div class="col-3 col-md-2">
-                    <!-- img --> 
-                    <img src="{{asset('resources/image/pet/'.$cart->Product->image)}}" alt="{{$cart->Product->product_name}}" class="img-fluid" style="width: 200px"></div>
-                  <div class="col-4 col-md-6 col-lg-5">
-                    <!-- title -->
-                    <a href="{{route('productdetail',[$cart->id_product])}}" class="text-inherit">
-                      <h6 class="mb-0">{{$cart->Product->product_name}}</h6>
-                    </a>
-                    <span><small class="text-muted">{{$cart->Product->Breed->TypeProduct->name_type}}</small></span>
-                    <!-- text -->
-                    <div class="mt-2 small lh-1"> 
-                        <a href="{{route('removeId',$cart->id_cart)}}" class="text-decoration-none text-inherit"> 
-                            <span class="me-1 align-text-bottom">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="feather feather-trash-2 text-success">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                </path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                              </svg>
-                            </span>
-                            <span class="text-muted">Remove</span>
-                        </a>
-                    </div>
-                  </div>
-                  <!-- input group -->
-                  <div class="col-3 col-md-3 col-lg-3">
-                    <!-- input -->
-                    <!-- input -->
-                    <div class="input-group input-spinner  ">
-                        <a href="{{route('minus',[$cart->id_cart])}}" class="text-decoration-none btn">
-                            <i class="fa-solid fa-minus text-danger"></i>
-                        </a>
-                        <input type="text" value="{{$cart->qty}}" name="quantity"class="form-control form-input">
-                        @if ($cart->qty < $cart->Product->quantity)
-                        <a href="{{route('addmore',[$cart->id_cart])}}" class="text-decoration-none btn" >
-                            <i class="fa-solid fa-plus text-danger"></i>
-                        </a>
-                        @else
-                        <a class="disabled btn border-0">
-                            <i class="fa-solid fa-plus "></i>
-                        </a>
-                        @endif
-                    </div>
-      
-                  </div>
-                  <!-- price -->
-                  <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                    <span class="fw-bold">${{$cart->Product->per_price * $cart->qty}}</span>
-                  </div>
-                </div>
-      
-            </li>
-          @endforeach
-          <li class="list-group-item py-3 ps-0 border-top border-bottom">
-            <div class="text-black-50 text-end">
-                <h4>Total: <span class="h4 text-danger">${{$sum}}</span></h4>
-            </div>          
-          </li>
-          @endif
-          @if (Session::has("cart"))
-              @for ($i = 0; $i < count(Session::get("cart")); $i++)
-                  <span class="d-none">{{$sum += Session::get("cart")[$i]["per_price"] * Session::get("cart")[$i]["qty"]}}</span>
-                  <li class="list-group-item py-3 ps-0 border-top">
-                      <!-- row -->
-                      <div class="row align-items-center">
-                        <div class="col-3 col-md-2">
-                          <img src="{{asset('resources/image/pet/'.Session::get('cart')[$i]['image'])}}" alt="{{Session::get("cart")[$i]["name"]}}" class="img-fluid" style="width: 200px">
-                          </div>
-                        <div class="col-7 col-md-8 col-lg-5">
-                          <!-- title -->
-                          <a href="{{route('productdetail',[Session::get('cart')[$i]['id_product']])}}" class="text-inherit">
-                            <h6 class="mb-0">{{Session::get("cart")[$i]["name"]}}</h6>
-                          </a>
-                          {{-- <span><small class="text-muted">{{Auth::user()->Cart[$i]->Product->Breed->TypeProduct->name_type}}</small></span>
-                          <!-- text -->
-                          <div class="mt-2 small lh-1"> 
-                              <a href="{{route('removeId',$i)}}" class="text-decoration-none text-inherit"> 
-                                  <span class="me-1 align-text-bottom">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                      class="feather feather-trash-2 text-success">
-                                      <polyline points="3 6 5 6 21 6"></polyline>
-                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                      </path>
-                                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                  </span>
-                                  <span class="text-muted">Remove</span>
-                              </a>
-                          </div>
-                        </div>
-                        <!-- input group -->
-                        <div class="col-3 col-md-3 col-lg-3">
-                          <!-- input -->
-                          <!-- input -->
-                          <div class="input-group input-spinner  ">
-                              <a href="{{route('minus',$i)}}" class="text-decoration-none btn">
-                                  <i class="fa-solid fa-minus text-danger"></i>
-                              </a>
-                              <input type="text" value="{{Session::get("cart")[$i]["qty"]}}" name="quantity"class="form-control form-input">
-                              @if (Session::get("cart")[$i]["qty"] < Session::get("cart")[$i]["max"])
-                              <a href="{{route('addmore',$i)}}" class="text-decoration-none btn" >
-                                  <i class="fa-solid fa-plus text-danger"></i>
-                              </a>
-                              @else
-                              <a class="disabled btn border-0">
-                                  <i class="fa-solid fa-plus "></i>
-                              </a>
-                              @endif
-                          </div>
-            
-                        </div>
-                        <!-- price -->
-                        <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                          <span class="fw-bold">${{Session::get("cart")[$i]["per_price"] * Session::get("cart")[$i]["qty"]}}</span>
-                        </div>
-                      </div>
-                    </li>
-              @endfor
-              <li class="list-group-item py-3 ps-0 border-top border-bottom">
-                <div class="text-black-50 text-end">
-                    <h4>Total: <span class=" h4 text-danger">${{$sum}}</span></h4>
-                </div>          
-              </li>
-          @endif
-          @if (!Session::has("cart") && !Auth::check())
-              <li class="list-group-item py-3 ps-0 border-top border-bottom">
-                  <div class="text-black-50 text-center">
-                      Cart emty
-                  </div>          
-              </li>
-          @endif --}}
       </ul>
-      <!-- btn -->
       <div class="d-flex justify-content-between mt-4">
         <a href="{{route('order')}}" class="btn btn-primary">Buy Now</a>
       </div>

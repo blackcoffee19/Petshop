@@ -22,8 +22,8 @@
 </head>
 <body>
     <div class="container-fluid" style="height: 620px;">
-        <div class="d-flex flex-row justify-content-center align-items-center w-100 h-100">
-            <div class="max-w-4xl card px-5 py-3 shadow">
+        <div class="row h-100">
+            <div class="col-lg-6 col-md-10 col-sm-12 mx-auto my-auto card px-5 py-3 shadow">
                 <h1 class="text-center">Admin Site</h1>
                 <h3 class="text-center text-black-50">Login</h3>
                 <hr>

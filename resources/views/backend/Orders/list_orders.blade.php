@@ -7,13 +7,13 @@
                 <h2 class="col-4">List Orders</h2>
                 <div class="col-3">
                     <select name="sortSelect" id="sortSelect" class="form-select">
-                        <option value="all" {{$sortType == "all"?"selected":""}}>All Order</option>
-                        <option value="created_at" {{$sortType == "created_at"?"selected":""}}>Nearest Orders</option>
-                        <option value="status" {{$sortType == "status"?"selected":""}}>Not Paid</option>
-                        <option value="user" {{$sortType == "user"?"selected":""}}>User Orders</option>
-                        <option value="guest" {{$sortType == "guest"?"selected":""}}>Guest Orders</option>
-                        <option value="cod" {{$sortType == "cod"?"selected":""}}>Method: Cash on delivery</option>
-                        <option value="credit" {{$sortType == "credit"?"selected":""}}>Method: Online payment</option>
+                        <option value="all" {{$sort == "all" || $sort == null?"selected":""}}>All Order</option>
+                        <option value="created_at" {{$sort == "created_at"?"selected":""}}>Nearest Orders</option>
+                        <option value="status" {{$sort == "status"?"selected":""}}>Not Paid</option>
+                        <option value="user" {{$sort == "user"?"selected":""}}>User Orders</option>
+                        <option value="guest" {{$sort == "guest"?"selected":""}}>Guest Orders</option>
+                        <option value="cod" {{$sort == "cod"?"selected":""}}>Method: Cash on delivery</option>
+                        <option value="credit" {{$sort == "credit"?"selected":""}}>Method: Online payment</option>
                     </select>
                 </div>
             </div>
@@ -70,6 +70,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{$orders->links('pagination.custom')}}
         </div>
     </div>
 </div>
@@ -78,7 +79,7 @@
 <script>
     $(document).ready(function(){
         $('#sortSelect').change(function(){
-            window.location.assign(window.location.pathname+'?sort='+$(this).val());
+            window.location.assign(window.location.origin+'/index.php/admin/orders/'+$(this).val());
         })
     })
 </script>

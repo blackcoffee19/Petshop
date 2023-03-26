@@ -252,6 +252,170 @@
     </div>
 </div>
 @endsection
+@section('modal')
+<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-body p-8">
+        <div class="position-absolute top-0 end-0 me-3 mt-3">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="product productModal" id="productModal">
+              <div class="zoom" onmousemove="zoom(event)" id="imgModal">
+              </div>
+            </div>
+            <div class="product-tools">
+              {{-- <div class="thumbnails row g-3" id="productModalThumbnails">
+                <div class="col-3" class="tns-nav-active">
+                  <div class="thumbnails-img">
+                    <!-- img -->
+                    <img src="../resources/assets/images/products/product-single-img-1.jpg" alt="">
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="thumbnails-img" >
+                    <!-- img -->
+                    <img src="../resources/assets/images/products/product-single-img-2.jpg" alt="">
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="thumbnails-img">
+                    <!-- img -->
+                    <img src="../resources/assets/images/products/product-single-img-3.jpg" alt="">
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="thumbnails-img">
+                    <!-- img -->
+                    <img src="../resources/assets/images/products/product-single-img-4.jpg" alt="">
+                  </div>
+                </div>
+              </div> --}}
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="ps-lg-8 mt-6 mt-lg-0">
+              <a href="#!" class="mb-4 d-block" id="breedModal"></a>
+              <h2 class="mb-1 h1" id="petNameModal"></h2>
+              <div class="mb-4 text-warning" id="ratingModal">
+                <a href="#" class="ms-2" id="soldModal"></a>
+              </div>
+              <h5 class="text-danger" id="priceAFSModal"></h5>
+              <div class="hasSale">
+                <span class="text-decoration-line-through text-muted" id="priceModal"></span>
+                <span><small class="fs-6 ms-2 text-danger" id="saleModal"></small></span>
+              </div>
+              <hr class="my-6">
+              <div class="mb-4">
+                <h5>Left: <span id="quantityModal" ></span></h5>
+                <button type="button" class="btn btn-outline-secondary" id="weigthModal">
+                </button> 
+              </div>
+              <form action="{{route('productdetail',[$pet->id_product])}}" method="post" class="row">
+                @csrf
+                <input type="hidden" name="id_pro">
+              <div>
+                <div class="input-group input-spinner ">
+                  <button type="button" class="btn btn-outline-secondary" style="border-radius: 10px 0 0 10px;"  data-field="quantity" id="btn_minus">
+                    <i class="fa-solid fa-minus-large"></i>
+                  </button>
+                  <input type="text" name="quan" class="border border-secondary text-center pt-1 fs-4 text-secondary" style="width: 50px;" value="1"/>
+                  <button type="button" class="btn btn-outline-secondary" style="border-radius: 0 10px 10px 0;" id="btn_plus" >
+                      <i class="fa-solid fa-plus-large"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mt-3 row justify-content-start g-2 align-items-center">
+
+                <div class="col-lg-4 col-md-5 col-6 d-grid">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="feather-icon icon-shopping-bag me-2"></i>Add to cart
+                  </button>
+                </div>
+                <div class="col-md-4 col-5">
+                  <a class="btn btn-light" href="#" data-bs-toggle="tooltip" data-bs-html="true" aria-label="Compare">
+                    <i class="bi bi-arrow-left-right"></i>
+                  </a>
+                  <a class="btn btn-light {{Auth::check()? 'addFav':''}}" id="modal_Fav"
+                  {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle=tooltip data-bs-html=true title=Wishlist data-bs-idproduct="}}></a>
+                </div>
+              </div>
+              </form>
+              <hr class="my-6">
+              <div>
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <td>Product Code:</td>
+                      <td id="idModal">FBB00255</td>
+                    </tr>
+                    <tr>
+                      <td>Availability:</td>
+                      <td>In Stock</td>
+                    </tr>
+                    <tr>
+                      <td>Type:</td>
+                      <td id="typeModal">Fruits</td>
+                    </tr>
+                    <tr>
+                      <td>Shipping:</td>
+                      <td>
+                        <small>01 day shipping.<span class="text-muted">( Free pickup today)</span></small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="liveToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-body text-center" >
+      <i class="bi bi-cart-check-fill" style="font-size: 1.3rem"></i>
+      <span style="font-size: 1.3rem" class="me-auto">Add pet to cart successully</span>
+    </div>
+  </div>
+</div>
+<div class="toast-container position-fixed end-50" style="bottom: 20px" >
+  <div id="liveToast2" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+  </div>
+</div>
+<div data-bs-toggle="tooltip"  title="Show Compare" class="position-fixed rounded-circle bottom-0 start-0 p-3 animate__animated animate__heartBeat animate__infinite {{!Session::has('compare')?'d-none':''}}" id="btn-compare">
+  <button role="button" class="btn btn-primary shadow" id="show_compare" data-bs-toggle="modal" data-bs-target="#comparePet">
+    <i class="bi bi-arrow-left-right"></i>
+  </button>
+</div>
+<div class="modal fade" id="comparePet" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a class="btn btn-outline-danger" href="{{route('removeCmp')}}">
+          <i class="bi bi-x-circle-fill text-danger"></i>
+          Clean
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-8">
+        <div class="row">
+          <table class="table table-hover">
+            <tbody id="compare_detail">
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+@endsection
 @section('script')
     <script>
         $(document).ready(function(){
@@ -305,6 +469,73 @@
                 $(this).next().children().css('font-weight',900);
                 $(this).nextUntil("input.stop2").next().children().css('font-weight',300);
             });
+            $('.btn_modal').click(function(){
+            $.get(window.location.href+"/ajax/modal/"+$(this).data('bsProduct'),function(data){
+              let dataProduct = jQuery.parseJSON(data); 
+              $('#imgModal').css({'background-image':'url(resources/image/pet/'+dataProduct['image']+')','object-fit': 'contain','background-repeat': 'no-repeat'});
+              $('#imgModal').html(`<image src='resources/image/pet/${dataProduct["image"]}' style="background-color: #ffffff">`);
+              $('#breedModal').html(dataProduct['breed_name']);
+              $('#petNameModal').html(dataProduct['product_name']);
+              let strStart ="";
+              for(let i =0; i<dataProduct['rating'];i++){
+                strStart+="<i class='bi bi-star-fill'></i>"
+              }
+              for(let j = 0; j < 5-dataProduct['rating'];j++){
+                strStart+="<i class='bi bi-star'></i>";
+              }
+              strStart += `<span class='ms-3 text-muted'>(${dataProduct["sold"]} solds)</span>`;
+              $('#modal_Fav').attr("data-bs-idproduct",dataProduct['id_product']);
+              if(dataProduct["favourite"]){
+                $('#modal_Fav').html("<i class='bi bi-heart-fill text-danger'></i>")
+              }else{
+                $('#modal_Fav').html("<i class='bi bi-heart'></i>")
+              }
+              $('#ratingModal').html(strStart);
+              $('#soldModal').html(`(${dataProduct["sold"]} sold)`);
+              if(dataProduct["sale"]>0){
+                $('.hasSale').removeClass('d-none');
+                $('#priceModal').html(`$${dataProduct["per_price"]}`);
+                $('#saleModal').html(`${dataProduct["sale"]}% Off`);
+                $('#priceAFSModal').html(`$${dataProduct["per_price"]*(1-dataProduct["sale"]/100)}`)
+              }else{
+                $('.hasSale').addClass('d-none');
+                $('#priceAFSModal').html(`$${dataProduct["per_price"]}`);
+              };
+              $('#weigthModal').html(dataProduct["weight"]+" kg");
+              $('#quantityModal').html(dataProduct['quantity']);
+              $('#idModal').html(dataProduct['id_product']);
+              $('input[name=id_pro]').val(dataProduct['id_product']);
+              $('#typeModal').html(dataProduct['type_name']);
+            });
+          });
+          $('.compare_pet').click(function(){
+            const toast = new bootstrap.Toast($('#liveToast2'))
+            toast.show();
+            if($('#btn-compare').hasClass('d-none')){
+              $('#btn-compare').removeClass('d-none');
+            }
+            $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
+              $('#liveToast2').html(data);  
+            })
+          });
+          $('#show_compare').click(function(){
+            $.get(window.location.origin+"/index.php/ajax/compare/showcompare",function(data){
+              $('#compare_detail').html(data);  
+            })
+          });
+          $('.addFav').click(function(){
+              $(this).children().toggleClass('bi-heart').toggleClass('bi-heart-fill text-danger');
+            $.get(window.location.href+'/ajax/favourite/'+$(this).data('bsIdproduct'),function(data){
+              $('.countFav').html(data);
+            })
+          });
+          $('.addToCart').click(function(){
+            const toast = new bootstrap.Toast($('#liveToast'))
+            toast.show();
+            $.get(window.location.href+"/ajax/"+$(this).data('bsId'),function(data){
+              $('.countCart').html(data);
+            });
+          });
         })
     </script>
 @endsection

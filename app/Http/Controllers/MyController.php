@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderShipped;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -16,14 +17,15 @@ use App\ModelsFavourite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Mail;
 
 class MyController extends Controller
 {
     public function homePage(){
-        // Session::forget('cart');
+        // Session::forget('compare');
         // $list_pets = Product::all();
-        $popular_pets= Product::inRandomOrder()->limit(10)->get();
-        $sale_pets = Product::where('sale','>','0')->inRandomOrder()->limit(3)->get();
+        $popular_pets= Product::where('quantity','>',0)->inRandomOrder()->limit(10)->get();
+        $sale_pets = Product::where('quantity','>',0)->where('sale','>','0')->inRandomOrder()->limit(3)->get();
         return view("frontend.home_page",compact('popular_pets','sale_pets'));
     }
     public function policy(){
@@ -37,17 +39,17 @@ class MyController extends Controller
         $age_get=0;
         if($req->search2 != ""){
             $searchStr = preg_replace('/[^A-Za-z0-9\-]/', '', $req->search2);
-            $list_pets = Product::where('product_name','LIKE','%'.$searchStr.'%')->orderBy('per_price',$sort_type)->get();
+            $list_pets = Product::where('product_name','LIKE','%'.$searchStr.'%')->orderBy('per_price',$sort_type)->orderBy('quantity','desc')->get();
         }else if($req->breed != null || $req->price!=""||$req->age!=""){
             $max_age = $req->age == "" ? 9999:intval($req->age);
             $max_price = $req->price == ""? 9999:intval($req->price);
             $price_get = $req->price != ""?$req->price:0;
             $age_get= $req->age!=""?$req->age:0;
             if($req->breed == null){
-                $list_pets = Product::where('age','<',$max_age)->where('per_price','<',$max_price)->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::where('age','<',$max_age)->where('per_price','<',$max_price)->orderBy('per_price',$sort_type)->orderBy('quantity','desc')->get();
             }else{
                 $breed_get=$req->breed;
-                $list_pets = Product::whereIn('id_breed',$req->breed)->where('age','<',$max_age)->where('per_price','<',$max_price)->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::whereIn('id_breed',$req->breed)->where('age','<',$max_age)->where('per_price','<',$max_price)->orderBy('per_price',$sort_type)->orderBy('quantity','desc')->get();
             }
         }else{
             $id_breed = $breed_name != null? DB::table('breeds')->select('id_breed')
@@ -55,16 +57,16 @@ class MyController extends Controller
             $id_type = $type_name != null? DB::table('type_products')->select('id_type')
                                                     ->where('name_type','=',$type_name)->get()[0]->id_type : null;
             if($id_breed!= null && $id_type != null){
-                $list_pets = Product::where('id_breed','=',$id_breed)->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::where('id_breed','=',$id_breed)->orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
             }else if($id_type != null) {
                 $list_breed = DB::table('breeds')->where('id_type_product','=',$id_type)->get('id_breed');
                 $arr= [];
                 foreach($list_breed as $p){
                     array_push($arr,$p->id_breed);
                 }
-                $list_pets = Product::whereIn('id_breed',$arr)->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::whereIn('id_breed',$arr)->orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
             }else{
-                $list_pets = Product::orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
             }
         }
        
@@ -469,6 +471,7 @@ class MyController extends Controller
             $current_carts = Cart::where('order_code','=',null)->where('id_user','=',Auth::user()->id_user)->get();
             foreach($current_carts as $cart){
                 $cart->Product->quantity-=$cart->qty;
+                $cart->Product->sold +=$cart->qty;
                 $cart->Product->save();
                 $cart->order_code = $new_order->order_code;
                 $cart->save();
@@ -484,11 +487,13 @@ class MyController extends Controller
                 $guest_cart->save();
                 $product = Product::where('id_product','=',$value["id_product"])->first();
                 $product->quantity -=$value["qty"];
+                $product->sold += $value["qty"];
                 $product->save();
             }
             Session::remove("cart");
         }
-
+        
+        Mail::to($new_order->cus_email)->send(new OrderShipped($new_order));
         return redirect('/')->with(["order_success"=>"Order Successfully"]);
     }
     public function modal_product($id){
@@ -638,5 +643,96 @@ class MyController extends Controller
             };
         }
         echo $html_list;
+    }
+
+    //Compare
+    public function addCompare($id){
+        $msg="";
+        $pet = Product::find($id);
+        if(Session::has('compare')){
+            if(count(Session::get('compare'))>2){
+                $msg.= "<div class='toast-body alert alert-danger text-center m-0' >Cannot add more pet to compare. Plz remove or clean compare statetion first</div>";
+            }else{
+                Session::push('compare',$pet);
+                $msg.="<div class='toast-body alert alert-info m-0' role='alert'>Add Pet to compare</div>";
+            }
+        }else{
+            $msg.="<div class='toast-body alert alert-info m-0' role='alert'>Add Pet to compare</div>";
+            Session::put('compare',[$pet]);
+        }
+        echo $msg;
+    }
+    public function showCompare(){
+        $cmp = "";
+        $info = ["Image","Name","Type - Breed","Age","Weight","Gender","Status","Food","Sold","Quantity","Rating","Price",""];
+        for($i =0; $i<count($info);$i++){
+            $cmp.="<tr><td>".$info[$i]."</td>";
+            foreach(Session::get('compare') as $key=> $pet){
+                switch($i){
+                    case 0: 
+                        $cmp.="<td><img src='resources/image/pet/$pet->image' width='200' height='200' style='object-fit:cover'/></td>";
+                        break;
+                    case 1:
+                        $cmp.="<td class='text-dark'>$pet->product_name</td>";
+                        break;
+                    case 2: 
+                        $cmp.="<td class='text-dark'>".$pet->Breed->TypeProduct->name_type." - ".$pet->Breed->breed_name."</td>";
+                        break;
+                    case 3:
+                        $cmp .= "<td class='text-dark'>".$pet->age." months</td>";
+                        break;
+                    case 4:
+                        $cmp .= "<td class='text-dark'>".$pet->weight."kg</td>";
+                        break;
+                    case 5:
+                        $cmp .="<td class='text-dark'>".($pet->gender==1?"Male":($pet->gender == 2? "Female":"Unknown"))."</td>";
+                        break;
+                    case 6:
+                        $cmp .="<td class='text-dark'>".$pet->status."</td>";
+                        break;
+                    case 7:
+                        $cmp .= "<td class='text-dark'>".$pet->food."</td>";
+                        break;
+                    case 8:
+                        $cmp .= "<td class='text-dark'>".$pet->sold."</td>";
+                        break;
+                    case 9:
+                        $cmp .= "<td class='text-dark'>".$pet->quantity."</td>";
+                        break;
+                    case 10:
+                        $cmp.="<td>";
+                        for($j =0; $j<$pet->rating;$j++){
+                            $cmp.="<i class='bi bi-star-fill text-warning fs-5'></i>";
+                        }
+                        for($j = 0; $j < 5-$pet->rating;$j++){
+                            $cmp.="<i class='bi bi-star text-warning fs-5'></i>";
+                        };
+                        $cmp.="</td>";
+                        break;
+                    case 11:
+                        $cmp .= "<td><span class='fs-4 text-danger'>$".($pet->per_price * (1-$pet->sale/100))."</span>";
+                        if($pet->sale>0){
+                            $cmp.="<span class='text-muted ms-1'>(Off ".$pet->sale."%)</span>";
+                        };
+                        $cmp.="</td>";
+                        break;
+                    default:
+                    $cmp .="<td><a href='".route('delCmp',$key)."' class='removeCmp btn' data-idcmp=".$key."><i class='bi bi-trash3 text-danger fs-3'></i></button></td>";
+                    break;
+                }
+            };
+            $cmp.="</tr>";
+        }
+        echo $cmp;
+    }
+    public function delCompare($id){
+        $arr_sess = Session::get('compare');
+        unset($arr_sess[$id]);
+        Session::put('compare',$arr_sess);
+        return redirect()->back();
+    }
+    public function removeCompare(){
+        Session::forget('compare');
+        return redirect()->back();
     }
 }
