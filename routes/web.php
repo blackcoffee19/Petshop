@@ -79,7 +79,7 @@ Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
         Route::get('/deletebreed/{id}',[AdminController::class,'deleteBreed'])->name('deleteBreed');
     });
     Route::group(["prefix"=>"pets"],function(){
-        Route::get('/',[AdminController::class,'get_listpet'])->name('listpet');
+        Route::get('/{id?}',[AdminController::class,'get_listpet'])->name('listpet');
         Route::get('/addpet',[AdminController::class,'get_addpet'])->name('addpet');
         Route::post('/addpet',[AdminController::class,'post_addpet'])->name('addpet');
         Route::get('/editpet/{id}',[AdminController::class,'get_editpet'])->name('editpet');

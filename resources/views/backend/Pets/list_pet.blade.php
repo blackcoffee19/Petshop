@@ -75,9 +75,7 @@
                     @endforeach
                 </tbody>
             </table>
-            @if (!$sortType)
-            {{$pets->links()}}
-            @endif
+            {{$pets->links('pagination.custom')}}
         </div>
     </div>
 </div>
@@ -91,7 +89,7 @@
                 $('.des-collapse').toggle();
             });
             $('#sortT').change(function(){
-                window.location.assign(window.location.pathname+'?sortType='+$(this).val());
+                window.location.assign(window.location.pathname+'/'+$(this).val());
             })  
         })
     </script>

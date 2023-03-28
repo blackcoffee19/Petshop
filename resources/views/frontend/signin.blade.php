@@ -1,6 +1,6 @@
 @extends('welcome')
 @section('content')
-<div class="container-fluid position-relative pb-4 mt-4" style="height:fit-content;">
+<div class="container-fluid position-relative pt-3 mt-4" style="height:fit-content; padding-bottom:100px">
     @if ($message=Session::get('message'))
         <div class="alert alert-danger w-50 mx-auto">
             {{$message}}
@@ -105,12 +105,12 @@
                     </div>
                 </form>
             </div>
-            <div class="bg-light rounded-pill p-2 shadow-lg w-75 mx-auto border mb-2 mt-5 py-2">
-                <a class="h5 ms-3 fw-normal text-decoration-none" href="{{route('google-auth')}}">
+            <div class="bg-light rounded-pill shadow-lg w-75 mx-auto border mb-2 mt-5 py-2">
+                <a class="h5 ms-3 fw-normal text-decoration-none text-center" href="{{route('google-auth')}}">
                     <svg xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 0 24 24" width="30">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/>
                     </svg>
-                    <span class="">&nbsp;Sign in with Google</span>
+                    <span class="h3 ms-2" style="font-family: 'Montserrat', sans-serif;">&nbsp;Sign in with Google</span>
                 </a>
             </div>
             <div class="d-flex flex-row justify-content-center">
@@ -129,66 +129,77 @@
                 </div>
                 <div class="carousel-inner" style="width: fit-content;height: 480px; margin-left: auto; margin-right: auto;">
                     @for ($i = 0; $i < count($random_pet); $i++)
-                    <div class="carousel-item card {{$i == 0? "active": ""}} rounded-2 shadow"  style="max-height: 460px; height: fit-content;" >
-                        <img src="../resources/image/pet/{{$random_pet[$i]->image}}" class="card-img-top rounded" style="object-fit: contain; height: 220px;" alt="{{$random_pet[$i]->image}}">
-                        <div class="card-body"  style="line-height:0.2rem; text-align: center;">
-                            <p class="card-title fs-4 mb-4 mt-3">{{$random_pet[$i]->product_name}}</p>
-                            <p class="card-text text-black-50 fw-light">Age: {{$random_pet[$i]->age}}</p>
-                            <p class="card-text text-black-50 fw-light">Gender: {{$random_pet[$i]->age == 1? "male":"female"}}</p>
-                            <p class="card-text text-black-50 fw-light my-4 d-flex flex-row justify-content-around">Price:<span class="fs-5 text-dark">${{$random_pet[$i]->per_price}}</span></p>
-                            <p class="text-warning">
-                                @for ($j = 0; $j < $random_pet[$i]->rating; $j++)
-                                <i class="fa-solid fa-star"></i>
-                                @endfor
-                                @for ($k = 0; $k < 5-$random_pet[$i]->rating; $k++)
-                                <i class="fa-solid text-secondary fa-star"></i>
-                                @endfor
-                            </p>
-                            <a href="{{route('productdetail',[$random_pet[$i]->id_product])}}" class="btn btn-primary w-100 fs-6">
-                                More detail
-                            </a>
+                    <div class="carousel-item card {{$i == 0? "active": ""}} card-product rounded-2 shadow">
+                        <div class="card-body">
+                            <div class="text-center position-relative ">
+                              <div class=" position-absolute top-0 start-0">
+                                @if ($random_pet[$i]->sale !=0)
+                                <span class="badge bg-success">-{{$random_pet[$i]->sale}}%</span>
+                                @endif
+                                @php 
+                                    $today =new DateTime();
+                                    $pet_createdate = DateTime::createFromFormat('Y-m-d H:i:s',$random_pet[$i]->created_at);
+                                    if($today->diff($pet_createdate)->format('%a') <4){
+                                      echo "<span class='badge bg-danger'>HOT</span>";
+                                    }
+                                @endphp
+                              </div>
+                              <a href="{{route('productdetail',$random_pet[$i]->id_product)}}"> 
+                                  <img src="{{asset('resources/image/pet/'.$random_pet[$i]->image)}}" alt="{{$random_pet[$i]->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
+                              </a>
+                              <div class="card-product-action">
+                                <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-bs-product="{{$random_pet[$i]->id_product}}"><i
+                                    class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i></a>
+                                <a class="btn-action {{Auth::check()? 'addFav':''}}" 
+                                {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle='tooltip' data-bs-html='true' title='Wishlist' data-bs-idproduct=$random_pet[$i]->id_product"}} >
+                                  <i class="bi {{Auth::check() ? (count(Auth::user()->Favourite->where('id_product','=',$random_pet[$i]->id_product))>0 ? 'bi-heart-fill text-danger' : 'bi-heart'): 'bi-heart'}}"></i></a>
+                                <a role="button" class="btn-action  compare_pet" data-bs-toggle="tooltip" data-bs-html="true" title="Compare"  data-bs-product="{{$random_pet[$i]->id_product}}">
+                                  <i class="bi bi-arrow-left-right"></i>
+                                </a>
+                              </div>
+                            </div>
+                            <div class="text-small mb-1">
+                                <a href="{{route('productdetail',$random_pet[$i]->id_product)}}" class="text-decoration-none text-muted">
+                                    <small class="text-capitalize">{{$random_pet[$i]->Breed->breed_name}}</small>
+                                </a>
+                            </div>
+                            <h2 class="fs-6">
+                                <a href="{{route('productdetail',$random_pet[$i]->id_product)}}" class="text-inherit text-decoration-none">{{$random_pet[$i]->product_name}}</a>
+                            </h2>
+                            <div>
+                                <small class="text-warning"> 
+                                    @for ($j = 0; $j < $random_pet[$i]->rating; $j++)
+                                    <i class="bi bi-star-fill"></i>
+                                    @endfor
+                                    @for ($j = 0; $j < 5-$random_pet[$i]->rating; $j++)
+                                    <i class="bi bi-star"></i>
+                                    @endfor
+                                </small> 
+                                <span class="text-muted small">{{$random_pet[$i]->rating}}({{$random_pet[$i]->sold}})</span>
+                            </div>
+                          <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div >
+                              @if ($random_pet[$i]->sale>0)
+                              <span class="fs-4 text-danger">${{$random_pet[$i]->per_price *(1- $random_pet[$i]->sale /100)}}</span>
+                                <span class="text-decoration-line-through text-muted">${{$random_pet[$i]->per_price}}</span>
+                              @else
+                              <span class=" fs-4 text-black">${{$random_pet[$i]->per_price}}</span>
+                                @endif
+                            </div>
+                            <div>
+                                <button data-bs-id="{{$random_pet[$i]->id_product}}" type="button" class="btn btn-primary btn addToCart">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                  class="feather feather-plus">
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg> Add</button>
+                          </div>
                         </div>
+                    </div>
                     </div>
                     @endfor
-                    {{-- {{dd($random_pet[2]->product_name)}} --}}
-                    <div class="carousel-item card rounded-2 shadow"  style="max-height: 460px; height: fit-content;" >
-                        <img src="../resources/image/ememyers-21.jpg" class="card-img-top rounded" style="object-fit: contain; height: 220px;" alt="...">
-                        <div class="card-body"  style="line-height:0.5rem; text-align: center;">
-                            <p class="card-title fs-4 mb-4 mt-3">Emma Myers</p>
-                            <p class="card-text text-black-50 fw-light">Wife Materials</p>
-                            <p class="card-text text-black-50 fw-light">Gender: female</p>
-                            <p class="card-text text-black-50 fw-light my-4 d-flex flex-row justify-content-around">Price:<span class="fs-5 text-dark">Sold</span></p>
-                            <p class="text-warning">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                            </p>
-                            <a href="#" class="btn btn-primary w-100 fs-6">
-                                More detail
-                            </a>
-                        </div>
-                    </div>
-                    <div class="carousel-item card rounded-2 shadow"  style="max-height: 460px; height: fit-content;" >
-                        <img src="../resources/image/wednesday-1.jpg" class="card-img-top rounded" style="object-fit: contain; height: 220px;" alt="...">
-                        <div class="card-body"  style="line-height:0.5rem; text-align: center;">
-                            <p class="card-title fs-5 mb-4 mt-3">Wednesday Addams</p>
-                            <p class="card-text text-black-50 fw-light">aka: Jena Ortega</p>
-                            <p class="card-text text-black-50 fw-light">Gender: female</p>
-                            <p class="card-text text-black-50 fw-light my-4 d-flex flex-row justify-content-around">Price:<span class="fs-5 text-dark">Sold</span></p>
-                            <p class="text-warning">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                            </p>
-                            <a href="#" class="btn btn-primary w-100 fs-6">
-                                More detail
-                            </a>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>

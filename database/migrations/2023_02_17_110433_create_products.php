@@ -20,7 +20,7 @@ return new class extends Migration
                 $table->foreignId('id_breed');
                 $table->string('status',20);
                 $table->integer('gender')->nullable();
-                $table->decimal('weight',15,3)->nullable();
+                $table->decimal('weight',15,2)->nullable();
                 $table->integer('age')->nullable();
                 $table->integer('sold');
                 $table->integer('quantity');

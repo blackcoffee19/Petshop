@@ -177,12 +177,12 @@ class AdminController extends Controller
     }
 //
 // PETS
-    public function get_listpet(Request $req){
+    public function get_listpet($id =null){
         $state = "Pet";
-        $sortType= $req->sortType;
+        $sortType= $id;
         if($sortType != null){
             $list_breed = Breed::select('id_breed')->where('id_type_product','=',$sortType)->get();
-            $pets = Product::whereIn('id_breed',$list_breed)->get(); 
+            $pets = Product::whereIn('id_breed',$list_breed)->paginate(5); 
         }else{
             $pets = Product::paginate(5);
         }
