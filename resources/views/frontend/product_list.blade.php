@@ -1,4 +1,4 @@
-@extends('welcome');
+@extends('welcome')
 @section('content')
 <div class="container-fluid position-relative" style="background-color: #f0e9f7; min-height: 680px">
     <div class="row py-3">
@@ -142,14 +142,27 @@
                             <p class="card-text text-black-50">Price:
                             <span class="ms-5 fs-5 text-dark">${{$pet->per_price}}</span></p>
                             <div class="d-flex flex-column justify-content-center align-content-center">
-                                <p class="text-warning">
-                                    @for ($i = 0; $i < $pet->rating; $i++)
-                                        <i class="fa-solid text-warning fa-star h5"></i>
-                                    @endfor
-                                    @for ($i = 0; $i < 5- $pet->rating; $i++)
-                                    <i class="fa-solid text-secondary fa-star h5"></i>
-                                    @endfor
-                                </p>
+                                <p> 
+                                    @php
+                                        $rating = 0;
+                                        if (count($pet->Comment->where('rating','!=',null)) >0) {
+                                          foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                                            $rating += $cmt->rating;
+                                          }
+                                          $rating /= count($pet->Comment->where('rating','!=',null));
+                                        }
+                                    @endphp
+                                      @for ($i = 0; $i < floor($rating); $i++)
+                                      <i class="bi bi-star-fill fs-4 text-warning"></i>
+                                      @endfor
+                                      @if (is_float($rating))
+                                      <i class="bi bi-star-half fs-4 text-warning"></i>
+                                      @endif
+                                      @for ($i = 0; $i < 5-ceil($rating); $i++)
+                                      <i class="bi bi-star fs-4 text-warning"></i>
+                                      @endfor
+                                      <span class="text-black-50 ms-3">({{round($rating,2)}})</span>
+                                </p> 
                                 <div class="row">
                                     <a href="{{route('productdetail',[$pet->id_product])}}" class="me-1 btn col-3 mx-auto">
                                         <i class="fa-sharp h4 fa-solid fa-cart-plus"></i>

@@ -21,7 +21,22 @@ class User extends Authenticatable
     public function Comment(){
         return $this->hasMany(Comment::class,'id_user','id_user');
     }
+    public function Like(){
+        return $this->hasMany(Like::class,'id_user','id_user');
+    }
     public function Favourite(){
         return $this->hasMany(Favourite::class,'id_user','id_user');
+    }
+    public function News(){
+    	return $this->hasMany(News::class,'id_user','id_user');
+    }
+    public function Message(){
+    	return $this->hasMany(Message::class,'id_user','id_user');
+    }
+    public function Groupmessage1(){
+    	return $this->hasMany(Message::class,'id_user','id_user1');
+    }
+    public function Groupmessage2(){
+    	return $this->hasMany(Message::class,'id_user','id_user2');
     }
 }

@@ -31,28 +31,56 @@
                   </div>
               @endif
             </div>
-            <div class="product-tools">
+            {{-- <div class="product-tools">
               <div class="thumbnails row g-3" id="productThumbnails">
                 <div class="col-3">
                   <div class="thumbnails-img">
-                    <img src="{{asset('resources/image/pet/'.$pet->image)}}" alt="">
+                    <img src="{{asset('resources/image/pet/bapcai2.webp')}}" alt="">
+                  </div>
+                </div><div class="col-3">
+                  <div class="thumbnails-img">
+                    <img src="{{asset('resources/image/pet/bapcai3.jpg')}}" alt="">
+                  </div>
+                </div><div class="col-3">
+                  <div class="thumbnails-img">
+                    <img src="{{asset('resources/image/pet/bapcai4.jpg')}}" alt="">
+                  </div>
+                </div><div class="col-3">
+                  <div class="thumbnails-img">
+                    <img src="{{asset('resources/image/pet/bapcai5.jpg')}}" alt="">
                   </div>
                 </div>
               </div>
-            </div>
+            </div> --}}
           </div>
           <div class="col-md-6">
             <div class="ps-lg-10 mt-6 mt-md-0">
                 <a href="#!" class="mb-4 d-block">{{$pet->Breed->breed_name}}</a>
                 <h1 class="mb-1">{{$pet->product_name}}</h1>
                 <div class="mb-4 text-warning">
-                  @for ($i = 0; $i < $pet->rating; $i++)
-                  <i class="bi bi-star-fill"></i>
-                  @endfor
-                  @for ($i = 0; $i < 5-$pet->rating; $i++)
-                  <i class="bi bi-star"></i>
-                  @endfor
-                  <span class="ms-2 text-primary">({{$pet->sold}} solds)</span></div>
+                  @php
+                      $rating = 0;
+                      if (count($pet->Comment->where('rating','!=',null)) >0) {
+                        foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                          $rating += $cmt->rating;
+                        }
+                        $rating /= count($pet->Comment->where('rating','!=',null));
+                      }
+                  @endphp
+                  <p>
+                    @for ($i = 0; $i < floor($rating); $i++)
+                    <i class="bi bi-star-fill fs-4 text-warning"></i>
+                    @endfor
+                    @if (is_float($rating))
+                    <i class="bi bi-star-half fs-4 text-warning"></i>
+                    @endif
+                    @for ($i = 0; $i < 5-ceil($rating); $i++)
+                    <i class="bi bi-star fs-4 text-warning"></i>
+                    @endfor
+                    <span class="text-black-50 ms-3">({{round($rating,2)}})</span>
+                  </p>
+                  <span class="ms-2 text-primary">({{count($pet->Comment->where('rating','!=',null))}} solds)</span>
+                </div>
                 <div class="fs-4">
                   <span class="fw-bold text-dark fs-4">${{$pet->sale>0? $pet->per_price *(1-$pet->sale/100) : $pet->per_price}}</span> 
                   @if ($pet->sale>0)
@@ -160,12 +188,12 @@
                   </div>
                   <div class="mb-5">
                     <h5 class="mb-1">Storage Tips</h5>
-                    <p class="mb-0">{{$pet->description}}
+                    <p class="mb-0">Sos Fresh tomato
                     </p>
                   </div>
                   <div class="mb-5">
                     <h5 class="mb-1">Unit</h5>
-                    <p class="mb-0">{{$pet->quantity}} units</p>
+                    <p class="mb-0">{{$pet->quantity}} kg</p>
                   </div>
                   <div>
                     <h5 class="mb-1">Disclaimer</h5>
@@ -238,53 +266,12 @@
               <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
                 <div class="my-8">
                   <div class="row">
-                    <div class="col-md-8 mx-auto">
+                    <div class="col-md-8 mx-auto d-flex flex-column justify-content-center align-items-start">
                       <div class="mb-10">
-                        <div class="d-flex justify-content-between align-items-center mb-8">
-                          <div>
-                            <h4>Comment</h4>
-                          </div>
-                        </div>
-                        @if (count($pet->Comment) ==0)
-                            <div class="text-center">
-                              <h4>There are no comment</h4>
-                            </div>
-                        @endif
-                        @foreach ($pet->Comment as $cmt)     
-                        <div class="d-flex border-bottom pb-6 mb-6">
-                          <img src="{{asset('resources/image/user/'.($cmt->User->image != null? $cmt->User->image: "user.png"))}}" alt="" class="rounded-circle avatar-lg">
-                          <div class="ms-5">
-                            <h6 class="mb-1">
-                              {{$cmt->User->name}}
-                            </h6>
-                            <p class="small"> <span class="text-muted">{{$cmt->created_at}}</span>
-                              <span class="text-primary ms-3 fw-bold">Verified Purchase</span></p>
-                            <!-- rating -->
-                            <div class=" mb-2">
-                              @if (isset($cmt->rating))
-                              @for ($i = 0; $i < $cmt->rating; $i++)
-                              <i class="bi bi-star-fill text-warning"></i>                                  
-                              @endfor
-                              @for ($i = 0; $i < 5-$cmt->rating; $i++)
-                              <i class="bi bi-star text-warning"></i>
-                              @endfor
-                              @endif
-                            </div>
-                            <!-- text-->
-                            <p>{{$cmt->context}}</p>
-                            <!-- icon -->
-                            <div class="d-flex justify-content-end mt-4">
-                              <a href="#" class="text-muted"><i class="feather-icon icon-thumbs-up me-1"></i>Helpful</a>
-                              <a href="#" class="text-muted ms-4"><i class="feather-icon icon-flag me-2"></i>Report
-                                abuse</a>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        @endforeach
+                          <h4>Comment</h4>
                       </div>
                       @if (Auth::check())
-                      <div class="row mb-3 row">
+                      <div class="row mb-3 w-100">
                         <div class="col-md-2 col-lg-1">
                             <img src="../resources/image/user/{{Auth::user()->image ?Auth::user()->image : 'user.png'}}" alt="" class="rounded-circle" width="48px" height="48px" style="object-fit: cover">
                         </div>
@@ -292,44 +279,191 @@
                             <form action="{{route('addComment')}}" method="post">
                             @csrf
                                 <input type="hidden" name="id_product" value="{{$pet->id_product}}">
-                                <div class="form-check form-check-inline mb-3">
-                                    <input type="hidden" class="stop1">
-                                    <input type="radio" name="rating_pro" class="btn-check" id="rating-btn1" autocomplete="off" value="1">
-                                    <label class="btn-cus text-warning " for="rating-btn1" >
-                                        <i class="fa-light fa-star" style="font-size:1.3rem;"></i>
-                                    </label>
-                                    <input type="radio" name="rating_pro" class="btn-check" id="rating-btn2" autocomplete="off" value="2">
-                                    <label class="btn-cus text-warning" for="rating-btn2">
-                                        <i class="fa-light fa-star" style="font-size:1.3rem"></i>
-                                    </label>
-                                    <input type="radio" name="rating_pro" class="btn-check" id="rating-btn3" autocomplete="off" value="3">
-                                    <label class="btn-cus text-warning" for="rating-btn3">     
-                                        <i class="fa-light fa-star" style="font-size:1.3rem"></i>                                    
-                                    </label>
-                                    <input type="radio" name="rating_pro" class="btn-check" id="rating-btn4" autocomplete="off" value="4">
-                                    <label class="btn-cus text-warning" for="rating-btn4">
-                                        <i class="fa-light fa-star" style="font-size:1.3rem"></i>
-                                    </label>
-                                    <input type="radio" name="rating_pro" class="btn-check" id="rating-btn5" autocomplete="off" value="5">
-                                    <label class="btn-cus text-warning" for="rating-btn5">
-                                        <i class="fa-light fa-star" style="font-size:1.3rem"></i>
-                                    </label>
-                                    <input type="hidden" class="stop2">
-                                </div>
                                 <div id="printf"></div>
                                 <div class="mb-3">
                                     <textarea name="comment" id="comment"rows="3" class="form-control"></textarea>
                                 </div>
                                 <div class="d-flex flex-row justify-content-between">
-                                    <span id="count-word" class="text-black-50"></span>
+                                    <span class="text-black-50 count-word"></span>
                                     <input type="submit" value="Post" class="btn btn-primary">
                                 </div>
                             </form>
                         </div>
-                    </div>
-                      @else 
-                      <div class="text-center">
-                        <h3><a href="{{route('signin')}}">Sign in</a> or <a href="{{route('signup')}}">Sign up</a> to create comment for pet</h3>
+                      </div>
+                      @endif
+                      <div class="mb-10 w-100">
+                        @if (count($pet->Comment) ==0)
+                            <div class="text-center">
+                              <h4>There are no comment</h4>
+                            </div>
+                        @endif
+                        @foreach ($comments as $cmt)     
+                          <div class="row border-bottom pb-6 mb-6">
+                            @if ($cmt->id_user == null)
+                              <img src="{{asset('resources/image/user/user.png')}}" alt="" class="rounded-circle col-1" width="48px" height="48px" style="object-fit: cover">
+                            @else
+                              <img src="{{asset('resources/image/user/'.($cmt->User->image != null? $cmt->User->image: "user.png"))}}" alt=""  class="rounded-circle col-1" width="48px" height="48px" style="object-fit: cover">
+                            @endif
+                            <div class="ms-5 col-10 mx-auto">
+                              <div class="row">
+                                <h5 class="col-11">
+                                  {{$cmt->id_user == null ? $cmt->name:$cmt->User->name}}
+                                </h5>
+                                <div class="col-1 dropdown">
+                                  <a class="dropdown-toggle commt-edit" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-ellipsis fa-xl"></i>
+                                  </a>
+                                  @if (Auth::check()&&$cmt->id_user == Auth::user()->id_user)
+                                  <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item edit_btn" href="#collapseEdit{{$cmt->id_comment}}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseEdit{{$cmt->id_comment}}">Edit</a></li>
+                                    <li><a class="dropdown-item" href="{{route('delete_cmt',$cmt->id_comment)}}">Delete</a></li>
+                                  </ul>
+                                  @endif
+                                </div>
+                              </div>
+                              <p class="small"> <span class="text-muted">{{($cmt->created_at != $cmt->updated_at) && $cmt->updated_at!=null ? $cmt->updated_at ." ( edited )": $cmt->created_at}}</span>
+                                @if($cmt->verified)
+                                  <span class="text-success ms-3 fw-bold">Verified Purchase</span>
+                                @else
+                                  <span class="text-danger ms-3 fw-bold">Unverified Purchase</span>	      
+                                @endif
+                              </p>
+                              <div class=" mb-2 current_rating">
+                                @if (isset($cmt->rating))
+                                @for ($i = 0; $i < $cmt->rating; $i++)
+                                <i class="bi bi-star-fill text-warning fs-4"></i>                                  
+                                @endfor
+                                @for ($i = 0; $i < 5-$cmt->rating; $i++)
+                                <i class="bi bi-star text-warning fs-4"></i>
+                                @endfor
+                                @endif
+                              </div>
+                              <p class="current_cmt">{{$cmt->context}}</p>
+                              <div class="collapse" id="collapseEdit{{$cmt->id_comment}}">
+                                <form action="{{route('edit_cmt',$cmt->id_comment)}}" method="post">
+                                  @csrf
+                                  @if ($cmt->rating!=null && $cmt->verified)
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input type="hidden" class="stop1">
+                                        <input type="radio" name="rating_cmt" class="btn-check" id="rating{{$cmt->id_comment}}-btn1" autocomplete="off" value="1" {{$cmt->rating == 1 ? "checked":''}}>
+                                        <label class="btn-cus text-warning" for="rating{{$cmt->id_comment}}-btn1" >
+                                            <i class="fa-light fa-star" style="font-size:1.3rem;{{ $cmt->rating >=1 ? 'font-weight: 900':'font-weight: 400'}}"></i>
+                                        </label>
+                                        <input type="radio" name="rating_cmt" class="btn-check" id="rating{{$cmt->id_comment}}-btn2" autocomplete="off" value="2" {{$cmt->rating == 2 ? "checked":''}}>
+                                        <label class="btn-cus text-warning" for="rating{{$cmt->id_comment}}-btn2">
+                                            <i class="fa-light fa-star" style="font-size:1.3rem;{{ $cmt->rating >=2 ? 'font-weight: 900':'font-weight: 400'}}" ></i>
+                                        </label>
+                                        <input type="radio" name="rating_cmt" class="btn-check" id="rating{{$cmt->id_comment}}-btn3" autocomplete="off" value="3" {{$cmt->rating == 3 ? "checked":''}}>
+                                        <label class="btn-cus text-warning" for="rating{{$cmt->id_comment}}-btn3">     
+                                            <i class="fa-light fa-star" style="font-size:1.3rem; {{ $cmt->rating>=3 ? 'font-weight: 900':'font-weight: 400'}}"></i>                                    
+                                        </label>
+                                        <input type="radio" name="rating_cmt" class="btn-check" id="rating{{$cmt->id_comment}}-btn4" autocomplete="off" value="4" {{$cmt->rating == 4 ? "checked":''}}>
+                                        <label class="btn-cus text-warning" for="rating{{$cmt->id_comment}}-btn4">
+                                            <i class="fa-light fa-star" style="font-size:1.3rem;{{ $cmt->rating >=4 ? 'font-weight: 900':'font-weight: 400'}}"></i>
+                                        </label>
+                                        <input type="radio" name="rating_cmt" class="btn-check" id="rating{{$cmt->id_comment}}-btn5" autocomplete="off" value="5" {{$cmt->rating == 5 ? "checked":''}}>
+                                        <label class="btn-cus text-warning" for="rating{{$cmt->id_comment}}-btn5">
+                                            <i class="fa-light fa-star" style="font-size:1.3rem; {{ $cmt->rating >=5 ? 'font-weight: 900':'font-weight: 400'}}"></i>
+                                        </label>
+                                        <input type="hidden" class="stop2">
+                                    </div>    
+                                  @endif
+                                  <div class="mb-3">
+                                      <textarea name="content_cmt" rows="3" class="form-control content_fb">{{$cmt->context}}</textarea>
+                                  </div>
+                                  <div class="mb-3 row">
+                                      <button type="button" class="btn btn-secondary col-2 btn-cancel" data-bs-target="#collapseEdit{{$cmt->id_comment}}" data-bs-toggle="collapse" aria-expanded="false" aria-controls="collapseEdit{{$cmt->id_comment}}">Cancel</button>
+                                      <div class="col-1"></div>
+                                      <button class="btn btn-primary col-2 btn_submit_edit " type="submit" disabled>Save Change</button>
+                                  </div>
+                                </form>
+                              </div>
+                              <div class="d-flex justify-content-between mt-4">
+                                <div>
+                                  @if (Auth::check())
+                                  <a class="like_it me-2" data-idcmt="{{$cmt->id_comment}}" ><i class="{{$cmt->Like->where('id_user','=', Auth::user()->id_user)->first()? 'fa-solid' : 'fa-regular'}} fa-thumbs-up fa-xl"></i></a><span>{{count($cmt->Like)}}</span>
+                                  @else
+                                  <a href="#!" class="text-muted" data-bs-toggle="modal" data-bs-target="#userModal" ><i class="fa-regular fa-thumbs-up fa-xl me-3"></i> Like</a>
+                                  @endif      
+                                </div>
+                                <div >
+                                  @if (Auth::check())
+                                  <a class="text-muted" data-bs-toggle="collapse" href="#collapseReply{{$cmt->id_comment}}" role="button" aria-expanded="false" aria-controls="collapseReply" >Reply</a>
+                                  @else
+                                  <a href="#!" class="text-muted" data-bs-toggle="modal" data-bs-target="#userModal" >
+                                    Reply
+                                  </a>
+                                  @endif
+                                  <a href="{{route('contact')}}" class="text-muted ms-4"><i class="feather-icon icon-flag me-2"></i>Report abuse</a>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            @if (Auth::check())
+                            <div class="collapse mt-6" id="collapseReply{{$cmt->id_comment}}">
+                              <div class="row">
+                                <div class="col-md-2 col-lg-1 mt-5">
+                                  <i class="fa-solid fa-arrow-turn-down-right text-black-50" style="font-size:1.6rem;"></i>
+                                </div>
+                                  <div class="col-md-2 col-lg-1">
+                                    <img src="../resources/image/user/{{Auth::user()->image ?Auth::user()->image : 'user.png'}}" alt="" class="rounded-circle" width="48px" height="48px" style="object-fit: cover">
+                                </div>
+                              <div class="col-lg-10 col-md-8 d-flex flex-column ">
+                                  <form action="{{route('addComment',$cmt->id_comment)}}" method="post">
+                                  @csrf
+                                      <input type="hidden" name="id_product" value="{{$pet->id_product}}">
+                                      <div id="printf"></div>
+                                      <div class="mb-3">
+                                          <textarea name="comment" id="comment"rows="3" class="form-control"></textarea>
+                                      </div>
+                                      <div class="d-flex flex-row justify-content-between">
+                                          <span class="text-black-50 count-word"></span>
+                                          <input type="submit" value="Post" class="btn btn-primary">
+                                      </div>
+                                  </form>
+                              </div>
+                              </div>                            
+                            </div>  
+                            @endif
+                          </div>
+                          @if (count($cmt->Comment)>0)  
+                            @foreach ($cmt->Comment as $reply)
+                            <div class="row mb-3 ms-4">
+                                <div class="col-md-2 col-lg-1 mt-5">
+                                    <i class="fa-solid fa-arrow-turn-down-right text-black-50" style="font-size:1.6rem;"></i>
+                                </div>
+                                <div class="col-md-2 col-lg-1 ">
+                                    <img src="{{$reply->User->image!=null?asset('../resources/image/user/'.$reply->User->image):asset('../resources/image/user/user.png')}}" alt="{{$reply->User->name}}" class="rounded-circle" width="48px" height="48px" style="object-fit: cover">
+                                </div>
+                                <div class="col-md-7 col-lg-9 mt-3">
+                                    <p class="fw-bold">{{$reply->User->name}}</p>
+                                    <p>{{$reply->context}}</p>
+                                    <span class="text-black-50">{{$reply->created_at}}</span>
+                                </div> 
+                                <div class="col-md-1 col-lg-1 d-flex flex-column justify-content-end">
+                                    <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#replyform{{$reply->id_comment}}" aria-expanded="false" aria-controls="replyform{{$reply->id_comment}}">
+                                        <i class="fa-solid fa-reply" style="font-size: 1.3rem"></i>
+                                    </button>
+                                </div>
+                                <div class="collapse col-12 px-3 py-4 shadow" id="replyform{{$reply->id_comment}}">
+                                    <form action="{{route('addComment',[$cmt->id_comment])}}" method="post" class="input-group">
+                                        @csrf
+                                        <input type="hidden" name="reply_id_product" value="{{$pet->id_product}}">
+                                        <input type="text" name="reply_context" id="reply_context" class="form-control" placeholder="Reply message">
+                                        <button type="submit" class="btn">
+                                            <i class="fa-solid fa-paper-plane-top"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @endforeach
+                          @endif
+                        @endforeach
+                      </div>
+                      
+                      @if (!Auth::check())
+                      <div class="text-center w-100">
+                        <h3><a class="h3 text-primary" href="{{route('signin')}}">Sign in</a> or <a class="h3 text-primary" href="{{route('signup')}}">Sign up</a> to create comment for pet</h3>
                       </div>
                       @endif
                     </div>
@@ -355,7 +489,7 @@
           <div class="col" >
             <div class="card card-product" style="height: 380px">
               <div class="card-body">
-                <div class="text-center position-relative d-flex flex-column justify-content-center align-items-center" style="height: 70%">
+                <div class="text-center position-relative d-flex flex-column justify-content-center align-items-center" style="height: 50%">
                   <div class=" position-absolute top-0 start-0">
                     @if ($pet->sale !=0)
                     <span class="badge bg-success">-{{$pet->sale}}%</span>
@@ -368,8 +502,8 @@
                         }
                     @endphp
                   </div>
-                    <a href="{{route('productdetail',$pet->id_product)}}">
-                      <img src="{{asset('resources/image/pet/'.$pet->image)}}" alt="{{$pet->product_name}}"class="mb-3 img-fluid"></a>
+                    <a href="{{route('productdetail',$pet->id_product)}}" class="h-100">
+                      <img src="{{asset('resources/image/pet/'.$pet->image)}}" alt="{{$pet->product_name}}"class="mb-3 img-fluid h-100" style="object-fit: contain"></a>
                     <div class="card-product-action">
                       <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-bs-product="{{$pet->id_product}}"><i
                         class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i></a>
@@ -384,15 +518,27 @@
                 <div class="text-small mb-1"><a href="{{route('productlist',[$pet->Breed->TypeProduct->name_type,$pet->Breed->breed_name])}}" class="text-decoration-none text-muted"><small>{{$pet->Breed->breed_name}}</small></a></div>
                 <h2 class="fs-6"><a href="{{route('productdetail',$pet->id_product)}}" class="text-inherit text-decoration-none">{{$pet->product_name}}</a></h2>
                 <div>
-                  <small class="text-warning">
-                    @for ($i = 0; $i < $pet->rating; $i++)
-                    <i class="bi bi-star-fill"></i>
+                  <p >
+                    @php
+                      $rating = 0;
+                      if (count($pet->Comment->where('rating','!=',null)) >0) {
+                        foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                          $rating += $cmt->rating;
+                        }
+                        $rating /= count($pet->Comment->where('rating','!=',null));
+                      }
+                  @endphp
+                    @for ($i = 0; $i < floor($rating); $i++)
+                    <i class="bi bi-star-fill fs-4 text-warning"></i>
                     @endfor
-                    @for ($i = 0; $i < 5-$pet->rating; $i++)
-                    <i class="bi bi-star"></i>
+                    @if (is_float($rating))
+                    <i class="bi bi-star-half fs-4 text-warning"></i>
+                    @endif
+                    @for ($i = 0; $i < 5-ceil($rating); $i++)
+                    <i class="bi bi-star fs-4 text-warning"></i>
                     @endfor
-                    </small> 
-                    <span class="text-muted small">{{$pet->rating}}({{$pet->sold}} sold)</span>
+                    <span class="text-black-50 ms-3">({{$rating}})</span>
+                  </p> 
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
@@ -421,6 +567,7 @@
   </main>
 @endsection
 @section('modal')
+
 <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -626,9 +773,9 @@
           e.preventDefault();
           let num = $(this).val().length;
           $.get(window.location.href,function(data){
-              $('#count-word').text(num + " /1000 characters");
+              $('.count-word').text(num + " /1000 characters");
               if(num>1000){
-                  $('#count-word').removeClass('text-black-50').addClass('text-danger');
+                  $('.count-word').removeClass('text-black-50').addClass('text-danger');
               }
           });
       });
@@ -704,6 +851,35 @@
           $('.countCart').html(data);
         });
       });
+      $('.like_it').click(function(){
+        if($(this).children().hasClass('fa-solid')){
+          $(this).children().removeClass('fa-solid');
+          $(this).children().addClass('fa-regular');
+          let num =parseInt($(this).next().text()); 
+          $(this).next().text(num-1);
+          $.get(window.location.origin+"/index.php/ajax/delete-like/"+$(this).data('idcmt'),function(data){});
+        }else{
+          $(this).children().removeClass('fa-regular');
+          $(this).children().addClass('fa-solid');
+          let num =parseInt($(this).next().text());
+          $(this).next().text(num+1);
+          $.get(window.location.origin+"/index.php/ajax/add-like/"+$(this).data('idcmt'),function(data){});
+        };
+
+      });
+      $('.edit_btn').click(function(){
+        $(this).parents('.col-10').children('.current_rating').hide();
+        $(this).parents('.col-10').children('.current_cmt').hide();
+      });
+      $('.btn-cancel').click(function(){
+        $('.current_rating, .current_cmt').show();
+      });
+      $('input[name=content_cmt]').change(function(){
+        $('.btn_submit_edit').removeAttr('disabled');
+      });
+      $('input[name=rating_cmt]').change(function(){
+        $('.btn_submit_edit').removeAttr('disabled');
+      })
   })
 </script>
 @endsection

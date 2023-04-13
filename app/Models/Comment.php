@@ -20,4 +20,7 @@ class Comment extends Model
     public function Comment(){
         return $this->hasMany(Comment::class,'reply_comment','id_comment');
     }
+    public function Like(){
+        return $this->hasMany(Like::class,'id_comment','id_comment');
+    }
 }

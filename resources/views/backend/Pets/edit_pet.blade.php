@@ -5,7 +5,7 @@
         <div class="ms-5 bg-light p-4 col-md-10 col-lg-6 rounded-2" >
             <p class="h2">{{$site}}<span class="text-secondary ms-3"> Pet</span></p>
             <hr>
-            <form action="{{$site == "Add"?route('addpet'):route('editpet',[$pet_edit->id_product])}}" method="post" enctype="multipart/form-data">
+            <form action="{{$site == "Add" ? route('addpet'):route('editpet',[$pet_edit->id_product])}}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3 form-floating">
                     <select class="form-select text-capitalize {{$errors->has('breed_pet')?'is-invalid':''}}" name="type_pet" id="type_pet">
@@ -53,13 +53,6 @@
                     </div>
                 </div>
                 <div class="mb-3 row">
-                    <div class="col-3 form-floating">
-                        <input class="form-control {{$errors->has('sold_pet')?'is-invalid':''}}" type="text" name="sold_pet" id="sold_pet" value="{{$site=="Edit"?$pet_edit->sold:''}}">
-                        <label for="sold_pet" class="ms-2" >Sold</label>
-                        @if ($errors->has('sold_pet'))
-                            <p class="text-danger mt-1">{{$errors->first('sold_pet')}}</p>
-                        @endif
-                    </div>
                     <div class="col-3 mx-auto form-floating">
                         <input class="form-control {{$errors->has('quantity_pet')? 'is-invalid':''}}" type="text" name="quantity_pet" id="quantity_pet" value="{{$site=="Edit"?$pet_edit->quantity:''}}">
                         <label for="quantity_pet" class="ms-2">Quantity</label>
@@ -83,13 +76,6 @@
                     <div class="col-4 mx-auto form-floating">
                         <input class="form-control" type="text" name="food_pet" id="food_pet" value="{{$site=="Edit"?$pet_edit->food:''}}">
                         <label for="food_pet" class="ms-2">Food</label>
-                    </div>
-                    <div class="col-4 form-floating">
-                        <input class="form-control {{$errors->has('rating_pet')?'is-invalid':''}}" type="text" name="rating_pet" id="rating_pet" value="{{$site=='Edit'?$pet_edit->rating:''}}">
-                        <label for="rating_pet" class="ms-2">Rating</label>
-                        @if ($errors->has('rating_pet'))
-                            <p class="text-danger mt-1">{{$errors->first('rating_pet')}}</p>
-                        @endif
                     </div>
                 </div>
                 <div class="mb-3 form-floating">
@@ -130,9 +116,9 @@
                 $("#breed_pet").html(data);
             })
         });
-        $('#name_pet, #gender_pet, #age_pet, #sold_pet,#quantity_pet,#price_pet,#status_pet,#rating_pet').on('blur',function(e){
+        $('#name_pet, #gender_pet, #age_pet,#quantity_pet,#price_pet,#status_pet').on('blur',function(e){
             e.preventDefault();
-            if($('#name_pet').val()&&$('#gender_pet').val()&&$('#age_pet').val()&&$('#sold_pet').val()&&$('#quantity_pet').val()&&$('#price_pet').val()&&$('#status_pet').val()&&$('#rating_pet').val()){
+            if($('#name_pet').val()&&$('#gender_pet').val()&&$('#age_pet').val()&&$('#quantity_pet').val()&&$('#price_pet').val()&&$('#status_pet').val()){
                 $('#add_pet').removeAttr('disabled');
             }else{
                 $('#add_pet').attr('disabled','disabled')

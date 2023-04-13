@@ -7,11 +7,18 @@
                 <h2 class="col-3">List Pets</h2>
                 <div class="col-4">
                     <select name="sortT" id="sortT" class="form-select">
-                        <option {{!$sortType? "selected":""}}>Sort Type Pet</option>
+                        <option {{!$sortType? "selected":""}} value="0">Sort Type Pet</option>
                         @foreach ($types as $type)
                             <option value="{{$type->id_type}}" class="text-capitalize" {{$sortType == $type->id_type?"selected":""}}>{{$type->name_type}}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="col-3 mx-auto ">
+                    <div class="input-group">
+                        <input type="search" name="seachPet" id="seachPet" class="form-control" value="{{isset($search)?$search:''}}">
+                        <label for="seachPet"class="input-group-text"><i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                        </label>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -36,10 +43,10 @@
                         <th class="des-collapse" style="display: none">Gender</th>
                         <th class="des-collapse" style="display: none">Age</th>
                         <th class="des-collapse" style="display: none">Quantity</th>
+                        <th class="des-collapse" style="display: none">Rating</th>
                         <th class="des-collapse" style="display: none">Sold</th>
                         <th class="des-collapse" style="display: none">Price</th>
                         <th class="des-collapse" style="display: none">Food</th>
-                        <th class="des-collapse" style="display: none">Rating</th>
                         <th class="des-collapse" style="display: none">Describe</th>
                     </tr>
                 </thead>
@@ -66,10 +73,19 @@
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->gender==1?"Male":($pet->gender==2?"Female":"unknown")}}</td>
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->age}}</td>
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->quantity}}</td>
-                        <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->sold}}</td>
+                        @php
+                            $rating = 0;
+                            if (count($pet->Comment->where('rating','!=',null)) >0) {
+                              foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                                $rating += $cmt->rating;
+                              }
+                              $rating /= count($pet->Comment->where('rating','!=',null));
+                            }
+                        @endphp
+                        <td class="collapse collapsePet{{$pet->id_product}}">{{$rating}}</td>
+                        <td class="collapse collapsePet{{$pet->id_product}}">{{count($pet->Comment->where('rating','!=',null))}}</td>
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->per_price}}</td>
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->food}}</td>
-                        <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->rating}}</td>
                         <td class="collapse collapsePet{{$pet->id_product}}">{{$pet->description}}</td>
                     </tr>
                     @endforeach
@@ -89,7 +105,10 @@
                 $('.des-collapse').toggle();
             });
             $('#sortT').change(function(){
-                window.location.assign(window.location.pathname+'/'+$(this).val());
+                window.location.assign(window.location.origin+'/index.php/admin/pets/list/'+$(this).val());
+            });
+            $('#seachPet').change(function(){
+                window.location.assign(window.location.origin+'/index.php/admin/pets/search?q='+$(this).val());
             })  
         })
     </script>

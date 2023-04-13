@@ -57,30 +57,26 @@
                         <input class="form-control-plaintext" type="text" name="user_order" id="user_order" value="{{$order->id_user!=null? $order->User->name:""}}" disabled>
                     </div>
                 </div>
-                @if ($order->status == "Not yet")
-                <span class="text-black-50 mb-3">* Don't change any delivery information. Just changing when Customer want to change</span>
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" name="changeInfo" id="changeInfo">
-                    <label for="changeInfo"class="form-check-label">Change information of this order</label>
-                </div>
-                @else
                 <span class="text-black-50 mb-3">* You can't change any information of paid order.</span>
-                @endif
                 <div class="mb-3 ">
                     <label class="form-label" for="receiver_name">Receiver</label>
-                    <input class="form-control" type="text" name="receiver_name" id="receiver_name" value="{{$order->cus_name}}"disabled> 
+                    <input class="form-control " type="text" name="receiver_name" id="receiver_name" value="{{$order->cus_name}}"disabled> 
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="order_address">Address</label>
-                    <input class="form-control" type="text" name="order_address" id="order_address" value="{{$order->cus_address}}" disabled>
+                    <input class="form-control " type="text" name="order_address" id="order_address" value="{{$order->cus_address}}" disabled>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="order_phone">Phone receiver</label>
-                    <input class="form-control" type="text" name="order_phone" id="order_phone" value="{{$order->cus_phone}}" disabled>
+                    <input class="form-control " type="text" name="order_phone" id="order_phone" value="{{$order->cus_phone}}" disabled>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="order_email">Email contact</label>
                     <input class="form-control" type="text" name="order_email" id="order_email" value="{{$order->cus_email}}" disabled>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="order_cp">COUPON</label>
+                    <input class="form-control" type="text" name="order_cp" id="order_cp" value="{{$order->code_coupon?$order->code_coupon:'NO COUPON'}}" disabled>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="order_method">Order Method</label>
@@ -89,27 +85,41 @@
                         <option value="credit" {{$order->method == "credit"? "selected":''}}>Online payment</option>
                     </select>
                 </div>
-                @if ($order->method == "credit" && $order->status == "Not yet")
+                @if ($order->method == "credit" )
                     <div class="mb-3">
                         <img src="{{asset('resources/image/payment/'.$order->image)}}" alt="{{$order->order_code}}">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="changeImage" id="changeImage">
-                            <label class="form-check-label" for="changeImage">Change Image for payment</label>
-                        </div>
-                        <label for="credit_img" class="form-label">Image for online payment</label>
-                        <input type="file" name="credit_img" id="credit_img" class="form-control" disabled>
                     </div>
                 @endif
                 <div class="mb-3">
                     <label for="order_status">Status of order</label>
-                    <select name="order_status" id="order_status" class="form-select" disabled>
-                        <option value="Paid" {{$order->status =="Paid"?"selected":''}}>Paid</option>
-                        <option value="Not yet" {{$order->status =="Not yet"?"selected":''}}>Not yet</option>
+                    <select name="order_status" id="order_status" class="form-select" {{$order->status  == 'cancel' || $order->status  == 'transaction failed' || $order->status  == 'finished'? 'disabled':'' }}>
+                        @if ($order->status == 'unconfimred')
+                        <option value="unconfimred" {{$order->status =="unconfimred"?"selected":''}}>Unconfimred</option>
+                        <option value="confirmed" {{$order->status =="confirmed"?"selected":''}}>Confirmed</option>
+                        <option value="delivery" {{$order->status =="delivery"?"selected":''}}>Delivery</option>
+                        @endif
+                        @if ($order->status == 'confirmed')
+                        <option value="confirmed" {{$order->status =="confirmed"?"selected":''}}>Confirmed</option>
+                        <option value="delivery" {{$order->status =="delivery"?"selected":''}}>Delivery</option>
+                        @endif
+                        @if ($order->status == 'delivery')
+                        <option value="delivery" {{$order->status =="delivery"?"selected":''}}>Delivery</option>
+                        <option value="finished" {{$order->status =="finished"?"selected":''}}>Finished</option>
+                        <option value="transaction failed" {{$order->status =="transaction failed"?"selected":''}}>Transaction Failed</option>
+                        @endif
+                        @if ($order->status  == 'cancel' || $order->status  == 'transaction failed')
+                        <option value="cancel" {{$order->status =="cancel"?"selected":''}}>Cancel</option>
+                        <option value="transaction failed" {{$order->status =="transaction failed"?"selected":''}}>Transaction Failed</option>
+                        @endif
+                        @if ($order->status == 'finished')
+                        <option value="finished" {{$order->status =="finished"?"selected":''}}>Finished</option>
+                            
+                        @endif
                     </select>
                 </div>
                 <div class="mt-3">
                     <a href="{{route('listorder')}}" class="me-3"><i class="fa-sharp fa-solid fa-arrow-left me-2"></i>Back</a>
-                    <input type="submit" value="Change Order" class="btn btn-primary px-3">
+                    <input type="submit" id="submitOrder" value="Change Order" class="btn btn-primary px-3" disabled>
                 </div>
             </form>
         </div>
@@ -119,13 +129,9 @@
 @section('admin_script')
     <script>
         $(document).ready(function(){
-            $('#changeInfo').change(function(){
-                if($(this).is(':checked')){
-                    $('#receiver_name, #order_address, #order_phone, #order_email, #order_method, #order_status').removeAttr('disabled');
-                }else{
-                    $('#receiver_name, #order_address, #order_phone, #order_email, #order_method, #order_status').attr('disabled','disabled');
-                }
-            })
+            $('#order_status').change(function(){
+                $('#submitOrder').removeAttr('disabled');
+            })  
         })
     </script>
 @endsection

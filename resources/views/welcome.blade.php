@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}" />
         <base href="{{asset('')}}">
         <title>Laravel</title>
         <link rel="shortcut icon" type="image/x-icon" href="public/favicon.ico">
@@ -10,7 +11,7 @@
         <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="{{asset('resources/css/app.css')}}">
+        <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">        <link rel="stylesheet" href="{{asset('resources/css/app.css')}}">
         <link rel="stylesheet" href="{{asset('resources/css/theme.min.css')}}">
         <!-- Styles -->
         {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous"> --}}
@@ -27,6 +28,7 @@
         <link rel="stylesheet" href="node_modules/feather-webfont/dist/feather-icons.css">
         <link rel="stylesheet" href="node_modules/simplebar/dist/simplebar.css">
         <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -85,7 +87,7 @@
             }
             .home_contact{
                 height: 500px;
-                background-image: url('../image/istockphoto-1131381748-612x612.jpg');
+                background-image: url('resources/image/istockphoto-1131381748-612x612.jpg');
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: contain;
@@ -133,6 +135,18 @@
             .active-profie > a{
                 color: #ffffff;
             }
+            .dropdown_news::after{
+            content: none;
+            }
+            .show_listchat::after{
+                content: none!important;
+            }
+            .list_mess::after{
+                content: none!important;
+            }
+            .commt-edit::after{
+                content: none!important;
+            }
         </style>
     </head>
     <body>
@@ -142,7 +156,7 @@
         @include('layout.footer')
         
         <!-- Libs JS -->
-        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        
         <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
         <script src="node_modules/slick-carousel/slick/slick.js"></script>
         <script src="node_modules/slick-carousel/slick/slick.min.js"></script>
@@ -152,14 +166,29 @@
         <script src="resources/js/theme.min.js"></script>
         <script src="resources/js/countdown.js"></script>
         <script src="resources/js/zoom.js"></script>
+        @include('layout.message')
         @yield('script')
         <script>
+           
             $(document).ready(function(){
+                $('#clearCart').click(function(){
+                  console.log(window.location.origin + "/index.php/ajax/cart/clearcart");
+                    $.get(window.location.origin + "/index.php/ajax/cart/clearcart",function(data){
+                        $('#listCart').html(data);
+                    })
+                });
                 $('.btn_showcart').click(function(){
                     $.get(window.location.origin+"/index.php/ajax/cart/listcart",function(data){
                         $('#listCart').html(data);
+                        $('input[name=_token]').val($('meta[name="csrf-token"]').attr('content'));
+                        
                     })
-                })
+                });
+                const valiquan_cart = (value)=>{
+                    let validateNum =/^\d{1,10}$/;
+                    let currentVl = $(this).val();
+                    $(this).val(validateNum.test(currentVl)?currentVl:value);
+                }
             })
         </script>
     </body>

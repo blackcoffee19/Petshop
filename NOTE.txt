@@ -10,6 +10,14 @@ composer require laravel/ui
 7. $ php artisan db:seed --class=insert_comments
 8. $ php artisan db:seed --class=insert_cart
 9. $ php artisan db:seed --class=insert_order
+10. $ php artisan db:seed --class=insert_slide
+11. $ php artisan db:seed --class=insert_banner
+12. $ php artisan db:seed --class=insert_news
+13. $ php artisan db:seed --class=insert_coupon
+14. $ php artisan db:seed --class=insert_message
+php artisan db:seed --class=insert_type_products && php artisan db:seed --class=insert_breed && php artisan db:seed --class=insert_products && php artisan db:seed --class=insert_user && php artisan db:seed --class=insert_comments && php artisan db:seed --class=insert_cart && php artisan db:seed --class=insert_order  && php artisan db:seed --class=insert_slide && php artisan db:seed --class=insert_banner && php artisan db:seed --class=insert_news && php artisan db:seed --class=insert_coupon && php aritisan db:seed --class=insert_message
+
+
 
 ??? Middleware auto check admin to enter Admin site
 Create Middleware to check admin 

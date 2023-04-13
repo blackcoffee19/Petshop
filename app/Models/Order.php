@@ -17,4 +17,10 @@ class Order extends Model
     public function Cart(){
         return $this->hasMany(Cart::class,'order_code','order_code');
     }
+    public function News(){
+        return $this->hasMany(News::class,'order_code','order_code');
+    }
+    public function Coupon(){
+        return $this->belongsTo(Coupon::class,'code_coupon','code');
+    }
 }

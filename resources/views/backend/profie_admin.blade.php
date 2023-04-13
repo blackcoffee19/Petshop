@@ -28,11 +28,6 @@
                     <option value="3"{{Auth::user()->gender == 3? "selected": ""}}>Other</option>
                     <option value=""{{Auth::user()->gender == null? "selected": ""}}>Unknown</option>
                 </select>
-                <label class="form-label" for="new_address">Address: </label>
-                <input type="text" class="form-control mb-3" name="new_address" id="new_address" value="{{Auth::user()->address}}">
-                @if ($errors->has('new_address'))
-                    <div class="text-danger mb-3">{{$errors->first('new_address')}}</div>
-                @endif
                 <label class="form-label" for="new_phone">Phone Number: </label>
                 <input type="text" class="form-control mb-3" name="new_phone" id="new_phone" value="{{Auth::user()->phone_number}}">
                 @if ($errors->has('new_phone'))

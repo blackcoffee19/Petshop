@@ -2,7 +2,8 @@
     <div class="mb-3 ps-4 d-flex flex-row justify-content-around align-items-center position-relative" style="height: 120px">
         <a  class="text-black fs-4 text-decoration-none flex-grow-1">
             <i class="fa-solid fa-user-tie fs-3 me-4"></i>&nbsp; Admin
-            <br><span class="fs-5 text-black-50">{{Auth::user()->name}}</span>
+            <br><span class="fs-4 text-black-50">{{Auth::user()->name}}</span>
+            <br><span class="fs-5 text-primary">{{Auth::user()->position}}</span>
         </a>
         <div class="dropend">
             <button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -68,6 +69,36 @@
         <div class="collapse w-100 {{$state == 'Order'?'show':''}}" id="colla5">
             <ul class="list-unstyled ">
                 <li class="ms-2 mt-4 "><a href="{{route('listorder')}}" class="text-black-50 text-capitalize text-decoration-none">List Orders</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="mb-3 ps-4 pe-3 py-2  menu_list {{$state == 'Slide'?'active_cus':''}}">
+        <a class="text-decoration-none text-black text-uppercase" data-bs-toggle="collapse" href="#colla6" role="button" aria-expanded="false" aria-controls="colla6">Slide
+            <i class="fa-solid fa-chevron-down float-end lh-base"></i>
+        </a>
+        <div class="collapse w-100 {{$state == 'Slide'?'show':''}}" id="colla6">
+            <ul class="list-unstyled ">
+                <li class="ms-2 mt-4 "><a href="{{route('listslide')}}" class="text-black-50 text-capitalize text-decoration-none">List Slide</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="mb-3 ps-4 pe-3 py-2  menu_list {{$state == 'Banner'?'active_cus':''}}">
+        <a class="text-decoration-none text-black text-uppercase" data-bs-toggle="collapse" href="#colla7" role="button" aria-expanded="false" aria-controls="colla7">Banner
+            <i class="fa-solid fa-chevron-down float-end lh-base"></i>
+        </a>
+        <div class="collapse w-100 {{$state == 'Banner'?'show':''}}" id="colla7">
+            <ul class="list-unstyled ">
+                <li class="ms-2 mt-4 "><a href="{{route('listbanner')}}" class="text-black-50 text-capitalize text-decoration-none">List Banner</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="mb-3 ps-4 pe-3 py-2  menu_list {{$state == 'Coupon'?'active_cus':''}}">
+        <a class="text-decoration-none text-black text-uppercase" data-bs-toggle="collapse" href="#colla8" role="button" aria-expanded="false" aria-controls="colla8">Coupon
+            <i class="fa-solid fa-chevron-down float-end lh-base"></i>
+        </a>
+        <div class="collapse w-100 {{$state == 'Coupon'?'show':''}}" id="colla8">
+            <ul class="list-unstyled ">
+                <li class="ms-2 mt-4 "><a href="{{route('listcoupon')}}" class="text-black-50 text-capitalize text-decoration-none">List Coupon</a></li>
             </ul>
         </div>
     </div>

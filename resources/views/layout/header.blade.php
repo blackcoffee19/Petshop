@@ -1,3 +1,4 @@
+
 <div class="border-bottom " >
     <div class="bg-light py-1">
       <div class="container">
@@ -85,8 +86,53 @@
               <img src="{{asset('resources/image/logo/axit-logo.svg')}}" >
             </a>
             <div class="d-flex align-items-center lh-1">
-              <div class="list-inline me-4">
-                <div class="list-inline-item">
+              <div class="list-inline me-4 dropdown dropdown-fullwidth">
+                @if (Auth::check())
+                  <div class="list-inline-item me-5">
+
+                      <a href="{{route('favourite')}}" class="text-muted position-relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                          class="feather feather-heart">
+                          <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                          </path>
+                        </svg>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary countFav">
+                          {{count(Auth::user()->Favourite)}}
+                        </span>
+                      </a>
+                  </div>
+                  <div class='list-inline-item me-5 '>
+                    <a class="text-muted dropdown-toggle dropdown_news" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                      <span class="position-absolute top-0 translate-middle badge rounded-pill bg-primary">
+                        {{count($news)}}
+                      </span>
+                    </a>
+                    <div class="dropdown-menu pb-0">
+                        <table class="text-start table news_table">
+                          @foreach ($news as $new)
+                          <tr>
+                            <td class="text-center" style="vertical-align: middle">
+                              @if ($new->image != null)
+                              <i class="fa-regular fa-sparkles fa-2xl" style="color: #f5c211;"></i>
+                              @else
+                              <i class="fa-solid fa-pen-field fa-2xl align-self-center"></i>
+                              @endif
+                            </td>
+                            <td>
+                              <a class="text-decoration-none" href="{{route($new->link ,$new->attr)}}">
+                                {{$new->title}}
+                              </a>
+                            </td>
+                          </tr>
+                          @endforeach
+                        </table>
+                    </div>    
+                  </div>
+                @endif
+                <div class="list-inline-item me-5">
                   <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                     href="#offcanvasExample" role="button" aria-controls="offcanvasRight">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -137,8 +183,8 @@
                           </svg>
                           {{Auth::user()->name}}
                       </a>
-                      <a href="{{route('signout')}}" class="text-muted" >
-                        <i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>
+                      <a href="{{route('signout')}}" class="text-muted ms-2" >
+                        <i class="fa-sharp fa-solid fa-arrow-right-from-bracket" style="font-size: 1.2rem"></i>
                       </a>
                       {{-- <a href="{{route('signout')}}" class=" me-4 text-black"><i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i></a> --}}
                   @else
@@ -155,10 +201,7 @@
                 
 
               </div>
-              <!-- Button -->
-              <button class="navbar-toggler collapsed" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#navbar-default" aria-controls="navbar-default" aria-expanded="false"
-                aria-label="Toggle navigation">
+              <button class="navbar-toggler collapsed" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbar-default" aria-controls="navbar-default" aria-expanded="false" aria-label="Toggle navigation">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
                   class="bi bi-text-indent-left text-primary" viewBox="0 0 16 16">
                   <path
@@ -187,8 +230,8 @@
 
             </form>
           </div>
-          <div class="col-lg-4 col-xxl-3 text-end d-none d-lg-block mx-auto">
-            <div class="list-inline">
+          <div class="col-lg-4 col-xxl-3 text-end d-none d-lg-block mx-auto ">
+            <div class="list-inline position-relative dropdown dropdown-fullwidth">
               @if (Auth::check())
               <div class="list-inline-item me-5">
 
@@ -204,7 +247,35 @@
                       {{count(Auth::user()->Favourite)}}
                     </span>
                   </a>
-              </div>    
+      	      </div>
+      	      <div class='list-inline-item me-5 '>
+      		      <a class="text-muted dropdown-toggle dropdown_news" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      		      	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      		      	<span class="position-absolute translate-middle badge rounded-pill bg-primary">
+                    {{count($news)}}
+                  </span>
+      		      </a>
+                <div class="dropdown-menu pb-0">
+                    <table class="text-start table news_table">
+                      @foreach ($news as $new)
+                      <tr>
+                        <td class="text-center" style="vertical-align: middle">
+                          @if ($new->image != null)
+                          <img src="{{asset('resources/image/pet/'.$new->image)}}" class="img-thumbnail rounded-circle" alt="" style="width: 50px;height: 50px;;object-fit: cover">
+                          @else
+                          <i class="fa-solid fa-pen-field fa-2xl align-self-center"></i>
+                          @endif
+                        </td>
+                        <td>
+                          <a class="text-decoration-none" href="{{route($new->link ,$new->attr)}}">
+                            {{$new->title}}
+                          </a>
+                        </td>
+                      </tr>
+                      @endforeach
+                    </table>
+                </div>    
+      	      </div>
               @endif
               <div class="list-inline-item me-5">
                 <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
@@ -363,8 +434,7 @@
               </a>
             </li>
             <li class="nav-item dropdown dropdown-fullwidth">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Product List
               </a>
               <div class=" dropdown-menu pb-0">
@@ -386,6 +456,7 @@
                 Contact
               </a>
             </li>
+            
             @if (Auth::check() && Auth::user()->admin ==1)
             <li class="nav-item dropdown">
               <a class="nav-link" href="{{route('dashboard')}}" >
@@ -425,6 +496,7 @@
                 Contact
               </a>
             </li>
+            
           </ul>
         </div>
       </div>
@@ -479,9 +551,9 @@
       <ul class="list-group list-group-flush" id="listCart">
       </ul>
       <div class="d-flex justify-content-between mt-4">
+        <a id="clearCart">Clear Cart</a>
         <a href="{{route('order')}}" class="btn btn-primary">Buy Now</a>
       </div>
     </div>
   </div>
 </div>
-

@@ -9,7 +9,12 @@
                     <select name="sortSelect" id="sortSelect" class="form-select">
                         <option value="all" {{$sort == "all" || $sort == null?"selected":""}}>All Order</option>
                         <option value="created_at" {{$sort == "created_at"?"selected":""}}>Nearest Orders</option>
-                        <option value="status" {{$sort == "status"?"selected":""}}>Not Paid</option>
+                        <option value="finished" {{$sort == "status"?"selected":""}}>Finished</option>
+                        <option value="confirmed" {{$sort == "status"?"selected":""}}>Confirmed</option>
+                        <option value="delivery" {{$sort == "status"?"selected":""}}>Delivery</option>
+                        <option value="unconfimred" {{$sort == "status"?"selected":""}}>Unconfimred</option>
+                        <option value="cancel" {{$sort == "status"?"selected":""}}>Cancel</option>
+                        <option value="transaction failed" {{$sort == "status"?"selected":""}}>Transaction failed</option>
                         <option value="user" {{$sort == "user"?"selected":""}}>User Orders</option>
                         <option value="guest" {{$sort == "guest"?"selected":""}}>Guest Orders</option>
                         <option value="cod" {{$sort == "cod"?"selected":""}}>Method: Cash on delivery</option>
@@ -34,10 +39,10 @@
                         <th>Address</th>
                         <th>Phone Number</th>
                         <th>Email</th>
+                        <th>Coupon</th>
                         <th>Method</th>
                         <th>Status</th>
                         <th>Order date</th>
-                        <th>Del</th>
                         <th>Edit</th>
                     </tr>
                 </thead>
@@ -49,19 +54,23 @@
                         @if (str_contains($order->order_code,"guest"))
                         <td>Null</td>
                         @else
-                        <td>{{$order->User->name!=null?$order->User->name: "Not a user"}}</td>
+                        <td>{{$order->id_user == null ? "Not a user": $order->User->name }}</td>
                         @endif
                         <td>{{$order->cus_name}}</td>
                         <td>{{$order->cus_address}}</td>
                         <td>{{$order->cus_phone}}</td>
                         <td>{{$order->cus_email}}</td>
+                        <td>
+                        @if ($order->code_coupon)
+                            {{$order->code_coupon}} <br>-{{$order->Coupon->discount}}%
+                        @else
+                        None
+                        @endif
+                        </td>
                         <td>{{$order->method}}</td>
                         <td>{{$order->status}}</td>
                         <td>
                             {{$order->created_at}}
-                        </td>
-                        <td>
-                            <a href="{{route('deleteOrder',[$order->id_order])}}"><i class="fa-sharp fa-solid fa-trash text-danger"></i></a>
                         </td>
                         <td>
                             <a href="{{route('editorder',[$order->id_order])}}"><i class="fa-sharp fa-solid fa-pen text-secondary"></i></a>
@@ -79,7 +88,7 @@
 <script>
     $(document).ready(function(){
         $('#sortSelect').change(function(){
-            window.location.assign(window.location.origin+'/index.php/admin/orders/'+$(this).val());
+            window.location.assign(window.location.origin+'/index.php/admin/orders/list/'+$(this).val());
         })
     })
 </script>

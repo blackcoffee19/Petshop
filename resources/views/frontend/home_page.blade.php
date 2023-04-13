@@ -2,36 +2,42 @@
 
 @section('content')
 <main class="container-fluid">
+  @if (Session::has('message'))
+    <div class="position-absolute" style="height: 400px; width: 100% ">
+      <div class="toast-container p-3 top-50 start-50 translate-middle">
+        <div role="alert"  id="toastMessage" style="box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;" aria-live="assertive" aria-atomic="true" class="toast" data-bs-autohide="true" data-bs-delay='2500'>
+            <div class="toast-body" style="height: 150px; width: 100%;padding:30px 0">
+              <div class="row">
+                <div class="col-2 mb-3 mx-auto">
+                  <i class="fa-regular fa-circle-check text-center" style="color: #26a269; font-size: 4rem"></i>
+                </div>
+                <h4 class="text-success text-center text-uppercase" style="font-family: 'Quicksand', sans-serif;">{{Session::get('message')}}</h4>
+              </div>
+            </div>
+        </div>
+      </div>  
+    </div>    
+    <script>
+      const toastLiveExample = document.getElementById('toastMessage');
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show()  
+    </script>      
+  @endif
   <section class="mt-8">
-    @if (Session::has('message'))
-      <div class="alert alert-success text-center">{{Session::get('message')}}</div>          
-    @endif
     <div class="container">
       <div class="hero-slider ">
-        <div style="background: url(/resources/image/slides/slide-1.png)no-repeat; background-size: cover; border-radius: .5rem; background-position: center;">
+	@foreach($slides as $slide)
+        <div style="background: url(/resources/image/slides/{{$slide->image}})no-repeat; background-size: cover; border-radius: .5rem; background-position: center;">
           <div class="ps-lg-12 py-lg-16 col-xxl-5 col-md-7 py-14 px-8 text-xs-center">
-            <span class="badge text-bg-warning">Opening Sale Discount 50%</span>
-  
-            <h2 class="text-dark display-5 fw-bold mt-4">SuperMarket For Fresh Grocery </h2>
-            <p class="lead">Introduced a new model for online grocery shopping
-              and convenient home delivery.</p>
-            <a href="#!" class="btn btn-dark mt-3">Shop Now <i class="feather-icon icon-arrow-right ms-1"></i></a>
+	    	    @if (isset($slide->alert))
+		        <span class="badge {{$slide->alert_size}}" style="color: {{$slide->alert_color}}; background-color: {{$slide->alert_bg}}">{{$slide->alert}}</span>
+  	        @endif
+              <h2 class="display-5 fw-bold mt-4" style="color:{{$slide->title_color}}">{{$slide->title}}</h2>
+              <p class="lead" style="color:{{$slide->content_color}}">{{$slide->content}}</p>
+              <a href="{{route($slide->link,[$slide->attr1,$slide->attr2])}}" class="btn mt-3" style="color: {{$slide->btn_color}};background-color:{{$slide->btn_bg_color}}">{{$slide->btn_content}} <i class="feather-icon icon-arrow-right ms-1"></i></a>
           </div>
-  
-        </div>
-        <div class=" "
-          style="background: url(/resources/image/slides/slide-2.png)no-repeat; background-size: cover; border-radius: .5rem; background-position: center;">
-          <div class="ps-lg-12 py-lg-16 col-xxl-5 col-md-7 py-14 px-8 text-xs-center">
-            <span class="badge text-bg-warning">Free Shipping - orders over $100</span>
-            <h2 class="text-dark display-5 fw-bold mt-4">Free Shipping on <br> orders over <span
-                class="text-primary">$100</span></h2>
-            <p class="lead">Free Shipping to First-Time Customers Only, After promotions and discounts are applied.
-            </p>
-            <a href="#!" class="btn btn-dark mt-3">Shop Now <i class="feather-icon icon-arrow-right ms-1"></i></a>
-          </div>
-  
-        </div>
-  
+	      </div>
+	@endforeach  
       </div>
     </div>
   </section>
@@ -61,38 +67,22 @@
   <section>
     <div class="container">
       <div class="row">
-        <div class="col-12 col-md-6 mb-3 mb-lg-0">
+	@for($i=0;$i<2;$i++)
+	    <div class="col-12 col-md-6 mb-3 mb-lg-0">
           <div>
             <div class="py-10 px-8 rounded"
-              style="background:url(../resources/image/banner/banner-1.png)no-repeat; background-size: cover; background-position: center;">
+              style="background:url(../resources/image/banner/{{$banners[$i]->image}})no-repeat; background-size: cover; background-position: center;">
               <div>
-                <h3 class="fw-bold mb-1">Fruits & Vegetables
+                <h3 class="fw-bold mb-1" style="color: {{$banners[$i]->title_color}}">{{$banners[$i]->title}}
                 </h3>
-                <p class="mb-4">Get Upto <span class="fw-bold">30%</span> Off</p>
-                <a href="#!" class="btn btn-dark">Shop Now</a>
+                <p class="mb-4" style="color: {{$banners[$i]->content_color}}">{{$banners[$i]->content}}</p>
+                <a href="{{route($banners[$i]->link, $banners[$i]->attr)}}" class="btn" style="background-color: {{$banners[$i]->btn_bg_color}};color:{{$banners[$i]->btn_color}}">{{$banners[$i]->btn_content}}</a>
               </div>
             </div>
-
           </div>
-
-        </div>
-        <div class="col-12 col-md-6 ">
-
-          <div>
-            <div class="py-10 px-8 rounded"
-              style="background:url(../resources/image/banner/banner-2.png)no-repeat; background-size: cover; background-position: center;">
-              <div>
-                <h3 class="fw-bold mb-1">Freshly Baked
-                  Buns
-                </h3>
-                <p class="mb-4">Get Upto <span class="fw-bold">25%</span> Off</p>
-                <a href="#!" class="btn btn-dark">Shop Now</a>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+	    </div>
+	@endfor
+       </div>
     </div>
   </section>
   <section class="my-lg-14 my-8">
@@ -124,7 +114,7 @@
                       <img src="{{asset('resources/image/pet/'.$pet->image)}}" alt="{{$pet->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
                   </a>
                   <div class="card-product-action">
-                    <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-bs-product="{{$pet->id_product}}"><i
+                    <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-product="{{$pet->id_product}}"><i
                         class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i></a>
                     <a class="btn-action {{Auth::check()? 'addFav':''}}" 
                     {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle='tooltip' data-bs-html='true' title='Wishlist' data-bs-idproduct=$pet->id_product"}} >
@@ -143,15 +133,27 @@
                     <a href="{{route('productdetail',$pet->id_product)}}" class="text-inherit text-decoration-none">{{$pet->product_name}}</a>
                 </h2>
                 <div>
-                <small class="text-warning"> 
-                    @for ($i = 0; $i < $pet->rating; $i++)
-                    <i class="bi bi-star-fill"></i>
+                <p> 
+                  @php
+                      $rating = 0;
+                      if (count($pet->Comment->where('rating','!=',null)) >0) {
+                        foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                          $rating += $cmt->rating;
+                        }
+                        $rating /= count($pet->Comment->where('rating','!=',null));
+                      }
+                  @endphp
+                    @for ($i = 0; $i < floor($rating); $i++)
+                    <i class="bi bi-star-fill fs-4 text-warning"></i>
                     @endfor
-                    @for ($i = 0; $i < 5-$pet->rating; $i++)
-                    <i class="bi bi-star"></i>
+                    @if (is_float($rating))
+                    <i class="bi bi-star-half fs-4 text-warning"></i>
+                    @endif
+                    @for ($i = 0; $i < 5-ceil($rating); $i++)
+                    <i class="bi bi-star fs-4 text-warning"></i>
                     @endfor
-                </small> 
-                <span class="text-muted small">{{$pet->rating}}({{$pet->sold}})</span>
+                    <span class="text-black-50 ms-3">({{$rating}})</span>
+                </p> 
               </div>
               <div class="d-flex justify-content-between align-items-center mt-3">
                 <div >
@@ -189,11 +191,11 @@
       <div class="table-responsive-xl pb-6">
         <div class="row row-cols-lg-4 row-cols-1 row-cols-md-2 g-4 flex-nowrap">
           <div class="col">
-            <div class=" pt-8 px-6 px-xl-8 rounded" style="background:url(resources/image/banner/banner-3.jpg)no-repeat; background-size: cover; height: 470px; ">
+            <div class=" pt-8 px-6 px-xl-8 rounded" style="background:url(resources/image/banner/{{$banners[2]->image}})no-repeat; background-size: cover; height: 470px; ">
               <div>
-                <h3 class="fw-bold text-dark-primary">Adopt A Cute Dog.</h3>
-                <p class="text-dark-primary">Get the best dog.</p>
-                <a href="#!" class="btn btn-success">Shop Now <i class="feather-icon icon-arrow-right ms-1"></i></a>
+                <h2 class="fw-bold">{{$banners[2]->title}}</h2>
+                <p style="color: {{$banners[2]->content_color}}">{{$banners[2]->content}}</p>
+                <a href="{{route($banners[2]->link,$banners[2]->attr)}}" class="btn" style="background-color: {{$banners[2]->btn_bg_color}}; color:{{$banners[2]->btn_color}}">{{$banners[2]->btn_content}} <i class="feather-icon icon-arrow-right ms-1"></i></a>
               </div>
             </div>
           </div>
@@ -206,7 +208,7 @@
                     <img src="{{asset('resources/image/pet/'.$s_pet->image)}}" alt="{{$s_pet->product_name}}" class="mb-3 img-fluid" style="object-fit: contain; height: 195px">
                   </a>
                   <div class="card-product-action">
-                    <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-bs-product="{{$s_pet->id_product}}">
+                    <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-product="{{$s_pet->id_product}}">
                       <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i>
                     </a>
                     <a class="btn-action {{Auth::check()? 'addFav':''}}" 
@@ -231,11 +233,25 @@
                     <span class="text-dark">${{$s_pet->per_price * (1-$s_pet->sale/100)}}</span> 
                     <span class="text-decoration-line-through text-muted">${{$s_pet->per_price}}</span>
                   </div>
-                  <div>
-                      @for ($i = 0; $i < $s_pet->rating; $i++)
-                      <i class="bi bi-star-fill text-warning"></i>                              
-                      @endfor
-                    <span><small>{{$s_pet->rating}}</small></span>
+                  <div> 
+                    <p>
+                      @php
+                          $rating = 0;
+                          if (count($s_pet->Comment->where('rating','!=',null)) >0) {
+                            foreach ($s_pet->Comment->where('rating','!=',null) as $cmt) {
+                              $rating += $cmt->rating;
+                            }
+                            $rating /= count($s_pet->Comment->where('rating','!=',null));
+                          }
+                      @endphp
+                        @for ($i = 0; $i < $rating; $i++)
+                        <i class="bi bi-star-fill text-warning"></i>
+                        @endfor
+                        @for ($i = 0; $i < 5-$rating; $i++)
+                        <i class="bi bi-star text-warning"></i>
+                        @endfor
+                    </p>
+                    <span class="text-muted small">Sold: {{count($s_pet->Comment->where('rating','!=',null))}}</span>
                   </div>
                 </div>
                 <div class="d-grid mt-2"><a href="#!" class="btn btn-primary ">
@@ -343,7 +359,7 @@
           </div>
           <div class="col-lg-6">
             <div class="ps-lg-8 mt-6 mt-lg-0">
-              <a href="#!" class="mb-4 d-block" id="breedModal"></a>
+              <p class="mb-4 d-block text-primary" id="breedModal"></>
               <h2 class="mb-1 h1" id="petNameModal"></h2>
               <div class="mb-4 text-warning" id="ratingModal">
                 <a href="#" class="ms-2" id="soldModal"></a>
@@ -359,9 +375,10 @@
                 <button type="button" class="btn btn-outline-secondary" id="weigthModal">
                 </button> 
               </div>
-              <form action="{{route('productdetail',[$pet->id_product])}}" method="post" class="row">
+              <form action="{{route('productdetail')}}" method="post" class="row">
                 @csrf
                 <input type="hidden" name="id_pro">
+                <input type="hidden" name="max_quan" >
               <div>
                 <div class="input-group input-spinner ">
                   <button type="button" class="btn btn-outline-secondary" style="border-radius: 10px 0 0 10px;"  data-field="quantity" id="btn_minus">
@@ -421,18 +438,30 @@
     </div>
   </div>
 </div>
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="liveToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-body text-center" >
-      <i class="bi bi-cart-check-fill" style="font-size: 1.3rem"></i>
-      <span style="font-size: 1.3rem" class="me-auto">Add pet to cart successully</span>
+<div class="toast-container position-fixed h-100 p-3 top-100 start-50 translate-middle">
+  <div role="alert"  id="toastAdd" style="box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;" aria-live="assertive" aria-atomic="true" class="toast" data-bs-autohide="true" data-bs-delay='1500'>
+      <div class="toast-body" style="height: 100px; padding:30px 0">
+        <div class="row">
+          <div class="col-2 mb-3 mx-auto">
+            <i class="fa-solid fa-cart-circle-check" style="color: #2ec27e; font-size: 2.3rem"></i>
+          </div>
+          <h4 class="text-center text-uppercase" style="font-family: 'Quicksand', sans-serif;">Add pet to cart successully</h4>
+        </div>
+      </div>
+  </div>
+</div>
+  <div class="toast-container position-fixed h-100 p-3 top-100 start-50 translate-middle">
+    <div role="alert"  id="toastCompare" style="box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;" aria-live="assertive" aria-atomic="true" class="toast" data-bs-autohide="true" data-bs-delay='1500'>
+        <div class="toast-body" style="height: 100px; padding:30px 0">
+          <div class="row">
+            <div class="col-2 mb-3 mx-auto">
+              <i class="fa-solid fa-lightbulb-on " style="color: #f5c211; font-size: 1.3rem"></i>
+            </div>
+            <h4 class="text-center text-uppercase" style="font-family: 'Quicksand', sans-serif;" id="messCompare"></h4>
+          </div>
+        </div>
     </div>
-  </div>
-</div>
-<div class="toast-container position-fixed end-50" style="bottom: 20px" >
-  <div id="liveToast2" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-  </div>
-</div>
+  </div>  
 <div data-bs-toggle="tooltip"  title="Show Compare" class="position-fixed rounded-circle bottom-0 start-0 p-3 animate__animated animate__heartBeat animate__infinite {{!Session::has('compare')?'d-none':''}}" id="btn-compare">
   <button role="button" class="btn btn-primary shadow" id="show_compare" data-bs-toggle="modal" data-bs-target="#comparePet">
     <i class="bi bi-arrow-left-right"></i>
@@ -459,20 +488,37 @@
       </div>
     </div>
   </div>
-
 </div>
+
 @endsection
 @section('script')
     <script>
+      
       $(document).ready(function(){
+        //?? Rolldown message not working
+          // const scrollingElement = document.getElementById("scroller");
+          // const config = { childList: true };
+
+          // const callback = function (mutationsList, observer) {
+          //   console.log("aACVDDVA");
+          //   for (let mutation of mutationsList) {
+          //     if (mutation.type === "childList") {
+          //       window.scrollTo(0, document.body.scrollHeight);
+          //     }
+          //   }
+          // };
+          // const observer = new MutationObserver(callback);
+          // observer.observe(scrollingElement, config);
           $('.btn_modal').click(function(){
-            $.get(window.location.href+"/ajax/modal/"+$(this).data('bsProduct'),function(data){
+            $.get(window.location.origin+"/index.php/ajax/modal/showpet/"+$(this).data('product'),function(data){
               let dataProduct = jQuery.parseJSON(data); 
               $('#imgModal').css({'background-image':'url(resources/image/pet/'+dataProduct['image']+')','object-fit': 'contain','background-repeat': 'no-repeat'});
               $('#imgModal').html(`<image src='resources/image/pet/${dataProduct["image"]}' style="background-color: #ffffff">`);
               $('#breedModal').html(dataProduct['breed_name']);
               $('#petNameModal').html(dataProduct['product_name']);
+              $('input[name=max_quan]').val(dataProduct['quantity']);
               let strStart ="";
+              
               for(let i =0; i<dataProduct['rating'];i++){
                 strStart+="<i class='bi bi-star-fill'></i>"
               }
@@ -486,13 +532,13 @@
               }else{
                 $('#modal_Fav').html("<i class='bi bi-heart'></i>")
               }
-              $('#ratingModal').html(strStart);
+              $('#ratingModal').html(strStart.toFixed(2));
               $('#soldModal').html(`(${dataProduct["sold"]} sold)`);
               if(dataProduct["sale"]>0){
                 $('.hasSale').removeClass('d-none');
                 $('#priceModal').html(`$${dataProduct["per_price"]}`);
                 $('#saleModal').html(`${dataProduct["sale"]}% Off`);
-                $('#priceAFSModal').html(`$${dataProduct["per_price"]*(1-dataProduct["sale"]/100)}`)
+                $('#priceAFSModal').html(`$${(dataProduct["per_price"]*(1-dataProduct["sale"]/100)).toFixed(2)}`)
               }else{
                 $('.hasSale').addClass('d-none');
                 $('#priceAFSModal').html(`$${dataProduct["per_price"]}`);
@@ -505,14 +551,14 @@
             });
           });
           $('.compare_pet').click(function(){
-            const toast = new bootstrap.Toast($('#liveToast2'))
-            toast.show();
             if($('#btn-compare').hasClass('d-none')){
               $('#btn-compare').removeClass('d-none');
             }
             $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
-              $('#liveToast2').html(data);  
+              $('#messCompare').html(data);  
             })
+            const toast = new bootstrap.Toast($('#toastCompare'))
+            toast.show();
           });
           $('#show_compare').click(function(){
             $.get(window.location.origin+"/index.php/ajax/compare/showcompare",function(data){
@@ -526,7 +572,7 @@
             })
           });
           $('.addToCart').click(function(){
-            const toast = new bootstrap.Toast($('#liveToast'))
+            const toast = new bootstrap.Toast($('#toastAdd'))
             toast.show();
             $.get(window.location.href+"/ajax/"+$(this).data('bsId'),function(data){
               $('.countCart').html(data);
@@ -556,6 +602,7 @@
               let currentVl = $(this).val();
               $(this).val(validateNum.test(currentVl)?currentVl:1);
           });
+          
       })
     </script>
 @endsection

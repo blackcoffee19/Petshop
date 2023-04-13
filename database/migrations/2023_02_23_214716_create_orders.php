@@ -22,9 +22,11 @@ return new class extends Migration
                 $table->string('cus_address');
                 $table->string('cus_phone',20);
                 $table->string('cus_email',40);
+                $table->string('code_coupon',20)->nullable();
+                $table->decimal('shipping_fee',8,1)->default(2);
                 $table->enum('method',['credit','cod']);
                 $table->string('image')->nullable();
-                $table->enum('status',["Paid","Not yet"]);
+                $table->enum('status',['finished','confirmed','delivery','unconfimred','cancel','transaction failed']);
                 $table->timestamps();
             });
         }

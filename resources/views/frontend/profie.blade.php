@@ -9,7 +9,7 @@
             </div>
             <ul class="list-unstyled w-100 text-center px-0" id="list-option-profie">
                 <li class="py-4 active-profie"><a class="fs-5 text-decoration-none" data-bs-site="profie" type="button">Edit Profie</a></li>
-                <li class="py-4 "><a class="fs-5 text-decoration-none" data-bs-site="order" type="button">Your orders</a></li>
+                <li class="py-4 "><a class="fs-5 text-decoration-none" data-bs-site="order" type="button" id="show_orders" data-sorttype="desc">Your orders</a></li>
                 <li class="py-4 "><a class="fs-5 text-decoration-none" data-bs-site="favourite" type="button">Favourite</a></li>
                 <li class="py-4 "><a class="fs-5 text-decoration-none" data-bs-site="comment" type="button">Comment</a></li>
                 <li class="py-4 "><a class="fs-5 text-decoration-none" data-bs-site="setting" type="button">Setting</a></li>
@@ -51,9 +51,6 @@
                         <label for="dateOfBirth" class="form-label">Day of Birth</label>
                         <input type="date" name="dateOfBirth" id="dateOfBirth" class="form-control" min="1920-12-31" max="2010-12-31" value="{{Auth::user()->dob}}">
                     </div>
-                    <label class="form-label" for="profie_address">Address: </label>
-                    <input type="text" class="form-control mb-3" name="profie_address" id="profie_address" value="{{Auth::user()->address}}">
-                    <div class="text-danger mb-3" id="valiPhone">{{$errors->first('profie_address')}}</div>
                     <label class="form-label" for="profie_phone">Phone Number: </label>
                     <input type="text" class="form-control mb-3" name="profie_phone" id="profie_phone" value="{{Auth::user()->phone_number}}">
                     <span class="text-danger mb-3" id="invalidPhone"></span>
@@ -83,34 +80,16 @@
                         <thead>
                             <tr>
                                 <th>
-                                    <button class="btn"><i class="fa-solid fa-arrow-down text-primary"></i> Date</button>
+                                    <button class="btn" id="sortOrder" data-sorttype='asc'><i class="fa-solid fa-arrow-down text-primary"></i></button>Date
                                 </th>
-                                <th>
-                                    Your order
-                                </th>
+                                <th>Your order</th>
                                 <th>Status</th>
+                                <th></th>
+                                <th></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach (Auth::user()->Order->sortByDesc('created_at') as $order)
-                            <tr>
-                                <td>{{date('d/m/Y', strtotime($order->created_at))}}</td>
-                                <td>
-                                    <table class="table">
-                                        @foreach ($order->Cart as $cart)
-                                        <tr>
-                                            <td style="width: 30%">
-                                                <img src="{{asset('resources/image/pet/'.$cart->Product->image)}}" alt="" class="border rounded me-4" height="100" style="max-width: 100;">
-                                            </td>
-                                            <td style="width: 60%">{{$cart->Product->product_name}}</td>
-                                            <td style="width: 10%">{{$cart->qty}}</td>
-                                        </tr>
-                                        @endforeach
-                                    </table>
-                                </td>
-                                <td>{{$order->status}}</td>
-                            </tr>
-                            @endforeach
+                        <tbody id="user_orders">
+                            
                         </tbody>
                     </table>
                 </div>
@@ -243,6 +222,63 @@
     </div>
 </main>
 @endsection
+@section('modal')
+<div class="modal fade" id="editOrder" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+      <div class="modal-content" style="overflow: scroll">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Edit Order</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{{route('user_editorder')}}" method="post">
+            @csrf
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 row mt-3">
+                        <input type="hidden" name="id_orderedit" id="id_orderedit">
+                        <div class="mb-3 row">
+                            <label class="col-lg-4 col-md-3 col-form-label" for="edit_cusname">Reciver Name</label>
+                            <div class="col-lg-8 col-md-9">
+                                <input type="text" name="edit_cusname" id="edit_cusname" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class=" col-lg-4 col-md-3 col-form-label" for="edit_cusaddr">Address</label>
+                            <div class="col-lg-8 col-md-9">
+                                <input type="text" name="edit_cusaddr" id="edit_cusaddr" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-lg-4 col-md-3 col-form-label" for="edit_cusphone">Phone</label>
+                            <div class="col-lg-8 col-md-9">
+                                <input type="text" name="edit_cusphone" id="edit_cusphone" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class=" col-lg-4 col-md-3 col-form-label" for="edit_cusemail">Email</label>
+                            <div class="col-lg-8 col-md-9">
+                                <input type="email" name="edit_email" id="edit_cusemail" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="edit_coupon" class="col-form-label col-lg-4 col-md-3">Coupon</label>
+                            <div class="col-lg-8 col-md-9">
+                                <p id="name_coupon"></p>
+                                <input type="text" class="form-control" name="edit_coupon" id="edit_coupon" disabled >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" id="submit_order" class="btn btn-primary" disabled>Change</button>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+@endsection
 @section('script')
     <script>
         $(document).ready(function(){
@@ -350,6 +386,54 @@
                     $('#profie_change').removeAttr('disabled');
                 }else{
                     $('#profie_change').attr('disabled','disabled');
+                }
+            });
+            $('#show_orders, #sortOrder').click(function(){
+                $.get(window.location.origin+"/index.php/ajax/list_order/"+$(this).data('sorttype'),function(data){
+                    $('#user_orders').html(data);
+                    $('.user_editorder').click(function(){
+                        $.get(window.location.origin+"/index.php/ajax/edit_order/"+$(this).data('idorder'),function(data){
+                            let data_order = jQuery.parseJSON(data);
+                            $('#id_orderedit').val(data_order['id_order']);
+                            $('#edit_cusname').val(data_order['cus_name']);
+                            $('#edit_cusaddr').val(data_order['cus_address']);
+                            $('#edit_cusphone').val(data_order['cus_phone']);
+                            $('#edit_cusemail').val(data_order['cus_email']);
+                            $('#edit_coupon').val(data_order['code_coupon']);
+                            $('#name_coupon').html(data_order['name_coupon']);
+                            $('#edit_cusname, #edit_cusaddr,#edit_cusphone,#edit_cusemail').change(function(){
+                                if($('#edit_cusname').val().length >0 && $('#edit_cusaddr').val().length>0 && $('#edit_cusphone').val().length>0 && $('#edit_cusemail').val().length>0){
+                                    $('#submit_order').removeAttr('disabled');
+                                }else{
+                                    $('#submit_order').attr('disabled','disabled');
+                                }
+                            });
+                        })
+                    });
+                    $('.cancelOrder').click(function(e){
+                        if(confirm("You really want cancel this order?")){
+                            $.ajax({
+                                method: "POST",
+                                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                                url: window.location.origin+'/index.php/cancel-order',
+                                data: {'id_order':$(e.currentTarget).data('idorder')},
+                                success: function (data1) {
+                                    $.get(window.location.origin+"/index.php/ajax/list_order/desc",function(data){
+                                        $('#user_orders').html(data);
+                                    });
+                                }
+                            });
+                        }
+                    })
+                })
+            });
+            $('#sortOrder').click(function(){
+                if($(this).data('sorttype') == 'asc'){
+                    $(this).html('<i class="fa-solid fa-arrow-up text-primary"></i>');
+                    $(this).data('sorttype','desc');
+                }else{
+                    $(this).html('<i class="fa-solid fa-arrow-down text-primary"></i>');
+                    $(this).data('sorttype','asc');
                 }
             })
         })       

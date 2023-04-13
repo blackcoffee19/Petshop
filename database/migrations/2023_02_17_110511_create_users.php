@@ -18,7 +18,6 @@ return new class extends Migration
                 $table->id('id_user');
                 $table->string('name',40);
                 $table->integer('gender')->nullable(true);
-                $table->string('address',50)->nullable(true);
                 $table->string('email')->unique();
                 $table->date('dob')->nullable();
                 $table->timestamp('email_verified_at')->nullable();
@@ -27,6 +26,7 @@ return new class extends Migration
                 $table->string('phone_number')->nullable();
                 $table->string('image')->nullable();
                 $table->integer('admin')->nullable();
+                $table->string('position')->nullable();
                 $table->timestamps();
             });
         }

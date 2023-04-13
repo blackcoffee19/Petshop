@@ -22,13 +22,12 @@ return new class extends Migration
                 $table->integer('gender')->nullable();
                 $table->decimal('weight',15,2)->nullable();
                 $table->integer('age')->nullable();
-                $table->integer('sold');
-                $table->integer('quantity');
                 $table->double('per_price');
+                $table->double('original_price');
                 $table->double('sale')->nullable();
                 $table->string('image')->nullable();
                 $table->string('food')->nullable();
-                $table->integer('rating')->nullable();
+                $table->integer('quantity');
                 $table->longText('description')->nullable();
                 $table->timestamps();
             });

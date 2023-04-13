@@ -16,11 +16,12 @@ return new class extends Migration
         if(!Schema::hasTable('comments')){
             Schema::create('comments', function (Blueprint $table) {
                 $table->id('id_comment');
-                $table->bigInteger('reply_comment')->nullable();
+                $table->foreignId('reply_comment')->nullable();
                 $table->foreignId('id_product');
-                $table->foreignId('id_user');
-                $table->text('context');
-                $table->integer('likes')->nullable();
+		        $table->foreignId('id_user')->nullable();
+		        $table->boolean('verified')->default(false);
+		        $table->string('name',20)->nullable();
+                $table->text('context')->nullable();
                 $table->integer('rating')->nullable();
                 $table->timestamps();
             });

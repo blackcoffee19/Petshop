@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderShipped;
 use App\Models\Product;
 use App\Models\TypeProduct;
 use App\Models\Breed;
 use App\Models\Comment;
 use App\Models\Order;
+use App\Models\Slide;
 use App\Models\User;
+use App\Models\News;
+use App\Models\Coupon;
+use App\Models\Banner;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,13 +37,13 @@ class AdminController extends Controller
         if(Auth::attempt(['email' => $req->username, 'password' => $req->pass])){
             return redirect('admin/dashboard');
         }else{
-            return redirect()->back()->with(["message"=>"Your email was not allow to attend Admin site"]);
+            return redirect()->back()->with(["error"=>"Your email was not allow to attend Admin site"]);
         }
     }
     public function get_dashboard(){
         $state= "DB";
         $orders= Order::orderBy('created_at','desc')->limit(4)->get();
-        $comments = Comment::orderBy('created_at','desc')->limit(5)->get();
+        $comments = Comment::orderBy('created_at','asc')->limit(5)->get();
         
         return view('backend.dashboard',compact('state','comments','orders'));
     }
@@ -50,6 +56,55 @@ class AdminController extends Controller
         foreach($breeds as $breed){
             echo "<option value='$breed->id_breed'>$breed->breed_name</option>";
         }
+    }
+    public function ajax_notificate($id){
+        $new = News::find($id);
+        $html = "<input type='hidden' name='id_order' value='".$new->Order->id_order."'><input type='hidden' name='id_news' value='".$id."'><tr><td>User</td><td>";
+        $order = $new->Order;
+        if(isset($order->User)){
+            $html.=$order->User->name;
+        }else{
+            $html.="Guest";
+        };
+        $html.="</td></tr><tr><td>Reciver</td><td>".$order->cus_name."</td></tr><tr><td>Address</td><td>".$order->cus_address."</td></tr><tr><td>Phone</td><td>".$order->cus_phone."</td></tr><tr><td>Email</td><td>".$order->cus_email."</td></tr><tr><td>Coupon</td><td>".$order->code_coupon."</td></tr><tr><td>Cart</td><td><table class='table'><thead><tr><th>No</th><th>Name</th><th>Amount</th><th>Per_price</th><th>Sale</th></tr></thead><tbody id='check_order' data-status='".$order->status."'>";
+        $sum = 0;
+        foreach($order->Cart as $key=> $cart){
+            $sum += $cart->Product->per_price*(1-$cart->Product->sale/100)*$cart->qty;
+            $html.="<tr><td>$key</td><td>".$cart->Product->product_name."</td><td>".$cart->qty."</td><td>".$cart->Product->per_price."</td><td class='text-danger'>-".$cart->Product->sale."%</td></tr>";
+        }
+        $html.="</tbody><tfoot><tr><td colspan='3'>Shipping fee</td><td colspan='2'>$".$order->shipping_fee."</td></tr><tr><td colspan='3'>Total</td><td colspan='2' class='fw-bold text-danger'>$$sum</td></table></td></tr><tr><td>Method</td><td>".$order->method."</td></tr><tr><td>Image Bill</td><td>";
+        if($order->image!=null){
+            $html.="<img src='resources/image/payment/".$order->image."' width='200' class='img-fluid'></td>";
+        }else{
+            $html.="No image</td>";
+        };
+        if($order->status != 'cancel' && $order->status !='transaction failed' && $order->status != 'delivery'){  
+            $html.="</tr><tr><td>Current Status</td><td>".$order->status."</td></tr><tr class='bg-success'><td class='text-light ps-3'>Change to</td><td class='p-1'><select class='form-select bg-light' name='new_status'><option value='confirmed'>Confirm</option><option value='delivery'>Delivery</option></select></td></tr>";
+        }else{
+            
+            $html.="</tr><tr><td>Current Status</td><td>".$order->status."</td></tr>";
+        }
+        echo $html;
+    }
+    public function post_confirmOrder(Request $req){
+        if(isset($req['id_order']) && isset($req['id_news']) ){
+            $order = Order::find($req['id_order']);
+            $order->status =$req['new_status'];
+            $order->save();
+            $news = News::find($req['id_news']);
+            $news->delete();
+            if($order->status == 'delivery'){
+                Mail::to($order->cus_email)->send(new OrderShipped($order));
+            }
+            return redirect()->back()->with('message_confirm',"Confirm Order Successfully");
+        }else{
+            return redirect()->back()->with('message_error','Error');
+        };
+    }
+    public function ajax_removeNews($id){
+        $news = News::find($id);
+        $news->delete();
+        return redirect()->back()->with('message_error',"Remove 1 news");
     }
 // TYPE PET
     public function get_listtype(){
@@ -180,13 +235,25 @@ class AdminController extends Controller
     public function get_listpet($id =null){
         $state = "Pet";
         $sortType= $id;
-        if($sortType != null){
+        if($sortType != null && $sortType !=0){
             $list_breed = Breed::select('id_breed')->where('id_type_product','=',$sortType)->get();
             $pets = Product::whereIn('id_breed',$list_breed)->paginate(5); 
         }else{
             $pets = Product::paginate(5);
         }
         return view('backend.Pets.list_pet',compact('pets','state','sortType'));
+    }
+    public function search_pet(Request $req){
+        $state = "Pet";
+        $search = $req['q']? $req['q']:'';
+        $sortType = null;
+        if(isset($req['q'])){
+            $pets = Product::where('product_name','LIKE','%'.$req['q'].'%')->paginate(5);
+        }else{
+            $pets = Product::paginate(5);
+        };
+        return view('backend.Pets.list_pet',compact('pets','state','search','sortType'));
+
     }
     public function get_addpet(){
         $site="Add";
@@ -197,20 +264,16 @@ class AdminController extends Controller
         $req->validate([
             "name_pet"=>['regex:/^[a-zA-Z]+$/'],
             "age_pet"=>"regex:/([0-9])+/",
-            "sold_pet"=>"numeric",
             "quantity_pet"=>"numeric",
             "price_pet"=>"numeric",
-            "rating_pet"=>"regex:/([1-6]){1}/",
             "breed_pet"=>"required",
             "image_pet"=>"required"
         ],[
             "breed_pet.required"=>"Need choose type pet and breed for pet",
             "name_pet.regex"=>"Pet name invalid. It cannot contain numbers or speacial character and more than 2 characters",
             "age_pet.regex"=>"Pet age invalid",
-            "sold_pet.numeric"=>"Input the number of pet has been sold",
             "quantity_pet.numeric"=>"Input the number of pet availiable",
             "price_pet.numeric"=>"Input price for pet",
-            "rating_pet.regex"=>"Rating just 1-5",
             "image_pet.required"=>"Need add 1 picture of pet"
         ]);
         $new_pet = new Product();
@@ -218,12 +281,10 @@ class AdminController extends Controller
         $new_pet->id_breed = $req["breed_pet"];
         $new_pet->gender = $req["gender_pet"];
         $new_pet->age = $req["age_pet"];
-        $new_pet->sold = $req["sold_pet"];
         $new_pet->quantity = $req["quantity_pet"];
         $new_pet->per_price=$req["price_pet"];
         $new_pet->food=$req["food_pet"];
         $new_pet->status=$req["status_pet"];
-        $new_pet->rating=$req["rating_pet"];
         $new_pet->description=$req["describe"];
         $new_pet->created_at=Carbon::now()->format('Y-m-d H:i:s');
         if($req->hasFile('image_pet')){
@@ -240,10 +301,11 @@ class AdminController extends Controller
                 $hinh = "hinhmoi_".$num."_".$name;
             };
             $file->move('resources/image/pet/',$hinh);
+ 
             $new_pet->image=$hinh;
         }
         $new_pet->save();
-        return redirect('admin/pets/')->with(["message"=>"Add new pet successfully"]);
+        return redirect('admin/pets/list')->with(["message"=>"Add new pet successfully"]);
     }
     public function get_editpet($id){
         $state="Pet";
@@ -255,31 +317,25 @@ class AdminController extends Controller
         $req->validate([
             "name_pet"=>['regex:/^[a-zA-Z]+$/'],
             "age_pet"=>"regex:/([0-9])+/",
-            "sold_pet"=>"numeric",
             "quantity_pet"=>"numeric",
             "price_pet"=>"numeric",
-            "rating_pet"=>"regex:/([1-6]){1}/",
-            "breed_pet"=>"required",
+            "breed_pet"=>"required"
         ],[
             "breed_pet.required"=>"Need choose type pet and breed for pet",
             "name_pet.regex"=>"Pet name invalid. It cannot contain numbers or speacial character and more than 2 characters",
             "age_pet.regex"=>"Pet age invalid",
-            "sold_pet.numeric"=>"Input the number of pet has been sold",
             "quantity_pet.numeric"=>"Input the number of pet availiable",
-            "price_pet.numeric"=>"Input price for pet",
-            "rating_pet.regex"=>"Rating just 1-5",
+            "price_pet.numeric"=>"Input price for pet"
         ]);
         $edit_pet = Product::where('id_product','=',$id)->first();
         $edit_pet->product_name = $req["name_pet"];
         $edit_pet->id_breed = $req["breed_pet"];
         $edit_pet->gender = $req["gender_pet"];
         $edit_pet->age = $req["age_pet"];
-        $edit_pet->sold = $req["sold_pet"];
         $edit_pet->quantity = $req["quantity_pet"];
         $edit_pet->per_price=$req["price_pet"];
         $edit_pet->food=$req["food_pet"];
         $edit_pet->status=$req["status_pet"];
-        $edit_pet->rating=$req["rating_pet"];
         $edit_pet->description=$req["describe"];
         $edit_pet->updated_at=Carbon::now()->format('Y-m-d H:i:s');
         if($req->hasFile('image_pet')){
@@ -299,7 +355,7 @@ class AdminController extends Controller
             $edit_pet->image=$name;
         }
         $edit_pet->save();
-        return redirect('admin/pets/')->with(["message"=>"Edit pet successfully"]);
+        return redirect('admin/pets/list')->with(["message"=>"Edit pet successfully"]);
     }
     public function deletePet($id){
         $deletePet = Product::where('id_product','=',$id)->first();
@@ -434,8 +490,23 @@ class AdminController extends Controller
             case "created_at":
                 $orders = Order::orderBy("created_at","desc")->paginate(6);
                 break;
-            case "status":
-                $orders = Order::orderBy("status","desc")->paginate(6);
+            case "finished":
+                $orders = Order::where('status','=','finished')->paginate(6);
+                break;
+            case "confirmed":
+                $orders = Order::where('status','=','confirmed')->paginate(6);
+                break;
+            case "delivery":
+                $orders = Order::where('status','=','delivery')->paginate(6);
+                break;
+            case "unconfimred":
+                $orders = Order::where('status','=','unconfimred')->paginate(6);
+                break;
+            case "cancel":
+                $orders = Order::where('status','=','cancel')->paginate(6);
+                break;
+            case "transaction failed":
+                $orders = Order::where('status','=','transaction failed')->paginate(6);
                 break;
             case "user":
                 $orders = Order::where("order_code",'LIKE','%user%')->paginate(6);
@@ -463,10 +534,246 @@ class AdminController extends Controller
         $order = Order::where('id_order','=',$id)->first();
         return view('backend.Orders.edit_order',compact('state','order'));
     }
-//
+    public function post_editorder(Request $req,$id){
+        $order = Order::find($id);
+        $order->status = $req["order_status"];
+        $order->save();
+        if($order->status == 'delivery'){
+            Mail::to($order->cus_email)->send(new OrderShipped($order));
+        }
+        if($order->status == "finished"){
+            if($order->id_user == null){
+                foreach($order->Cart as $cart){
+                    $new_comment = new Comment();
+                    $new_comment->id_product = $cart->id_product;
+                    $new_comment->name = "Guest";
+                    $new_comment->verified = true;
+                    $new_comment->rating = 5;
+                    $new_comment->save();
+                }
+            }else{
+                $new_news = new News();
+                $new_news->id_user = $order->id_user;
+                $new_news->id_order = $id;
+                $new_news->title="How do you think about yours pets?";
+                $new_news->link="feedback";
+                $new_news->attr=$order->order_code;
+                $new_news->save();
+            }
+        }
+        return redirect('admin/orders/list')->with('message','Edit Order successfully');
 
-    public function ajax_orderUser($id)
-    {
+    }
+//
+//SLIDE
+    public function get_listslide(){
+        $state = "Slide";
+        $slides =Slide::paginate(5);
+        return view('backend.Sliders.list_slide',compact('slides','state'));
+    }
+    
+    public function list_option_breed($type){
+        $list= "<option value='all'>All Breed</option>";
+        $id_type = TypeProduct::select('id_type')->where('name_type','=',$type)->first();
+        foreach(Breed::whereIn('id_type_product',$id_type)->get() as $breed){
+            $list.="<option value='".$breed->breed_name."'>".$breed->breed_name."</option>";
+        }
+        echo $list;
+    }
+    public function list_petsl($id =null){
+        $list = "";
+        $pets = Product::all();
+        foreach($pets as $pet){
+            $list.="<option value='".$pet->id_product."'";
+            if($id !=null){
+                if(intval($id) == $pet->id_product){
+                    $list .=" selected";
+                };
+            }; 
+            $list.= ">".$pet->product_name."</option>";
+        }
+        echo $list;
+    }
+    public function post_addslide(Request $req){
+        $new_slide = new Slide();
+        $new_slide->title = $req["add_title"];
+        $new_slide->title_color = $req["add_title-color"];
+        $new_slide->content = $req['add_content']; 
+        $new_slide->content_color = $req["add_content_color"];
+        $new_slide->btn_content = $req["add_button"];
+        $new_slide->btn_color = $req["add_btn_color"];
+        $new_slide->btn_bg_color = $req["add_btn_bg_color"];
+        $new_slide->alert = $req["add_alert"];
+        $new_slide->alert_size= $req["add_alert_size"];
+        $new_slide->alert_color =  $req["add_alert_color"];
+        $new_slide->alert_bg = $req["add_alert_bg_color"];
+        $new_slide->link = $req["add_link"];
+        if($req["add_link"] == "productlist"){
+            $new_slide->attr1= $req["add_attr1"];
+            $new_slide->attr2 = $req["add_attr2"];
+        }else if($req["add_link"] == 'productdetail'){
+            $new_slide->attr1 = $req["add_idpet"];
+        };
+        if($req->hasFile('imageSlide')){
+            $file = $req->file('imageSlide');
+            $type = $file->getClientOriginalExtension();
+            if($type != "jpg" &&$type != "png"&&$type != "jpeg" &&$type != "webp" ){
+                return redirect()->back()->with('error','File image must be jpg,png,jpeg,webp');
+            };
+            $img_name = $file->getClientOriginalName();
+            $num = 0;
+            $img_slide = "user_".$num."_".$img_name;
+            while(file_exists('resources/image/slides/'.$img_slide)){
+                $num++;
+                $img_slide = "user_".$num."_".$img_name;
+            }
+            $file->move('resources/image/slides/',$img_slide);
+            $new_slide->created_at= Carbon::now()->format('Y-m-d H:i:s');
+            $new_slide->updated_at= Carbon::now()->format('Y-m-d H:i:s');
+            $new_slide->image= $img_slide;
+        }else{
+            return redirect()->back()->with('error','Add new slide fail!. Select 1 image for Slide');
+        };
+        $new_slide->save();
+        return redirect()->back()->with('message','Add new slide successfull');
+    }
+    public function get_editslide($id){
+        $slide = Slide::find($id);
+        echo $slide;
+    }
+    public function post_editslide(Request $req){
+        if(!isset($req['edit_id_slide'])){
+            return redirect()->back()->with('error','Error: Edit slide fail');
+        };
+        $edit_slide = Slide::find($req['edit_id_slide']);
+        $edit_slide->title = $req["title"];
+        $edit_slide->title_color = $req["title-color"];
+        $edit_slide->content = $req['content']; 
+        $edit_slide->content_color = $req["content-color"];
+        $edit_slide->btn_content = $req["button"];
+        $edit_slide->btn_color = $req["btn-color"];
+        $edit_slide->btn_bg_color = $req["btn-bg-color"];
+        $edit_slide->alert = $req["alert"];
+        $edit_slide->alert_size= $req["alert-size"];
+        $edit_slide->alert_color =  $req["alert-color"];
+        $edit_slide->alert_bg = $req["alert-bg-color"];
+        $edit_slide->link = $req["link"];
+        if($req["link"] == "productlist"){
+            $edit_slide->attr1= $req["attr1"];
+            $edit_slide->attr2 = $req["attr2"];
+        }else if($req["add_link"] == 'productdetail'){
+            $edit_slide->attr1 = $req["edit_idpet"];
+        };
+        if(isset($req["changeImgSlide"]) && $req->hasFile('imageSlide')){
+            $file = $req->file('imageSlide');
+            $type = $file->getClientOriginalExtension();
+            if($type != "jpg" &&$type != "png"&&$type != "jpeg" &&$type != "webp" ){
+                return redirect()->back()->with('error','File image must be jpg,png,jpeg,webp');
+            };
+            $img_name = $file->getClientOriginalName();
+            $num = 0;
+            $img_slide = "user_".$num."_".$img_name;
+            while(file_exists('resources/image/slides/'.$img_slide)){
+                $num++;
+                $img_slide = "user_".$num."_".$img_name;
+            }
+            $file->move('resources/image/slides/',$img_slide);
+            $edit_slide->image= $img_slide;
+        }else if(isset($req["changeImgSlide"])){
+            return redirect()->back()->with('error','Add new slide fail!. Select 1 image for Slide');
+        };
+        $edit_slide->updated_at =Carbon::now()->format('Y-m-d H:i:s');
+        $edit_slide->save();
+        return redirect()->back()->with('message','Add new slide successfull');
+    }
+    public function deleteSlide($id){
+        $slide = Slide::find($id);
+        $slide->delete();
+        return redirect()->back()->with('message','Delete Slide successfull');
+    }
+//
+//BANNER
+    public function get_listbanner(){
+        $state = "Banner";
+        $banners = Banner::all();
+        return view('backend.Banner.list_banners',compact('state','banners'));
+    }
+    public function model_editbanner($id){
+        $banner = Banner::find($id);
+        echo $banner;
+    }
+    public function post_editbanner(Request $req){
+        // dd($req);
+        $edit_banner = Banner::find($req["id_banner"]);
+        $edit_banner->title=$req["title"];
+        $edit_banner->title_color=$req['title_color'];
+        $edit_banner->content = $req['content'];
+        $edit_banner->content_color = $req["content_color"];
+        $edit_banner->btn_content = $req['btn_content'];
+        $edit_banner->btn_bg_color = $req['btn_bg_color'];
+        $edit_banner->btn_color = $req['btn_color'];
+        $edit_banner->link = $req['link'];
+        if($req['link'] == 'productlist'){
+            $edit_banner->attr = $req['attr'];
+        }else{
+            $edit_banner->attr = null;
+        };
+        if($req->hasFile('new_img')){
+           $file = $req->file('new_img');
+            $duoi = $file->getClientOriginalExtension();
+            if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
+                return redirect()->back()->with(['error'=>'File image must be jpg,png,jpeg,webp']);
+            }
+            $name=$file->getClientOriginalName();
+            $num=0;
+            $hinh = "banner_".$num."_".$name;
+            while(file_exists('resources/image/banner/'.$hinh)){
+                $num++;
+                $hinh = "hinhmoi_".$num."_".$name;
+            };
+            $file->move('resources/image/banner/',$hinh);
+            $edit_banner->image=$hinh;
+        }
+        $edit_banner->save();
+        return redirect()->back()->with('message','Edit Banner Successfully');
+    }
+//
+//COUPONS
+    public function get_listcoupon(){
+        $state = "Coupon";
+        $coupons = Coupon::orderBy('status','desc')->paginate(10);
+        return view('backend.Coupon.list_coupon',compact('state','coupons'));
+    }
+    public function ajax_getcoupon($id){
+        $coupon = Coupon::find($id);
+        echo $coupon;
+    }
+    public function post_addcoupon(Request $req){
+        $new_coupon  = new Coupon();
+        $new_coupon->title = $req['add_coupon_title'];
+        $new_coupon->code = $req['add_coupon_code'];
+        $new_coupon->discount = $req['add_coupon_disc'];
+        $new_coupon->status = boolval($req['add_coupon_status']);
+        $new_coupon->created_at = Carbon::now()->format('Y-m-d H:i:s');
+        $new_coupon->save();
+        return redirect()->back()->with('message','Add new Coupon successfully');
+    }
+    public function post_editcoupon(Request $req){
+        if(!isset($req['edit_id_coupon'])){
+            return redirect()->back()->with('error','Add Coupon faild!');
+        };
+        $edit_coupon = Coupon::find($req['edit_id_coupon']);
+        $edit_coupon->title = $req['coupon_title'];
+        $edit_coupon->code = $req['coupon_code'];
+        $edit_coupon->discount = $req['coupon_disc'];
+        $edit_coupon->status =  boolval($req['coupon_status']);
+        $edit_coupon->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+        $edit_coupon->save();
+        return redirect()->back()->with('message','Edit Coupon successfully');
+    }
+//
+//AJAX
+    public function ajax_orderUser($id){
         $str ="";
         $user_orders = Order::where('id_user','=',$id)->orderBy('created_at','desc')->get();
         if(count($user_orders) == 0){
@@ -485,4 +792,5 @@ class AdminController extends Controller
 
         echo $str;
     }
+//
 }

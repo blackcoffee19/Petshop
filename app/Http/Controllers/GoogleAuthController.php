@@ -31,15 +31,13 @@ class GoogleAuthController extends Controller
                     $user = User::where('google_id','=',$google_user->getId())->first();
                     foreach($cart_session as $key => $value){
                         $addToUserCart = new Cart();
-                        $orde_code ="user_".$google_user->getId()."_0";
-                        $addToUserCart->order_code = $orde_code;
                         $addToUserCart->id_user = $user->id_user;
                         $addToUserCart->id_product = $value["id_product"];
                         $addToUserCart->qty = $value["qty"];
                         $addToUserCart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                         $addToUserCart->save();
                     }
-                    Session::remove("cart");
+                    Session::forget("cart");
                 };
                 Auth::login($new_user);
                 return redirect('/');
@@ -57,9 +55,6 @@ class GoogleAuthController extends Controller
                             $foundPro->save();
                         }else{
                             $addToUserCart = new Cart();
-                            $user_code = $user->phone_number? $user->phone_number: $user->google_id;
-                            $orde_code ="user_".$user_code."_".count($user->Order);
-                            $addToUserCart->order_code = $orde_code;
                             $addToUserCart->id_user = $user->id_user;
                             $addToUserCart->id_product = $value["id_product"];
                             $addToUserCart->qty = $value["qty"];
@@ -67,7 +62,7 @@ class GoogleAuthController extends Controller
                             $addToUserCart->save();
                         }
                     }
-                    Session::remove("cart");
+                    Session::forget("cart");
                 };
                 Auth::login($user);
                 return redirect('/');

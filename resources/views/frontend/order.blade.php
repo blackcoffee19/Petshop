@@ -25,22 +25,24 @@
 
     <div class="row  position-relative">
         <div class="col-lg-5 col-md-6 mx-auto d-flex flex-column align-content-center">
-            <ul class="nav nav-pills nav-fill gap-2 p-1 mb-5 small bg-success rounded-5 shadow-sm" id="pillNav2" role="tablist" >
-              <li class="nav-item" role="presentation">
-                <a class="nav-link active2 rounded-5 text-dark" id="btn-shipment" data-bs-toggle="tab" role="tab" aria-selected="true" >Shipment Details</a>
-              </li>
-              <li class="nav-item" role="presentation">
-                <a class="nav-link rounded-5 text-white" id="btn-payment" data-bs-toggle="tab" role="tab" aria-selected="false">Payment</a>
-              </li>
-            </ul>
             <form action="{{route('order')}}" method="POST">
                 @csrf
+                <ul class="nav nav-pills nav-fill gap-2 p-1 mb-5 small bg-success rounded-5 shadow-sm" id="pillNav2" role="tablist" >
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active2 rounded-5 text-dark" id="btn-shipment" data-bs-toggle="tab" role="tab" aria-selected="true" >Shipment Details</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link rounded-5 text-white" id="btn-payment" data-bs-toggle="tab" role="tab" aria-selected="false">Payment</a>
+                    </li>
+                </ul>
                 <div class="position-relative pb-5" id="shipment-site" style="height: max-content;">
                     <div class="position-absolute h-100 w-100 shadow"  style="filter: blur(2px);z-index:0; background-color: #ffffff; "></div>
                     <div class="position-relative w-75 mx-auto" style="z-index: 2; " >
                             @if (Auth::check())
                             <input type="hidden" name="id_user" value="{{Auth::user()->id_user}}">
                             @endif
+                            <input type="hidden" name="code_coupon">
+                            <input type="hidden" name="shipping" value="2">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full name </label>
                                 <input type="text" class="form-control" name="name" value="{{Auth::check()? Auth::user()->name:''}}">
@@ -153,18 +155,37 @@
                     @endif
                 </tbody>
                 <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-black-50">Shipping fee</td>
+                        <td colspan="2" class="text-black-50">$3</td>
+                    </tr>
+                    <tr id="add_coupon" class="d-none">
+                        <td colspan="2" class="text-black-50">Discount</td>
+                        <td colspan="2" class="text-danger-50"></td>
+                    </tr>
                     <tr style="height:60px">
                         <td colspan="2" class="text-center h4">
                             Total
                         </td>
-                        <td colspan="2" class="text-center h4 text-danger">
-                            ${{$sum}}
+                        <td colspan="2" class="text-center h4 text-danger" id="total_order" data-total="{{$sum +3}}">
+                            ${{$sum +3}}
                         </td>
                     </tr>
                 </tfoot>
             </table>
+            <div class="mt-4">
+                <div class="input-group">
+                    <label for="coupon" class="input-group-text" style="background-color: #ffffff"><i class="fa-solid fa-badge-percent fa-2xl text-center" style="color: #f5c211;"></i></label>
+                    <input type="text" name="coupon" id="coupon" placeholder="Add coupon" class="form-control fs-4" style="height: 40px" {{!Auth::check()?'disabled':''}}>
+                </div>
+                <span id="isvalid_coupon" class="text-danger mt-2 d-none"></span>
+                @if (!Auth::check())
+                <span class="mt-2 text-danger">Just User can use coupon</span>
+                @endif
+            </div>
         </div>
     </div>
+    
 </div>
 @endsection
 @section('script')
@@ -179,6 +200,7 @@
                     $('#province').append(`<option value='${value.province_id}'>${value.province_name}</option>`);
                 });
             });
+            //Need add shipping fee
             $('#province').change(function async(e){
                 e.preventDefault();
                 let getDistric = host+"/api/province/district/"+$(this).val();
@@ -287,8 +309,10 @@
                 e.preventDefault();
                 if($('input[name=name]').val().trim().length > 0 && $('input[name=email]').val().trim().length >0 && $('input[name=phone]').val().trim().length>0 && $('input[name=address]').val().trim().length>0){
                     $('#next').removeAttr('disabled');
+                    $("input[name='submit']").removeAttr('disabled');
                 }else{
                     $('#next').attr('disabled','disabled');
+                    $("input[name='submit']").attr('disabled','disabled');
                 };
             });
             $('input[name=file_img]').change(function(e){
@@ -296,9 +320,55 @@
                 if($(this).val()){
                     $("input[name='submit']").removeAttr('disabled');
                 }else{
-                    $("input[name='submit']").attr('disabled','disabled')
+                    $("input[name='submit']").attr('disabled','disabled');
                 }
             });
+            if($('#coupon').val().length>0){
+                $.get(window.location.origin+"/index.php/ajax/checkcoupon/"+$('#coupon').val(),function(data){
+                    let disc = parseInt(data); 
+                    if(disc >0){
+                        $('#coupon').addClass('is-valid');
+                        $('#coupon').removeClass('is-invalid');
+                        $('#isvalid_coupon').addClass('d-none');
+                        $('#add_coupon').removeClass('d-none');
+                        $('#add_coupon').children('.text-danger-50').text(`-${disc}%`);
+                        let new_total = parseInt($('#total_order').data('total'));
+                        new_total *= (1-disc/100);
+                        $('#total_order').text('$'+new_total);
+                        $('input[name=code_coupon]').val($('#coupon').val());
+                        
+                    }else{
+                        $('#coupon').removeClass('is-valid');
+                        $('#add_coupon').addClass('d-none');
+                        $('#isvalid_coupon').removeClass('d-none').html('We so sorry this coupon not work');
+                        $('#coupon').addClass('is-invalid');
+                        $('#total_order').text("$"+$('#total_order').data('total'));
+                    }
+                })
+            };
+            $('#coupon').change(function(){
+                $.get(window.location.origin+"/index.php/ajax/checkcoupon/"+$(this).val(),function(data){
+                    let disc = parseInt(data); 
+                    if(disc >0){
+                        $('#coupon').addClass('is-valid');
+                        $('#coupon').removeClass('is-invalid');
+                        $('#isvalid_coupon').addClass('d-none');
+                        $('#add_coupon').removeClass('d-none');
+                        $('#add_coupon').children('.text-danger-50').text(`-${disc}%`);
+                        let new_total = parseInt($('#total_order').data('total'));
+                        new_total *= (1-disc/100);
+                        $('#total_order').text('$'+new_total);
+                        $('input[name=code_coupon]').val($('#coupon').val());
+                        
+                    }else{
+                        $('#coupon').removeClass('is-valid');
+                        $('#add_coupon').addClass('d-none');
+                        $('#isvalid_coupon').removeClass('d-none').html('We so sorry this coupon not work');
+                        $('#coupon').addClass('is-invalid');
+                        $('#total_order').text("$"+$('#total_order').data('total'));
+                    }
+                })
+            })
         })
     </script>
 @endsection

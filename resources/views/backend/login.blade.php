@@ -27,8 +27,8 @@
                 <h1 class="text-center">Admin Site</h1>
                 <h3 class="text-center text-black-50">Login</h3>
                 <hr>
-                @if (Session::has('message'))
-                    <div class="alert alert-danger">{{Session::get('message')}}</div>
+                @if (Session::has('error'))
+                    <div class="alert alert-danger">{{Session::get('error')}}</div>
                 @endif
                 <form action="{{route('admin_login')}}" method="post" class="mt-4">
                     @csrf

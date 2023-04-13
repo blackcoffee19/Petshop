@@ -7,6 +7,7 @@
     <table>
         <thead>
             <tr>
+                <th></th>
                 <th>Pet Name</th>
                 <th>Qty</th>
                 <th>Per Price</th>
