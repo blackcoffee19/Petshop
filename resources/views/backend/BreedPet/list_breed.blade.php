@@ -12,15 +12,7 @@
             <div class="alert alert-danger">{{Session::get("error")}}</div>
             @endif
             <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name Breed</th>
-                        <th>Type Pet</th>
-                        <th>Del</th>
-                        <th>Edt</th>
-                    </tr>
-                </thead>
+                <th>AScsc</th>
                 <tbody>
                     @foreach ($breeds as $breed)
                     <tr>
