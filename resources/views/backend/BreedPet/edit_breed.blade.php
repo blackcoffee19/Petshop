@@ -5,7 +5,8 @@
         <div class="ms-4 bg-light p-4 rounded-2 col-6" >
             <p class="h2 text-capitalize">{{$site}} <span class="text-secondary ms-3">Breed</span></p>
             <hr>
-            <h1>hjvjvjhv</h1>
+            <h2></h2>
+            <h2>cdasvds</h2>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="name_breed">Name Breed:</label>
