@@ -40,13 +40,17 @@ class MyController extends Controller
     }
     public function productList(Request $req,$type_name = null,$breed_name = null){
         $list_pets = [];
-        $sort_type = $req->sortT?$req->sortT:"asc";
+        $sort_type = $req->sortT?$req->sortT:"asc"; 
         $breed_get= [];
         $price_get=0;
         $age_get=0;
+        // Ưu tiên Search trước
+        //Search by name
         if($req->search2 != ""){
             $searchStr = preg_replace('/[^A-Za-z0-9\-]/', '', $req->search2);
             $list_pets = Product::where('product_name','LIKE','%'.$searchStr.'%')->orderBy('per_price',$sort_type)->orderBy('quantity','desc')->get();
+        
+        // Sort theo loại loại, giá, độ tuổi (do Product là động vật) (lấy giá trị của checkbox)
         }else if($req->breed != null || $req->price!=""||$req->age!=""){
             $max_age = $req->age == "" ? 9999:intval($req->age);
             $max_price = $req->price == ""? 9999:intval($req->price);
@@ -58,28 +62,27 @@ class MyController extends Controller
                 $breed_get=$req->breed;
                 $list_pets = Product::whereIn('id_breed',$req->breed)->where('age','<',$max_age)->where('per_price','<',$max_price)->orderBy('per_price',$sort_type)->orderBy('quantity','desc')->get();
             }
+        // Filter theo Giống động vật và Loại động vật 
         }else{
             $id_breed = $breed_name != null? DB::table('breeds')->select('id_breed')
                                                     ->where('breed_name','=',$breed_name)->get()[0]->id_breed : null;
             $id_type = $type_name != null? DB::table('type_products')->select('id_type')
                                                     ->where('name_type','=',$type_name)->get()[0]->id_type : null;
             if($id_breed!= null && $id_type != null){
-                $list_pets = Product::where('id_breed','=',$id_breed)->orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::where('id_breed','=',$id_breed)->orderBy('per_price',$sort_type)->get();
             }else if($id_type != null) {
                 $list_breed = DB::table('breeds')->where('id_type_product','=',$id_type)->get('id_breed');
                 $arr= [];
                 foreach($list_breed as $p){
                     array_push($arr,$p->id_breed);
                 }
-                $list_pets = Product::whereIn('id_breed',$arr)->orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::whereIn('id_breed',$arr)->orderBy('per_price',$sort_type)->get();
             }else{
-                $list_pets = Product::orderBy('quantity','desc')->orderBy('per_price',$sort_type)->get();
+                $list_pets = Product::orderBy('per_price',$sort_type)->get();
             }
         }
-       
         return view('frontend.product_list',compact('list_pets','sort_type','breed_get','price_get','age_get','type_name','breed_name'));
     }
-
     public function productDetail($id){
         $pet = Product::where('id_product','=',$id)->first();
         $id_bre = DB::table('products')->select('id_breed')

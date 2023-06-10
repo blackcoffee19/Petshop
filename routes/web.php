@@ -67,14 +67,13 @@ Route::get('/ajax/slide/list-pet/{id?}',[AdminController::class,'list_petsl']);
 Route::get('/ajax/banner/{id}',[AdminController::class,'model_editbanner']);
 Route::get('/ajax/edit_slide/{id}',[AdminController::class,'get_editslide']);
 Route::get('/ajax/message/show',[MyController::class,'get_listmessage']);
-Route::get('/ajax/checkcoupon/{code}',[MyController::class,'addCoupon']);
 Route::post('/ajax-post/message',[MyController::class,'postajax_message']);
+Route::get('/ajax/checkcoupon/{code}',[MyController::class,'addCoupon']);
 Route::get('/ajax/delete-like/{id}',[MyController::class,'delete_like']);
 Route::get('/ajax/add-like/{id}',[MyController::class,'add_like']);
 Route::get('/ajax/list_order/{sort}',[MyController::class,'ajax_listorder']);
 Route::get('/ajax/edit_order/{id}',[MyController::class,'ajax_getOrder']);
 Route::get('/delcompare/{id}',[MyController::class,'delCompare'])->name('delCmp');
-
 Route::get('/removeCmp',[MyController::class,'removeCompare'])->name('removeCmp');
 // Auth::routes();
 Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){

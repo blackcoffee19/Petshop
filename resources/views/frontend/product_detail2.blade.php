@@ -112,7 +112,6 @@
                         <span class="ms-3 h5 text-light">Add to Cart</span>
                     </button>
                 </form>
-                
                 <div class="col-md-4 col-4">
                   <a class="btn btn-light compare_pet" role="button" data-bs-toggle="tooltip" title="Compare" data-bs-html="true" aria-label="Compare" data-bs-product="{{$pet->id_product}}"><i class="bi bi-arrow-left-right"></i></a>
                   <a class="btn btn-light {{Auth::check()? 'addFav':''}}" 

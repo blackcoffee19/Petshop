@@ -95,7 +95,7 @@
                 <div class="mt-3 row">
                     <a href="" class="col-3"><i class="fa-sharp fa-solid fa-arrow-left me-2"></i>Back</a>
                     <input type="reset" value="Reset" class="btn btn-outline-secondary col-2 me-4">
-                    <input type="submit" value="Add product" id="add_pet" class="btn btn-primary px-3 col-3" disabled>
+                    <input type="submit" value="{{$site}} product" id="add_pet" class="btn btn-primary px-3 col-3" disabled>
                 </div>
             </form>
         </div>

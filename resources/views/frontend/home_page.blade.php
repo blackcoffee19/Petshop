@@ -133,28 +133,28 @@
                     <a href="{{route('productdetail',$pet->id_product)}}" class="text-inherit text-decoration-none">{{$pet->product_name}}</a>
                 </h2>
                 <div>
-                <p> 
-                  @php
-                      $rating = 0;
-                      if (count($pet->Comment->where('rating','!=',null)) >0) {
-                        foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
-                          $rating += $cmt->rating;
+                  <p> 
+                    @php
+                        $rating = 0;
+                        if (count($pet->Comment->where('rating','!=',null)) >0) {
+                          foreach ($pet->Comment->where('rating','!=',null) as $cmt) {
+                            $rating += $cmt->rating;
+                          }
+                          $rating /= count($pet->Comment->where('rating','!=',null));
                         }
-                        $rating /= count($pet->Comment->where('rating','!=',null));
-                      }
-                  @endphp
-                    @for ($i = 0; $i < floor($rating); $i++)
-                    <i class="bi bi-star-fill fs-4 text-warning"></i>
-                    @endfor
-                    @if (is_float($rating))
-                    <i class="bi bi-star-half fs-4 text-warning"></i>
-                    @endif
-                    @for ($i = 0; $i < 5-ceil($rating); $i++)
-                    <i class="bi bi-star fs-4 text-warning"></i>
-                    @endfor
-                    <span class="text-black-50 ms-3">({{$rating}})</span>
-                </p> 
-              </div>
+                    @endphp
+                      @for ($i = 0; $i < floor($rating); $i++)
+                      <i class="bi bi-star-fill fs-4 text-warning"></i>
+                      @endfor
+                      @if (is_float($rating))
+                      <i class="bi bi-star-half fs-4 text-warning"></i>
+                      @endif
+                      @for ($i = 0; $i < 5-ceil($rating); $i++)
+                      <i class="bi bi-star fs-4 text-warning"></i>
+                      @endfor
+                      <span class="text-black-50 ms-3">({{$rating}})</span>
+                  </p> 
+                </div>
               <div class="d-flex justify-content-between align-items-center mt-3">
                 <div >
                   @if ($pet->sale>0)
@@ -254,13 +254,16 @@
                     <span class="text-muted small">Sold: {{count($s_pet->Comment->where('rating','!=',null))}}</span>
                   </div>
                 </div>
-                <div class="d-grid mt-2"><a href="#!" class="btn btn-primary ">
+                <div class="d-grid mt-2">
+                  <button data-bs-id="{{$s_pet->id_product}}" type="button" class="btn btn-primary btn addToCart">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                       class="feather feather-plus">
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg> Add to cart </a></div>
+                    </svg> Add to cart 
+                  </button>
+                </div>
                 <div class="d-flex justify-content-start text-center mt-3">
                   <div class="deals-countdown w-100" data-countdown="2023/5/5 00:00:00"></div>
                 </div>
@@ -509,6 +512,7 @@
           // };
           // const observer = new MutationObserver(callback);
           // observer.observe(scrollingElement, config);
+        //
           $('.btn_modal').click(function(){
             $.get(window.location.origin+"/index.php/ajax/modal/showpet/"+$(this).data('product'),function(data){
               let dataProduct = jQuery.parseJSON(data); 
