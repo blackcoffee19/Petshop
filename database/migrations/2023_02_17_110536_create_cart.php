@@ -19,7 +19,9 @@ return new class extends Migration
                 $table->string('order_code')->nullable();
                 $table->foreignId('id_user')->nullable();
                 $table->foreignId('id_product');
-                $table->integer('qty');
+                $table->bigInteger('price')->nullable();
+                $table->integer('sale')->nullable();
+                $table->integer('amount');
                 $table->timestamps();
             });
         }

@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('coupon', function (Blueprint $table) {
 		    $table->id('id_coupon');
-		    $table->string('title',30);
+		    $table->string('title',50);
 		    $table->string('code',20)->unique();
 		    $table->integer('discount');
             $table->integer('max')->default(1);
-		    $table->boolean('status');
+		    $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

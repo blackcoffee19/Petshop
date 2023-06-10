@@ -23,9 +23,7 @@ return new class extends Migration
                 $table->decimal('weight',15,2)->nullable();
                 $table->integer('age')->nullable();
                 $table->double('per_price');
-                $table->double('original_price');
-                $table->double('sale')->nullable();
-                $table->string('image')->nullable();
+                $table->double('sale')->default(0);
                 $table->string('food')->nullable();
                 $table->integer('quantity');
                 $table->longText('description')->nullable();

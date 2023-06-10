@@ -17,12 +17,12 @@ return new class extends Migration
 		    $table->id('id_banner');
 		    $table->string('image');
 		    $table->string('title',50);
-		    $table->string('title_color',7);
+		    $table->string('title_color',7)->default('#000000');
 		    $table->string('content')->nullable();
 		    $table->string('content_color',7)->nullable();
             $table->string('btn_content',20)->nullable();
-            $table->string('btn_bg_color',7)->nullable();
-            $table->string('btn_color',7)->nullable();
+            $table->string('btn_bg_color',7)->default('#000000');
+            $table->string('btn_color',7)->default('#ffffff');
 		    $table->string('link',20);
 		    $table->string('attr',20)->nullable();
             $table->timestamps();

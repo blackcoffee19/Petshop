@@ -17,7 +17,9 @@ return new class extends Migration
             $table->id('id_message');
             $table->string('code_group',10)->nullable();
             $table->foreignId('id_user');
-            $table->string('message',100);
+            $table->string('message',200);
+            $table->foreignId('link')->nullable();
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }

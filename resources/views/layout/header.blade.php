@@ -535,25 +535,120 @@
   </div>
 </div>
 {{-- Shopping cart --}}
+@if (Auth::check() && Auth::user()->admin == '2')
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-  <div class="offcanvas-header border-bottom">
-    <div class="text-start">
-      <h5 id="offcanvasRightLabel" class="mb-0 fs-4">Shop Cart</h5>
+    <div class="offcanvas-header border-bottom">
+        <div class="text-start">
+            <h5 id="offcanvasRightLabel" class="mb-0 fs-4">New Orders</h5>
+        </div>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    <div class="">
-      <!-- alert -->
-      <div class="alert alert-danger p-2" role="alert">
-        You’ve got FREE delivery. Start <a href="#!" class="alert-link">checkout now!</a>
-      </div>
-      <ul class="list-group list-group-flush" id="listCart">
-      </ul>
-      <div class="d-flex justify-content-between mt-4">
-        <a id="clearCart">Clear Cart</a>
-        <a href="{{route('order')}}" class="btn btn-primary">Buy Now</a>
-      </div>
+    <div class="offcanvas-body">
+        <div>
+            <ul class="list-group list-group-flush">
+                @if (isset($orders) && count($orders)>0)
+                    @foreach ($orders as $order)
+                        <li class='list-group-item py-3 ps-0 border-top border-bottom'>
+                            <div class='row align-items-center'>
+                                <div class='col-1'>
+                                    @if ($order->id_user && isset($order->User->avatar))
+                                        <img src="{{asset('resources/image/user/'.$order->User->avatar)}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
+                                    @else
+                                        <img src="{{asset('resources/image/user/user.png')}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
+                                    @endif
+                                </div>
+                                <div class='col-2 '>
+                                    <span>#{{$order->order_code}}</span><br>
+                                    <small class="text-muted">{{date_format($order->created_at,"F j Y, g:i a")}}</small>
+                                </div>
+                                <div class='col-2'>Items: <p>{{count($order->Cart)}}</p>
+                                </div>
+                                <div class="col-2">
+                                    @php
+                                    $sum =0;
+                                    foreach ($order->Cart as $cart) {
+                                        if($cart->sale > 0){
+                                            $sum += $cart->price*(1 - $cart->sale/100)*($cart->amount/1000);
+                                        }else{
+                                            $sum += $cart->price*($cart->amount/1000);
+                                        };
+                                    };   
+                                    if($order->code_coupon){
+                                        if($order->Coupon->discount <= 100){
+                                            $sum = $sum*(1 - $order->Coupon->discount/100);
+                                        }else{
+                                            $sum -= $order->Coupon->discount;
+                                        }
+                                    }
+                                    $sum += $order->shipping_fee;
+                                    echo number_format($sum,0,'',' ')."đ";
+                                    @endphp
+                                </div>
+                                <div class="col-2">
+                                    @switch($order->status)
+                                        @case('confirmed')
+                                            <h5 class="badge bg-warning text-capitalize">{{$order->status}}</h5>
+                                            @break
+                                        @case('unconfirmed')
+                                            <h5 class="badge bg-dark text-capitalize">{{$order->status}}</h5>
+                                            @break
+                                        @case('delivery')
+                                            <h5 class="badge bg-primary text-capitalize">{{$order->status}}</h5>
+                                            @break
+                                    @endswitch
+                                </div>
+                                <div class="col-3">
+                                    @switch($order->status)
+                                        @case('confirmed')
+                                            <button type="button" class="btn btn-danger check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                                Update          
+                                            </button>
+                                            @break
+                                        @case('unconfirmed')
+                                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                                Confirm  
+                                            </button>
+                                            @break
+
+                                        @case('delivery')
+                                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                                Update
+                                            </button>
+                                        @break        
+                                    @endswitch
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                @else
+                <li class='list-group-item py-3 ps-0 border-top border-bottom'>
+                    <h4 class="text-muted text-center text-uppercase">
+                        There are no New Order
+                    </h4>
+                </li>
+                @endif
+            </ul>
+        </div>
     </div>
-  </div>
 </div>
+
+@else
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header border-bottom">
+        <div class="text-start">
+            <h5 id="offcanvasRightLabel" class="mb-0 fs-4">Shop Cart</h5>
+        </div>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div>
+            <ul class="list-group list-group-flush" id="listCartmodal">
+            </ul>
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ route('checkout') }}" class="btn btn-primary">Continue Shopping</a>
+                <a href="javascript:void(0);" class="btn btn-outline-secondary" id="clearCart">Clear Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif

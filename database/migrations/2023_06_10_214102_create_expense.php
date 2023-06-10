@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('equity', function (Blueprint $table) {
-            $table->id('id_equity');
-            $table->decimal('owner_equity',8,2);
-            $table->decimal('accumulated',8,2);
+        Schema::create('expense', function (Blueprint $table) {
+            $table->id('id_expense');
+            $table->string('name')->default('purchase costs');
+            $table->foreignId('id_product')->nullable();
+            $table->bigInteger('costs');
+            $table->bigInteger('quantity');
             $table->timestamps();
         });
     }
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('equity');
+        Schema::dropIfExists('expense');
     }
 };

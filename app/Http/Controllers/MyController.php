@@ -530,6 +530,16 @@ class MyController extends Controller
         Auth::logout();
         return redirect('/');
     }
+    public function get_checkout(){
+        $carts=[];
+        $guest_order = "";
+        if(!Auth::check()){
+            $carts = Session::get("cart"); 
+        }else{
+            $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
+        }
+        return view('frontend.checkout',compact('carts')); 
+    }
     public function get_order(){
         $carts=[];
         $guest_order = "";

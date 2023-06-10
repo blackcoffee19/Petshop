@@ -17,16 +17,17 @@ return new class extends Migration
             Schema::create('users', function (Blueprint $table) {
                 $table->id('id_user');
                 $table->string('name',40);
-                $table->integer('gender')->nullable(true);
+                $table->string('phone',20)->nullable();
+                $table->string('avatar')->nullable();
                 $table->string('email')->unique();
-                $table->date('dob')->nullable();
+                $table->enum('admin',[0,1,2])->default(0);
+                $table->string('google_id')->nullable();
+                $table->boolean('email_verified')->default(false);
+                $table->string('email_verification_token',32)->nullable();
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password')->nullable();
-                $table->string('google_id')->nullable();
-                $table->string('phone_number')->nullable();
-                $table->string('image')->nullable();
-                $table->integer('admin')->nullable();
-                $table->string('position')->nullable();
+                $table->boolean('status')->default(true);
+                $table->rememberToken();
                 $table->timestamps();
             });
         }

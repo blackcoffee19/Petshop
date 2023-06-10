@@ -317,7 +317,7 @@
   </section>
 </main>
 @endsection
-@section('modal')
+{{-- @section('modal')
 <div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
@@ -357,7 +357,7 @@
                     <img src="../resources/assets/images/products/product-single-img-4.jpg" alt="">
                   </div>
                 </div>
-              </div> --}}
+              </div>
             </div>
           </div>
           <div class="col-lg-6">
@@ -493,8 +493,8 @@
   </div>
 </div>
 
-@endsection
-@section('script')
+@endsection --}}
+{{-- @section('script')
     <script>
       
       $(document).ready(function(){
@@ -513,100 +513,94 @@
           // const observer = new MutationObserver(callback);
           // observer.observe(scrollingElement, config);
         //
-          $('.btn_modal').click(function(){
-            $.get(window.location.origin+"/index.php/ajax/modal/showpet/"+$(this).data('product'),function(data){
-              let dataProduct = jQuery.parseJSON(data); 
-              $('#imgModal').css({'background-image':'url(resources/image/pet/'+dataProduct['image']+')','object-fit': 'contain','background-repeat': 'no-repeat'});
-              $('#imgModal').html(`<image src='resources/image/pet/${dataProduct["image"]}' style="background-color: #ffffff">`);
-              $('#breedModal').html(dataProduct['breed_name']);
-              $('#petNameModal').html(dataProduct['product_name']);
-              $('input[name=max_quan]').val(dataProduct['quantity']);
-              let strStart ="";
+      //     $('.btn_modal').click(function(){
+      //       $.get(window.location.origin+"/index.php/ajax/modal/showpet/"+$(this).data('product'),function(data){
+      //         let dataProduct = jQuery.parseJSON(data); 
+      //         $('#imgModal').css({'background-image':'url(resources/image/pet/'+dataProduct['image']+')','object-fit': 'contain','background-repeat': 'no-repeat'});
+      //         $('#imgModal').html(`<image src='resources/image/pet/${dataProduct["image"]}' style="background-color: #ffffff">`);
+      //         $('#breedModal').html(dataProduct['breed_name']);
+      //         $('#petNameModal').html(dataProduct['product_name']);
+      //         $('input[name=max_quan]').val(dataProduct['quantity']);
+      //         let strStart ="";
               
-              for(let i =0; i<dataProduct['rating'];i++){
-                strStart+="<i class='bi bi-star-fill'></i>"
-              }
-              for(let j = 0; j < 5-dataProduct['rating'];j++){
-                strStart+="<i class='bi bi-star'></i>";
-              }
-              strStart += `<span class='ms-3 text-muted'>(${dataProduct["sold"]} solds)</span>`;
-              $('#modal_Fav').attr("data-bs-idproduct",dataProduct['id_product']);
-              if(dataProduct["favourite"]){
-                $('#modal_Fav').html("<i class='bi bi-heart-fill text-danger'></i>")
-              }else{
-                $('#modal_Fav').html("<i class='bi bi-heart'></i>")
-              }
-              $('#ratingModal').html(strStart.toFixed(2));
-              $('#soldModal').html(`(${dataProduct["sold"]} sold)`);
-              if(dataProduct["sale"]>0){
-                $('.hasSale').removeClass('d-none');
-                $('#priceModal').html(`$${dataProduct["per_price"]}`);
-                $('#saleModal').html(`${dataProduct["sale"]}% Off`);
-                $('#priceAFSModal').html(`$${(dataProduct["per_price"]*(1-dataProduct["sale"]/100)).toFixed(2)}`)
-              }else{
-                $('.hasSale').addClass('d-none');
-                $('#priceAFSModal').html(`$${dataProduct["per_price"]}`);
-              };
-              $('#weigthModal').html(dataProduct["weight"]+" kg");
-              $('#quantityModal').html(dataProduct['quantity']);
-              $('#idModal').html(dataProduct['id_product']);
-              $('input[name=id_pro]').val(dataProduct['id_product']);
-              $('#typeModal').html(dataProduct['type_name']);
-            });
-          });
-          $('.compare_pet').click(function(){
-            if($('#btn-compare').hasClass('d-none')){
-              $('#btn-compare').removeClass('d-none');
-            }
-            $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
-              $('#messCompare').html(data);  
-            })
-            const toast = new bootstrap.Toast($('#toastCompare'))
-            toast.show();
-          });
-          $('#show_compare').click(function(){
-            $.get(window.location.origin+"/index.php/ajax/compare/showcompare",function(data){
-              $('#compare_detail').html(data);  
-            })
-          });
-          $('.addFav').click(function(){
-              $(this).children().toggleClass('bi-heart').toggleClass('bi-heart-fill text-danger');
-            $.get(window.location.href+'/ajax/favourite/'+$(this).data('bsIdproduct'),function(data){
-              $('.countFav').html(data);
-            })
-          });
-          $('.addToCart').click(function(){
-            const toast = new bootstrap.Toast($('#toastAdd'))
-            toast.show();
-            $.get(window.location.href+"/ajax/"+$(this).data('bsId'),function(data){
-              $('.countCart').html(data);
-            });
-          });
-          $('#btn_minus').click(function(e){
-              e.preventDefault();
-              let current = parseInt($('input[name=quan]').val());
-              if(current >1){
-                current--;
-                $('input[name=quan]').val(current);
-              }
-          });
-          $('#btn_plus').click(function(e){
-              e.preventDefault();
-              let max = parseInt($('#quantityModal').text());
-              let current = parseInt($('input[name=quan]').val());
-              console.log(current );
-              if(max>current){
-                current++;
-                $('input[name=quan]').val(current);
-              }
-          });
-          $('input[name=quan]').on('focusout',function(e){
-              e.preventDefault();
-              let validateNum =/^\d{1,10}$/;
-              let currentVl = $(this).val();
-              $(this).val(validateNum.test(currentVl)?currentVl:1);
-          });
+      //         for(let i =0; i<dataProduct['rating'];i++){
+      //           strStart+="<i class='bi bi-star-fill'></i>"
+      //         }
+      //         for(let j = 0; j < 5-dataProduct['rating'];j++){
+      //           strStart+="<i class='bi bi-star'></i>";
+      //         }
+      //         strStart += `<span class='ms-3 text-muted'>(${dataProduct["sold"]} solds)</span>`;
+      //         $('#modal_Fav').attr("data-bs-idproduct",dataProduct['id_product']);
+      //         if(dataProduct["favourite"]){
+      //           $('#modal_Fav').html("<i class='bi bi-heart-fill text-danger'></i>")
+      //         }else{
+      //           $('#modal_Fav').html("<i class='bi bi-heart'></i>")
+      //         }
+      //         $('#ratingModal').html(strStart.toFixed(2));
+      //         $('#soldModal').html(`(${dataProduct["sold"]} sold)`);
+      //         if(dataProduct["sale"]>0){
+      //           $('.hasSale').removeClass('d-none');
+      //           $('#priceModal').html(`$${dataProduct["per_price"]}`);
+      //           $('#saleModal').html(`${dataProduct["sale"]}% Off`);
+      //           $('#priceAFSModal').html(`$${(dataProduct["per_price"]*(1-dataProduct["sale"]/100)).toFixed(2)}`)
+      //         }else{
+      //           $('.hasSale').addClass('d-none');
+      //           $('#priceAFSModal').html(`$${dataProduct["per_price"]}`);
+      //         };
+      //         $('#weigthModal').html(dataProduct["weight"]+" kg");
+      //         $('#quantityModal').html(dataProduct['quantity']);
+      //         $('#idModal').html(dataProduct['id_product']);
+      //         $('input[name=id_pro]').val(dataProduct['id_product']);
+      //         $('#typeModal').html(dataProduct['type_name']);
+      //       });
+      //     });
+      //     $('.compare_pet').click(function(){
+      //       if($('#btn-compare').hasClass('d-none')){
+      //         $('#btn-compare').removeClass('d-none');
+      //       }
+      //       $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
+      //         $('#messCompare').html(data);  
+      //       })
+      //       const toast = new bootstrap.Toast($('#toastCompare'))
+      //       toast.show();
+      //     });
+      //     $('#show_compare').click(function(){
+      //       $.get(window.location.origin+"/index.php/ajax/compare/showcompare",function(data){
+      //         $('#compare_detail').html(data);  
+      //       })
+      //     });
+      //     $('.addFav').click(function(){
+      //         $(this).children().toggleClass('bi-heart').toggleClass('bi-heart-fill text-danger');
+      //       $.get(window.location.href+'/ajax/favourite/'+$(this).data('bsIdproduct'),function(data){
+      //         $('.countFav').html(data);
+      //       })
+      //     });
           
-      })
+      //     $('#btn_minus').click(function(e){
+      //         e.preventDefault();
+      //         let current = parseInt($('input[name=quan]').val());
+      //         if(current >1){
+      //           current--;
+      //           $('input[name=quan]').val(current);
+      //         }
+      //     });
+      //     $('#btn_plus').click(function(e){
+      //         e.preventDefault();
+      //         let max = parseInt($('#quantityModal').text());
+      //         let current = parseInt($('input[name=quan]').val());
+      //         console.log(current );
+      //         if(max>current){
+      //           current++;
+      //           $('input[name=quan]').val(current);
+      //         }
+      //     });
+      //     $('input[name=quan]').on('focusout',function(e){
+      //         e.preventDefault();
+      //         let validateNum =/^\d{1,10}$/;
+      //         let currentVl = $(this).val();
+      //         $(this).val(validateNum.test(currentVl)?currentVl:1);
+      //     });
+          
+      // })
     </script>
-@endsection
+@endsection --}}

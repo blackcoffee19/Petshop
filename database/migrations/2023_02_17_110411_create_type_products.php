@@ -17,6 +17,7 @@ return new class extends Migration
             Schema::create('type_products', function (Blueprint $table) {
                 $table->id('id_type');
                 $table->string('name_type',20);
+                $table->boolean('status')->default(true);
                 $table->timestamps();
             });
         }

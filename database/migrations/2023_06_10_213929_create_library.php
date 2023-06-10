@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('debt', function (Blueprint $table) {
-            $table->id('id_debt');
-            $table->decimal('account_payable',8,2)->nullable();
-            $table->decimal('unearned_revenues',8,2)->nullable();
-            $table->decimal('tax',8,2)->default(3);
-            $table->decimal('other_debt',8,2)->nullable();
+        Schema::create('library', function (Blueprint $table) {
+            $table->id('id_lib');
+            $table->foreignId('id_product');
+            $table->string('image');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('debt');
+        Schema::dropIfExists('library');
     }
 };

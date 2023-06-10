@@ -152,9 +152,9 @@
     <body>
         @include('layout.header')
         @yield('content')
-        @yield('modal')
+        @include('layout.modal')
         @include('layout.footer')
-        
+        @yield('modal')
         <!-- Libs JS -->
         
         <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
@@ -167,8 +167,9 @@
         <script src="resources/js/countdown.js"></script>
         <script src="resources/js/zoom.js"></script>
         @include('layout.message')
+        @include('scripts.fe_script')
         @yield('script')
-        <script>
+        {{-- <script>
            
             $(document).ready(function(){
                 $('#clearCart').click(function(){
@@ -190,7 +191,7 @@
                     $(this).val(validateNum.test(currentVl)?currentVl:value);
                 }
             })
-        </script>
+        </script> --}}
     </body>
     </html>
     

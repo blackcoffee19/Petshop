@@ -13,10 +13,10 @@ class Groupmessage extends Model
     public function Message(){
         return $this->hasMany(Message::class,'code_group','code_group');
     }
-    public function User1 (){
-        return $this->belongsTo(User::class,'id_user1','id_user');
+    public function User (){
+        return $this->belongsTo(User::class,'id_user','id_user');
     }
-    public function User2 (){
-        return $this->belongsTo(User::class,'id_user2','id_user');
+    public function Admin (){
+        return $this->belongsTo(User::class,'id_admin','id_user');
     }
 }

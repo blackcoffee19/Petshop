@@ -18,7 +18,7 @@ return new class extends Migration
 	        $table->string('order_code')->nullable();
             $table->foreignId('id_user')->nullable();
             $table->boolean('send_admin')->default(false);
-	        $table->string('title',40);
+	        $table->string('title',70);
 	        $table->string('link');
 	        $table->string('attr')->nullable();
 	        $table->timestamps();
