@@ -35,7 +35,9 @@ class DatabaseSeeder extends Seeder
             insert_banner::class,
             insert_slide::class,
             insert_cart::class,
-            insert_news::class
+            insert_news::class,
+            insert_library::class,
+            insert_address::class,
         ]);
     }
 }

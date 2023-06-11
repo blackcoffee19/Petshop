@@ -17,14 +17,12 @@ class insert_coupon extends Seeder
     public function run()
     {
 	    $coupons = [
-		    ["title"=>"Dog Day","code"=>"DOG12","discount"=>20,"status"=>false,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','12/12/2022 00:00:00')],  
-		    ["title"=>"Happy Spring","code"=>"SPR2023","discount"=>50,"status"=>true,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','01/01/2023 00:00:00')],
-		    ["title"=>"Happy Wednesday","code"=>"WED13","discount"=>30,"status"=>false,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','23/11/2022 00:00:00')],
-		    ["title"=>"Merry Chirstmast","code"=>"MERRY2022","discount"=>30,"status"=>false,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','24/12/2022 00:00:00')],
-		    ["title"=>"Happy Valentine","code"=>"VAL24","discount"=>10,"status"=>false,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','14/02/2023 00:00:00')],
-		    ["title"=>"Pet Weekend","code"=>"PET2023","discount"=>40,"status"=>true,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','30/03/2023 00:00:00')],
-		    ["title"=>"New Member","code"=>"NEW92MEETU","discount"=>50,"status"=>true,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','01/12/2021 00:00:00')],
-		    ["title"=>"Free Ship","code"=>"FREESHIP","discount"=>10,"status"=>true,"created_at"=>Carbon::createFromFormat('d/m/Y H:i:s','01/12/2021 00:00:00')]
+		    ["title"=>"New Member",'code'=>"NEWMEM",'discount'=>40,'max'=>1,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','29/01/2022 00:00:00')],
+            ["title"=>"Wednesday",'code'=>"WEDNESDAY22",'discount'=>50,'max'=>1,'status'=>false,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','23/11/2022 00:00:00')],
+            ["title"=>"Merry Chirstmast",'code'=>"MARRYCHIRT",'discount'=>20,'max'=>1,'status'=>false,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','24/12/2022 00:00:00')],
+            ["title"=>"Free Ship",'code'=>"FREESHIP423",'discount'=>24000,'max'=>3,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','01/04/2023 00:00:00')],
+            ["title"=>"Free Ship",'code'=>"FREESHIP522",'discount'=>24000,'max'=>3,'status'=>false,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','01/05/2022 00:00:00')],
+            ["title"=>"Happy May",'code'=>"MAYBE",'discount'=>20,'max'=>3,'created_at'=>Carbon::createFromFormat('d/m/Y H:i:s','01/05/2023 00:00:00')],
 	    ];
 		try{
 			foreach($coupons as $cp){

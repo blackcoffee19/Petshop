@@ -160,7 +160,7 @@
                         @php
                           $sum=0;
                           foreach (Session::get('cart') as $key => $value) {
-                            $sum+=$value["qty"];
+                            $sum+=$value["amount"];
                           }
                           echo $sum;
                         @endphp
@@ -304,7 +304,7 @@
                         @php
                           $sum=0;
                           foreach (Session::get('cart') as $key => $value) {
-                            $sum+=$value["qty"];
+                            $sum+=$value["amount"];
                           }
                           echo $sum;
                         @endphp

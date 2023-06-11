@@ -29,11 +29,14 @@ use Illuminate\Support\Facades\Mail;
 class MyController extends Controller
 {
     public function homePage(){
+        
         $slides = Slide::orderBy('updated_at','desc')->limit(5)->get();
 	    $banners = Banner::all();
+        $types= TypeProduct::all();
+        $breeds = Breed::all();
         $popular_pets= Product::where('quantity','>',0)->inRandomOrder()->limit(10)->get();
         $sale_pets = Product::where('quantity','>',0)->where('sale','>','0')->inRandomOrder()->limit(3)->get();
-        return view("frontend.home_page",compact('popular_pets','sale_pets','slides','banners'));
+        return view("frontend.home_page",compact('popular_pets','sale_pets','slides','banners','breeds','types'));
     }
     public function policy(){
         return view('frontend.policy');
@@ -91,7 +94,8 @@ class MyController extends Controller
                                             ->whereNot('id_product','=',$id)
                                             ->inRandomOrder()->limit(5)->get();
         $comments = Comment::where('id_product','=',$id)->where('reply_comment','=',null)->get();
-        return view('frontend.product_detail2',compact('pet','list_relate','comments'));
+        $types= TypeProduct::all();
+        return view('frontend.product_detail2',compact('pet','list_relate','comments','types'));
     }
     public function removeCart($id){
         if(Auth::check()){
@@ -103,7 +107,7 @@ class MyController extends Controller
             $new_session = [];
             for($i = 0; $i<count($session_cart);$i++){
                 if($i != $id){
-                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"qty"=>$session_cart[$i]["qty"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"]]);
+                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"amount"=>$session_cart[$i]["amount"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"],"sale"=>$session_cart[$i]['sale']]);
                 }
             };
             Session::put("cart",$new_session);
@@ -136,18 +140,19 @@ class MyController extends Controller
         $maxQuan = $product->quantity;
         $price = $product->per_price;
         $name = $product->product_name;
-        $imgPro = $product->image;
+        $sale = $product->sale;
+        $imgPro = $product->Library[0]->image;
         if(Auth::check()){
             $foundPro = Auth::user()->Cart->where('id_product','=',$req["id_pro"])->where('order_code','=',null)->first();
             if($foundPro){
-                if($foundPro->qty == $foundPro->Product->quantity){
+                if($foundPro->amount == $foundPro->Product->quantity){
                     return redirect()->back()->with(["warning"=>"Add to cart failue! You got maximum"]);
                 }else{
-                    $sum_quant = intval($req["quan"])+ $foundPro->qty; 
+                    $sum_quant = intval($req["quan"])+ $foundPro->amount; 
                     if($sum_quant > $maxQuan){
                         $sum_quant = $maxQuan;
                     };
-                    $foundPro->qty  = $sum_quant;
+                    $foundPro->amount  = $sum_quant;
                     $foundPro->save();
                 }
             }else{
@@ -155,7 +160,7 @@ class MyController extends Controller
                 $cart->id_user = Auth::user()->id_user;
                 $cart->order_code = null;
                 $cart->id_product = $req->id_pro;
-                $cart->qty = $maxQuan < intval($req["quan"])?$maxQuan:intval($req["quan"]);
+                $cart->amount = $maxQuan < intval($req["quan"])?$maxQuan:intval($req["quan"]);
                 $cart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->save();
             }
@@ -165,36 +170,36 @@ class MyController extends Controller
             $arr_new = [];
             foreach($arr_cart as $key => $value){
                 if($value["id_product"] == $req["id_pro"]){
-                    $addQuan = ($value["qty"]+intval($req["quan"])) > $maxQuan ? $maxQuan : $value["qty"]+intval($req["quan"]);
-                    array_push($arr_new,["id_product" => $value["id_product"],"qty"=>$addQuan,"per_price"=>$value["per_price"],"name"=>$value["name"],"max"=>$value["max"],"image"=>$imgPro]);
+                    $addQuan = ($value["amount"]+intval($req["quan"])) > $maxQuan ? $maxQuan : $value["amount"]+intval($req["quan"]);
+                    array_push($arr_new,["id_product" => $value["id_product"],"amount"=>$addQuan,"per_price"=>$value["per_price"],"name"=>$value["name"],"max"=>$maxQuan,"image"=>$imgPro,'sale'=>$value['sale']]);
                     $check = false;
                 }else{
                     array_push($arr_new,$value);
                 }
             }
             if($check){
-                $new = ["id_product"=>$req["id_pro"],"qty"=>intval($req["quan"]),"per_price"=>$price,"name"=>$name,"max"=>$maxQuan,"image"=>$imgPro];
+                $new = ["id_product"=>$req["id_pro"],"amount"=>intval($req["quan"]),"per_price"=>$price,"name"=>$name,"max"=>$maxQuan,"image"=>$imgPro,'sale'=>$sale];
                 Session::push("cart",$new);
             }else{
                 Session::put("cart",$arr_new);
             }
         }else{
-            $cart_session = ["id_product"=>$req["id_pro"],"qty"=>intval($req["quan"]),"per_price"=>$price,"name"=>$name,"max"=>$maxQuan,"image"=>$imgPro];
+            $cart_session = ["id_product"=>$req["id_pro"],"amount"=>intval($req["quan"]),"per_price"=>$price,"name"=>$name,"max"=>$maxQuan,"image"=>$imgPro,'sale'=>$sale];
             Session::push("cart",$cart_session);
         };
         return redirect()->back()->with(["message"=>"Add to cart successfull"]);
     }
     public function addToCart2($id){
         $product= Product::find($id);
-        // dd($product);
+        $sale = $product->sale;
         $num =0;
         if(Auth::check()){
             $foundPro = Auth::user()->Cart->where('id_product','=',$id)->where('order_code','=',null)->first();
             if($foundPro){
-                if($foundPro->qty == $foundPro->Product->quantity){
+                if($foundPro->amount == $foundPro->Product->quantity){
                     return redirect()->back()->with(["warning"=>"Add to cart failue! You got maximum"]);
                 }else{
-                    $foundPro->qty+=1;
+                    $foundPro->amount+=1;
                     $foundPro->save();
                 }
             }else{
@@ -202,12 +207,12 @@ class MyController extends Controller
                 $cart->id_user = Auth::user()->id_user;
                 $cart->order_code = null;
                 $cart->id_product = $id;
-                $cart->qty = 1;
+                $cart->amount = 1;
                 $cart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->save();
             }
             foreach(Auth::user()->Cart->where('order_code','=',null) as $cart){
-                $num += $cart->qty;
+                $num += $cart->amount;
             }
         }else if(Session::has("cart")){
             $check = true;
@@ -215,17 +220,17 @@ class MyController extends Controller
             $arr_new = [];
             foreach($arr_cart as $key => $value){
                 if($value["id_product"] == $id){
-                    $addQuan = ($value["qty"]+intval($id)) > $product->quantity ? $product->quantity : $value["qty"]+1;
+                    $addQuan = ($value["amount"]+intval($id)) > $product->quantity ? $product->quantity : $value["amount"]+1;
                     $num+=$addQuan;
-                    array_push($arr_new,["id_product" => $value["id_product"],"qty"=>$addQuan,"per_price"=>$value["per_price"],"name"=>$value["name"],"max"=>$value["max"],"image"=>$value["image"]]);
+                    array_push($arr_new,["id_product" => $value["id_product"],"amount"=>$addQuan,"per_price"=>$value["per_price"],"name"=>$value["name"],"max"=>$value["max"],"image"=>$value["image"],'sale'=>$sale]);
                     $check = false;
                 }else{
-                    $num+=$value["qty"];
+                    $num+=$value["amount"];
                     array_push($arr_new,$value);
                 }
             }
             if($check){
-                $new = ["id_product"=>$id,"qty"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->image];
+                $new = ["id_product"=>$id,"amount"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->Library[0]->image,'sale'=>$sale];
                 $num+=1;
                 array_push($arr_new,$new);
                 Session::put("cart",$arr_new);
@@ -234,7 +239,7 @@ class MyController extends Controller
             }
         }else{
             $num+=1;
-            $cart_session = ["id_product"=>$id,"qty"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->image];
+            $cart_session = ["id_product"=>$id,"amount"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->Library[0]->image,'sale'=>$sale];
             Session::push("cart",$cart_session);
         };
         echo $num;
@@ -248,7 +253,7 @@ class MyController extends Controller
         foreach($orders as $order){
             $html .="<tr><td>".date('d/m/Y', strtotime($order->created_at))."</td><td><table class='table'>";
             foreach($order->Cart as $cart){
-                $html .= "<tr><td style='width:30%'><img src='resources/image/pet/".$cart->Product->image."' class='border rounded me-4' height='100' style='max-width: 100;'></td><td style='width: 60%'>".$cart->Product->product_name."</td><td style='width: 10%'>".$cart->qty."</td></tr>";
+                $html .= "<tr><td style='width:30%'><img src='resources/image/pet/".$cart->Product->Library[0]->image."' class='border rounded me-4' height='100' style='max-width: 100;'></td><td style='width: 60%'>".$cart->Product->product_name."</td><td style='width: 10%'>".$cart->amount."</td></tr>";
             }
             if($order->status == 'confirmed' || $order->status == 'unconfimred'){
                 $html .= "</table></td><td style='font-size:1.3rem'>".$order->status."</td><td><a data-bs-toggle='modal' class='user_editorder' data-bs-target='#editOrder' data-idorder='".$order->id_order."'><i class='fa-solid fa-file-pen fa-xl'></i></a></td><td><a data-idorder='".$order->id_order."' class='cancelOrder'><i class='fa-solid fa-trash-can-xmark fa-xl' style='color: #5e5c64;'></i></a></td></tr>";
@@ -276,7 +281,6 @@ class MyController extends Controller
         $new->link = $order->order_code;
         $new->send_admin = true;
         $new->title = "Cancel Order";
-        $new->created_at=Carbon::now()->format('Y-m-d H:i:s');
         $new->save();
     }
     public function post_urseditorder(Request $req){
@@ -291,7 +295,6 @@ class MyController extends Controller
         $new->link = $order->order_code;
         $new->send_admin = true;
         $new->title = "Customer edited their Order";
-        $new->created_at=Carbon::now()->format('Y-m-d H:i:s');
         $new->save();
         return redirect()->back()->with('message','Edit Order successfull');
     }
@@ -299,8 +302,8 @@ class MyController extends Controller
     public function addMore($id){
         if(Auth::check()){
             $product = Cart::find($id);
-            if($product->Product->quantity > $product->qty){
-                $product->qty++;
+            if($product->Product->quantity > $product->amount){
+                $product->amount++;
                 $product->save();
             }
         }
@@ -309,10 +312,10 @@ class MyController extends Controller
             $new_session = [];
             for($i = 0; $i<count($session_cart);$i++){
                 if($i == $id){
-                    $addOne = $session_cart[$i]["qty"]+1;
-                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"qty"=>$addOne,"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"]]);
+                    $addOne = $session_cart[$i]["amount"]+1;
+                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"amount"=>$addOne,"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"],'sale'=>$session_cart[$i]['sale']]);
                 }else{
-                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"qty"=>$session_cart[$i]["qty"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"]]);
+                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"amount"=>$session_cart[$i]["amount"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"],'sale'=>$session_cart[$i]['sale']]);
                 }
             };
             Session::put("cart",$new_session);
@@ -322,10 +325,10 @@ class MyController extends Controller
     public function minusOne($id){
         if(Auth::check()){
             $product = Cart::find($id);
-            if($product->qty ==1){
+            if($product->amount ==1){
                 $product->delete();
             }else{
-                $product->qty--;
+                $product->amount--;
                 $product->save();
             }
         }else{
@@ -333,12 +336,12 @@ class MyController extends Controller
             $new_session = [];
             for($i = 0; $i<count($session_cart);$i++){
                 if($i == $id){
-                    $minus = $session_cart[$i]["qty"]-1;
+                    $minus = $session_cart[$i]["amount"]-1;
                     if($minus>0){
-                        array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"qty"=>$minus,"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"]]);
+                        array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"amount"=>$minus,"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"],'sale'=>$session_cart[$i]['sale']]);
                     }
                 }else{
-                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"qty"=>$session_cart[$i]["qty"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"]]);
+                    array_push($new_session,["id_product"=>$session_cart[$i]["id_product"],"amount"=>$session_cart[$i]["amount"],"per_price"=>$session_cart[$i]["per_price"],"name"=>$session_cart[$i]["name"],"max"=>$session_cart[$i]["max"],"image"=>$session_cart[$i]["image"],'sale'=>$session_cart[$i]['sale']]);
                 }
             };
             Session::put("cart",$new_session);
@@ -414,10 +417,10 @@ class MyController extends Controller
                 foreach($cart_session as $key => $value){
                     $foundPro = Auth::user()->Cart->where('id_product','=',$value["id_product"])->where('order_code','=',null)->first();
                     if($foundPro){
-                        if(($foundPro->qty + $value["qty"]) >= Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity){
-                            $foundPro->qty = Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity;
+                        if(($foundPro->amount + $value["amount"]) >= Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity){
+                            $foundPro->amount = Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity;
                         }else{
-                            $foundPro->qty += $value["qty"];
+                            $foundPro->amount += $value["amount"];
                         };
                         $foundPro->save();
                     }else{
@@ -425,7 +428,7 @@ class MyController extends Controller
                         $addToUserCart->order_code = null;
                         $addToUserCart->id_user = $new_user->id_user;
                         $addToUserCart->id_product = $value["id_product"];
-                        $addToUserCart->qty = $value["qty"];
+                        $addToUserCart->amount = $value["amount"];
                         $addToUserCart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                         $addToUserCart->save();
                     }
@@ -456,10 +459,10 @@ class MyController extends Controller
                 foreach($cart_session as $key => $value){
                     $foundPro = Auth::user()->Cart->where('id_product','=',$value["id_product"])->where('order_code','=',null)->first();
                     if($foundPro){
-                        if(($foundPro->qty + $value["qty"]) >= Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity){
-                            $foundPro->qty = Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity;
+                        if(($foundPro->amount + $value["amount"]) >= Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity){
+                            $foundPro->amount = Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity;
                         }else{
-                            $foundPro->qty += $value["qty"];
+                            $foundPro->amount += $value["amount"];
                         };
                         $foundPro->save();
                     }else{
@@ -467,7 +470,7 @@ class MyController extends Controller
                         $addToUserCart->order_code = null;
                         $addToUserCart->id_user = Auth::user()->id_user;
                         $addToUserCart->id_product = $value["id_product"];
-                        $addToUserCart->qty = $value["qty"];
+                        $addToUserCart->amount = $value["amount"];
                         $addToUserCart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                         $addToUserCart->save();
                     }
@@ -538,17 +541,19 @@ class MyController extends Controller
         }else{
             $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
         }
-        return view('frontend.checkout',compact('carts')); 
+        $types = TypeProduct::all();
+        return view('frontend.checkout',compact('carts','types')); 
     }
     public function get_order(){
         $carts=[];
         $guest_order = "";
+        $types= TypeProduct::all();
         if(!Auth::check()){
             $carts = Session::get("cart"); 
         }else{
             $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
         }
-        return view('frontend.order',compact('carts'));
+        return view('frontend.order',compact('carts','types'));
     }
     public function post_order(Request $req){
         $new_order = new Order();
@@ -602,7 +607,7 @@ class MyController extends Controller
         if(Auth::check()){
             $current_carts = Cart::where('order_code','=',null)->where('id_user','=',Auth::user()->id_user)->get();
             foreach($current_carts as $cart){
-                $cart->Product->quantity-=$cart->qty;
+                $cart->Product->quantity-=$cart->amount;
                 $cart->Product->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->Product->save();
                 $cart->order_code = $new_order->order_code;
@@ -614,11 +619,11 @@ class MyController extends Controller
                 $guest_cart = new Cart();
                 $guest_cart->order_code=$new_order->order_code;
                 $guest_cart->id_product= $value["id_product"];
-                $guest_cart->qty = $value["qty"];
+                $guest_cart->amount = $value["amount"];
                 $guest_cart->created_at = Carbon::now()->format('Y-m-d H:i:s');
                 $guest_cart->save();
                 $product = Product::where('id_product','=',$value["id_product"])->first();
-                $product->quantity -=$value["qty"];
+                $product->quantity -=$value["amount"];
                 $product->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $product->save();
             }
@@ -629,8 +634,8 @@ class MyController extends Controller
     }
     public function modal_product($id){
         $product = Product::find($id);
-        $product->breed_name = Product::find($id)->Breed->breed_name;
-        $product->type_name = Product::find($id)->Breed->TypeProduct->name_type;
+        $product->breed = Product::find($id)->Breed->breed_name;
+        $product->type = Product::find($id)->Breed->TypeProduct->name_type;
         $product->favourite = Auth::check()? (count(Favourite::where('id_user','=',Auth::user()->id_user)->where('id_product','=',$id)->get())>0? true: false):false;
         $rating = 0;
         $commt = Comment::where('rating','!=',null)->where('id_product','=',$id)->get();
@@ -642,6 +647,11 @@ class MyController extends Controller
         }
         $product->rating = $rating;
         $product->sold = count($commt);
+        $arrImg = [];
+        foreach($product->Library as $img){
+            $arrImg[] = $img->image;
+        }
+        $product->images = $arrImg;
         echo $product;
     }
     public function add_favourite($id){
@@ -676,8 +686,8 @@ class MyController extends Controller
                 $fav = Favourite::find($id);
                 $item = Auth::user()->Cart->where('order_code','=',null)->where('id_product','=',intval($fav->id_product))->first();
                 if($item ){
-                    if($fav->Product->quantity > $item->qty){
-                        $item->qty +=1;
+                    if($fav->Product->quantity > $item->amount){
+                        $item->amount +=1;
                         $item->save();
                     }
                 }else{
@@ -685,7 +695,7 @@ class MyController extends Controller
                     $new_cart->order_code = null;
                     $new_cart->id_user= Auth::user()->id_user;
                     $new_cart->id_product = $fav->id_product;
-                    $new_cart->qty=1;
+                    $new_cart->amount=1;
                     $new_cart->created_at=Carbon::now()->format('Y-m-d H:i:s');
                     $new_cart->save();
                 }
@@ -725,9 +735,9 @@ class MyController extends Controller
                                 <a href='".route('minus',[$cart->id_cart])."' class='text-decoration-none btn'>
                                 <i class='fa-solid fa-minus text-danger'></i>
                                 </a>
-                                <input type='text' value='$cart->qty' name='cart_quant'  class='form-control form-input' >
+                                <input type='text' value='$cart->amount' name='cart_quant'  class='form-control form-input' >
                                 ";
-                    if ($cart->qty < $cart->Product->quantity){
+                    if ($cart->amount < $cart->Product->quantity){
                         $html_list.="<a href='".route('addmore',[$cart->id_cart])."' class='text-decoration-none btn' >
                         <i class='fa-solid fa-plus text-danger'></i>
                         </a>";
@@ -738,11 +748,11 @@ class MyController extends Controller
                     $html_list.="</div></form></div><div class='col-2 text-lg-end text-start text-md-end col-md-2'>";
                     ;
                     if($cart->Product->sale > 0 ){
-                        $sum += $cart->Product->per_price *(1- ($cart->Product->sale /100)) * $cart->qty;
-                        $html_list.= "<span class='fw-bold text-danger fs-5'>$". $cart->Product->per_price * (1-$cart->Product->sale/100) * $cart->qty."</span><span class='text-decoration-line-through ms-1'>".$cart->Product->per_price * $cart->qty."</span></div></div></li>";
+                        $sum += $cart->Product->per_price *(1- ($cart->Product->sale /100)) * $cart->amount;
+                        $html_list.= "<span class='fw-bold text-danger fs-5'>$". $cart->Product->per_price * (1-$cart->Product->sale/100) * $cart->amount."</span><span class='text-decoration-line-through ms-1'>".$cart->Product->per_price * $cart->amount."</span></div></div></li>";
                     }else{
-                        $sum += $cart->Product->per_price * $cart->qty;
-                        $html_list.= "<span class='fw-bold'>$".$cart->Product->per_price * $cart->qty."</span></div></div></li>"; 
+                        $sum += $cart->Product->per_price * $cart->amount;
+                        $html_list.= "<span class='fw-bold'>$".$cart->Product->per_price * $cart->amount."</span></div></div></li>"; 
                     }
                 };
                 $html_list .="<li class='list-group-item py-3 ps-0 border-top border-bottom'><div class='text-black-50 text-end'><h4>Total: <span class='h4 text-danger'>$".$sum."</span></h4></div></li>";
@@ -753,7 +763,7 @@ class MyController extends Controller
             $list_cart = Session::get('cart');
             if(count($list_cart)>0){
                 foreach($list_cart as $key => $cart){
-                    $sum += $cart["per_price"] * $cart["qty"];
+                    $sum += $cart["per_price"]*(1-$cart['sale']/100) * $cart["amount"];
                     $html_list.="<li class='list-group-item py-3 ps-0 border-top border-bottom'>
                         <div class='row align-items-center'>
                         <div class='col-3 col-md-2'>
@@ -774,9 +784,9 @@ class MyController extends Controller
                                 <a href='".route('minus',[$key])."' class='text-decoration-none btn'>
                                 <i class='fa-solid fa-minus text-danger'></i>
                                 </a>
-                                <input type='text' value='".$cart["qty"]."' name='quantity' class='form-control form-input' readonly>
+                                <input type='text' value='".$cart["amount"]."' name='quantity' class='form-control form-input' readonly>
                                 ";
-                    if ($cart["qty"] < Product::find($cart["id_product"])->quantity){
+                    if ($cart["amount"] < Product::find($cart["id_product"])->quantity){
                         $html_list.="<a href='".route('addmore',[$key])."' class='text-decoration-none btn' >
                         <i class='fa-solid fa-plus text-danger'></i>
                         </a>";
@@ -785,7 +795,7 @@ class MyController extends Controller
                         $html_list.="<a class='disabled btn border-0'><i class='fa-solid fa-plus'></i></a>";
                     };
                     $html_list.="</div></div><div class='col-2 text-lg-end text-start text-md-end col-md-2'>
-                    <span class='fw-bold'>$".$cart["per_price"] * $cart["qty"]."</span></div></div></li>";
+                    <span class='fw-bold'>$".$cart["per_price"]*(1-$cart["sale"]/100) * $cart["amount"]."</span></div></div></li>";
                 };
                 $html_list .="<li class='list-group-item py-3 ps-0 border-top border-bottom'><div class='text-black-50 text-end'><h4>Total: <span class='h4 text-danger'>$".$sum."</span></h4></div></li>";
             }else{
@@ -802,7 +812,7 @@ class MyController extends Controller
         if(intval($req['cart_quant']) == 0){
             $cart->delete();
         }else{
-            $cart->qty = $req['cart_quant'] > $cart->Product->quantity?$cart->Product->quantity:$req['cart_quant'] ;
+            $cart->amount = $req['cart_quant'] > $cart->Product->quantity?$cart->Product->quantity:$req['cart_quant'] ;
             $cart->save();
         }
         return redirect()->back();
@@ -833,7 +843,7 @@ class MyController extends Controller
         };
         $pet->rating = $rating;
         $pet->sold = count($pet->Comment->where('rating','!=',null));
-        // dd($pet);
+        $pet->image = $pet->Library[0]->image;
         if(Session::has('compare')){
             if(count(Session::get('compare'))<=2){
                 Session::push('compare',$pet);
@@ -909,9 +919,18 @@ class MyController extends Controller
         echo $cmp;
     }
     public function addCoupon($code){
-        $coupon = Coupon::where('code','=',$code)->where('status','=',true)->first();
-        
-        echo $coupon!=null? $coupon->discount:0; 
+        $coupon2 = Coupon::where('code','=',$code)->where('status','=',true)->first();
+        if($coupon2){
+            $checkAuth = count(Order::where('code_coupon','=',$code)->where('id_user','=',Auth::user()->id_user)->where('status','!=','cancel')->get()) >= $coupon2->max;
+            if(!$coupon2 ||$checkAuth){
+                $coupon2= ['error'=>!$coupon2?"Promo code is not Invalid":"You have reached the maximum use of this promo code"];
+                $coupon2 = json_encode($coupon2);
+                Session::forget('coupon');
+            }else{
+                Session::put('coupon',$coupon2->id_coupon);
+            }
+        }
+        echo $coupon2;
     }
     public function delCompare($id){
         $arr_sess = Session::get('compare');

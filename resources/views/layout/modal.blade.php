@@ -18,7 +18,7 @@
             </div>
             <div class="col-lg-6">
               <div class="ps-lg-8 mt-6 mt-lg-0">
-                <p class="mb-4 d-block text-primary text-uppercase typeModal"></p>
+                <p class="mb-4 d-block text-primary text-uppercase " id="breedModal"></p>
                 <a id="moveProductDetail">
                   <h2 class="mb-1 h1 text-capitalize" id="productNameModal"></h2>
                 </a>
@@ -33,7 +33,7 @@
                 <hr class="my-6">
                 <div class="mb-4">
                   <button type="button" class="btn btn-outline-secondary">
-                    Left: <span id="quantityModal"></span>grams
+                    Left: <span id="quantityModal"></span>
                   </button> 
                 </div>
                 <form action="" method="post" class="row">
@@ -45,11 +45,11 @@
                     <button type="button" class="btn btn-outline-secondary btn_minus" style="border-radius: 10px 0 0 10px;"  data-field="quantity" >
                       <i class="bi bi-dash-lg"></i>
                     </button>
-                    <input type="text" name="quan" class="border border-secondary text-center pt-1 fs-4 text-secondary" style="width: 50px;" value="100"/>
+                    <input type="text" name="quan" class="border border-secondary text-center pt-1 fs-4 text-secondary" style="width: 50px;" value="1"/>
                     <button type="button" class="btn btn-outline-secondary btn_plus" style="border-radius: 0 10px 10px 0;" >
                       <i class="bi bi-plus-lg"></i>
                     </button>
-                    <p class="ms-5 fw-bold align-self-end mb-1">g</p>
+                    <p class="ms-5 fw-bold align-self-end mb-1"></p>
                   </div>
                 </div>
                 <div class="mt-3 row justify-content-start g-2 align-items-center">
@@ -82,7 +82,7 @@
                       </tr>
                       <tr>
                         <td>Type:</td>
-                        <td class="typeModal">Fruits</td>
+                        <td id="typeModal">Fruits</td>
                       </tr>
                       <tr>
                         <td>Shipping:</td>
@@ -134,7 +134,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable ">
       <div class="modal-content">
         <div class="modal-header">
-          <a class="btn btn-outline-danger" href="">
+          <a class="btn btn-outline-danger" href="{{route('removeCmp')}}">
             <i class="bi bi-x-circle-fill text-danger"></i>
             Clean
           </a>
@@ -157,7 +157,7 @@
         <div class="toast-body" style=" padding:10px">
           <div class="row">
             <div class="col-2 mb-2 mx-auto">
-              <img src="{{asset('images/icons/verified.png')}}" height="50" class="img-fluid">
+              <img src="{{asset('resources/image/icons/verified.png')}}" height="50" class="img-fluid">
             </div>
             <h4 class="text-center" style="font-family: 'Quicksand', sans-serif;">{{Session::has('verified')?Session::get('verified'):''}}</h4>
           </div>
@@ -169,7 +169,7 @@
         <div class="toast-body" style=" height: 200px; padding:30px 20px">
           <div class="row">
             <div class="mb-3 col-6 mx-auto">
-              <img src="{{asset('images/svg-graphics/for_review.svg')}}" height="100" alt="">
+              <img src="{{asset('resources/image/svg-graphics/for_review.svg')}}" height="100" alt="">
             </div>
             <h4 class="text-center text-uppercase" style="font-family: 'Quicksand', sans-serif;">{{Session::has('feedback_mess')?Session::get('feedback_mess'):''}}</h4>
           </div>
@@ -181,7 +181,7 @@
         <div class="toast-body" style="height: 200px; padding:30px 20px">
           <div class="row">
             <div class="mb-3 col-6 mx-auto">
-              <img src="{{asset('images/svg-graphics/order_delivered.svg')}}" height="100" alt="">
+              <img src="{{asset('resources/image/svg-graphics/order_delivered.svg')}}" height="100" alt="">
             </div>
             <h5 class="text-center text-capitalize" style="font-family: 'Quicksand', sans-serif;" id="order_message">Order successully!</h5>
           </div>

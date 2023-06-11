@@ -19,6 +19,7 @@ return new class extends Migration
                 $table->foreignId('reply_comment')->nullable();
                 $table->foreignId('id_product');
 		        $table->foreignId('id_user')->nullable();
+                $table->string('phone')->nullable();
 		        $table->boolean('verified')->default(false);
 		        $table->string('name',20)->nullable();
                 $table->text('context')->nullable();

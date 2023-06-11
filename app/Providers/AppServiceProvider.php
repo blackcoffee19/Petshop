@@ -39,8 +39,15 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         };
         Paginator::useBootstrapFive();
-        $types= TypeProduct::all();
-        $breeds = Breed::all();
+        view()->composer('admin.partials.header',function($view){
+            if(Auth::check() && Auth::user()->admin == '1'){
+                $notificates = News::where('send_admin','=',true)->get();
+                foreach($notificates as $new){
+                    $new->image = isset($new->User->image)? $new->User->image: "user.png";
+                }
+                $view->with('notificates',$notificates);
+            };
+        });
         view()->composer(['frontend.*','backend.*'],function($view){
             if(Auth::check()){
                 if(Auth::user()->admin != 1){
@@ -58,16 +65,18 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
-        view()->share('types', $types);
-        view()->share('breeds', $breeds);
         view()->composer('frontend.signin',function($view){
             $random_pet = Product::inRandomOrder()->limit(3)->get();
             $view->with('random_pet',$random_pet);
 	    });
         view()->composer('layout.header',function($view){
+            $types= TypeProduct::all();
+            $breeds = Breed::all();
+            $view->with('types', $types);
+            $view->with('breeds', $breeds);
             if(Auth::check()){
                 $news = News::where('send_admin', '=', false)->where(function (Builder $query) {
-                                                                        $query->where('id_user', '=', Auth::user()->id_user)
+                    $query->where('id_user', '=', Auth::user()->id_user)
                                                                               ->orWhere('id_user', '=', null);
                                                                     })->get();
                 $view->with('news',$news);

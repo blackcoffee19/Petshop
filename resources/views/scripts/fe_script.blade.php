@@ -44,7 +44,7 @@
                     e.preventDefault();
                     let validateNum =/^\d{1,10}$/;
                     let currentVl = $(this).val();
-                    $(this).val(validateNum.test(currentVl)?currentVl:100);
+                    $(this).val(validateNum.test(currentVl)?currentVl:1);
                     console.log(currentVl);
                     console.log($(this).val() == parseInt($(this).parent().data('amount')));
                     console.log(parseInt($(this).parent().data('amount')));
@@ -88,13 +88,13 @@
             let listImage = "";
             let slider_product = "";
             dataProduct['images'].forEach(img => {
-              slider_product += `<div class="zoom slider_item" onmousemove="zoom(event)" style="background-image: url('images/products/${img}');object-fit:contain;background-repeat: no-repeat"><image src='images/products/${img}' class='img-fluid'></div>`;
-              listImage += "<div class='col-3'><div class='thumbnails-img'><img src='images/products/"+img+"'></div></div>";
+              slider_product += `<div class="zoom slider_item" onmousemove="zoom(event)" style="background-image: url('resources/image/pet/${img}');object-fit:contain;background-repeat: no-repeat"><image src='resources/image/pet/${img}' class='img-fluid'></div>`;
+              listImage += "<div class='col-3'><div class='thumbnails-img'><img src='resources/image/pet/"+img+"'></div></div>";
             });
             $('#moveProductDetail').attr('href',dataProduct['link']);
             $("#productModal").html(slider_product);
             $('#productModalThumbnails').html(listImage);
-            $('#productNameModal').html(dataProduct['name']);
+            $('#productNameModal').html(dataProduct['product_name']);
             $('input[name=max_quan]').val(dataProduct['quantity']);
             let strStart ="";
             for(let i =0; i<Math.floor(dataProduct['rating']);i++){
@@ -114,21 +114,23 @@
             }else{
               $('#modal_Fav').html("<i class='bi bi-heart'></i>")
             }
+            
             $('#ratingModal').html(strStart);
             $('#soldModal').html(`(${dataProduct["sold"]} solds)`);
             if(parseInt(dataProduct["sale"])>0){
               $('.hasSale').removeClass('d-none');
-              $('#priceModal').html(`${dataProduct["price"]} đ/kg`);
+              $('#priceModal').html(`$${dataProduct["per_price"]}`);
               $('#saleModal').html(`${dataProduct["sale"]}% Off`);
-              $('#priceAFSModal').html(`${(parseInt(dataProduct["price"])*(1-dataProduct["sale"]/100))} đ/kg`)
+              $('#priceAFSModal').html(`$${((dataProduct["per_price"])*(1-dataProduct["sale"]/100)).toFixed(2)}`)
             }else{
               $('.hasSale').addClass('d-none');
-              $('#priceAFSModal').html(`${dataProduct["price"]} đ/kg`);
+              $('#priceAFSModal').html(`$${dataProduct["per_price"].toFixed(2)}`);
             };
             $('#quantityModal').html(Math.floor(dataProduct["quantity"]));
             $('#idModal').html(dataProduct['id_product']);
             $('input[name=id_pro]').val(dataProduct['id_product']);
-            $('.typeModal').html(dataProduct['type']);
+            $('#typeModal').html(dataProduct['type']);
+            $('#breedModal').html(dataProduct['breed']);
             let slider = tns({
                 container: '.slider_modalproduct',
                 items: 1,
@@ -144,7 +146,7 @@
               if($('#btn-compare').hasClass('d-none')){
                 $('#btn-compare').removeClass('d-none');
               }
-              $.get(window.location.origin+"/index.php/ajax/add-compare/"+dataProduct['id_product'],function(data){
+              $.get(window.location.origin+"/index.php/ajax/addcompare/"+dataProduct['id_product'],function(data){
                 $('#messCompare').html(data);  
               })
               const toast = new bootstrap.Toast($('#toastCompare'))
@@ -152,11 +154,11 @@
             })
           });
       });
-      $('.compare_product').click(function(){
+      $('.compare_pet').click(function(){
         if($('#btn-compare').hasClass('d-none')){
           $('#btn-compare').removeClass('d-none');
         }
-        $.get(window.location.origin+"/index.php/ajax/add-compare/"+$(this).data('bsProduct'),function(data){
+        $.get(window.location.origin+"/index.php/ajax/addcompare/"+$(this).data('bsProduct'),function(data){
           $('#messCompare').html(data);  
         })
         const toast = new bootstrap.Toast($('#toastCompare'))
@@ -224,14 +226,14 @@
           e.preventDefault();
           let validateNum =/^\d{1,10}$/;
           let currentVl = $(this).val();
-          $(this).val(validateNum.test(currentVl)?currentVl:100);
+          $(this).val(validateNum.test(currentVl)?currentVl:1);
           $(this).parent().parent().next().children().removeClass('d-none');
       });
       $('input[name=cart_quant]').on('focusout',function(e){
           e.preventDefault();
           let validateNum =/^\d{1,10}$/;
           let currentVl = $(this).val();
-          $(this).val(validateNum.test(currentVl)?currentVl:100);
+          $(this).val(validateNum.test(currentVl)?currentVl:1);
       });
       $('#modal_password, #modal_email').change(function(){
         if($('#modal_password').val().length>0 && $('#modal_email').val().length>0){
@@ -245,30 +247,30 @@
           $("#listAddress").html(data);
         });
       })
-      const ghn_api_province = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
-      const ghn_api_district = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
-      const ghn_api_ward ="https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
-      const ghn_api_dev = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
-      const ghn_api_service = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
-      const ghn_fee = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
-      const ghtk_api = "https://services-staging.ghtklab.com";
-    //   $.ajax({
-    //     method: "GET",
-    //     beforeSend: function (xhr) {
-    //         xhr.setRequestHeader('Token', '40c06a9e-ee0f-11ed-a281-3aa62a37e0a5');
-    //         xhr.setRequestHeader("Content-Type", "application/json")
-    //     },
-    //     url: ghn_api_province,
-    //     success: function (data) {
-    //         $("#province").append('<option>--Select Province --</option>');
-    //         data.data.forEach(el=>{
-    //           $("#province").append(`<option value="${el.ProvinceID}">${el.ProvinceName}</option>`)
-    //         })
-    //     },
-    //     error: function (request, status, error) {
-    //         console.log();(request.responseText);
-    //     }
-    //   });
+      // const ghn_api_province = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+      // const ghn_api_district = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+      // const ghn_api_ward ="https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
+      // const ghn_api_dev = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
+      // const ghn_api_service = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
+      // const ghn_fee = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+      // const ghtk_api = "https://services-staging.ghtklab.com";
+      // $.ajax({
+      //   method: "GET",
+      //   beforeSend: function (xhr) {
+      //       xhr.setRequestHeader('Token', '40c06a9e-ee0f-11ed-a281-3aa62a37e0a5');
+      //       xhr.setRequestHeader("Content-Type", "application/json")
+      //   },
+      //   url: ghn_api_province,
+      //   success: function (data) {
+      //       $("#province").append('<option>--Select Province --</option>');
+      //       data.data.forEach(el=>{
+      //         $("#province").append(`<option value="${el.ProvinceID}">${el.ProvinceName}</option>`)
+      //       })
+      //   },
+      //   error: function (request, status, error) {
+      //       console.log();(request.responseText);
+      //   }
+      // });
 
       $('#province').change(function async(e){
         e.preventDefault();
@@ -332,8 +334,8 @@
           if(deliver_method['fee']['delivery']){
             let totall = parseInt($("#total").data('subtotal'))+deliver_method['fee']['fee'];
             if(deliver_method['fee']['fee']!=$("input[name=shipment_fee]").val()){
-              $("#shippment_fee").html(deliver_method['fee']['ship_fee_only']+" đ");
-              $("#total").html(totall +" đ");
+              $("#shippment_fee").html("$"+deliver_method['fee']['ship_fee_only']);
+              $("#total").html("$"+totall);
             }
             $(".totalPay").text((totall*0.000043).toFixed(2));
             $("input[name=shipment_fee]").val(deliver_method['fee']['fee']);
@@ -1044,7 +1046,7 @@
           $("#delivery_method2").html(dataJson['delivery_method']);
           if(dataJson['coupon']){
             $("#coupon_title2").html(dataJson['coupon_title']);
-            if(dataJson['discount'] <= 100){
+            if(dataJson['discount'] >= 10){
               $('#discount2').html("- "+dataJson['discount']+"%");
             }else{
               $('#discount2').html("- "+dataJson['discount']+" đ");
@@ -1059,7 +1061,7 @@
           $('#listCart2').html(list);
           $("#item_subtotal2").html(total+" đ");
           $('#shipment_fee_modal2').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) >100){
+          if(parseInt(dataJson['discount']) <10){
             total-= parseInt(dataJson['discount']);
           }else{
             total*=(1- parseInt(dataJson['discount'])/100);
@@ -1082,7 +1084,7 @@
           $("#delivery_method").html(dataJson['delivery_method'])
           if(dataJson['coupon']){
             $("#coupon_title").html(dataJson['coupon_title']);
-            if(dataJson['discount'] <= 100){
+            if(dataJson['discount'] >= 10){
               $('#discount').html("- "+dataJson['discount']+"%");
             }else{
               $('#discount').html("- "+dataJson['discount']+" đ");
@@ -1097,7 +1099,7 @@
           $('#listCart').html(list);
           $("#item_subtotal").html(total+" đ");
           $('#shipment_fee_modal').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) >100){
+          if(parseInt(dataJson['discount']) <10){
             total-= parseInt(dataJson['discount']);
           }else{
             total*=(1- parseInt(dataJson['discount'])/100);
@@ -1141,7 +1143,7 @@
           $("#delivery_method2").html(dataJson['delivery_method'])
           if(dataJson['coupon']){
             $("#coupon_title2").html(dataJson['coupon_title']);
-            if(dataJson['discount'] <= 100){
+            if(dataJson['discount'] >= 10){
               $('#discount2').html("- "+dataJson['discount']+"%");
             }else{
               $('#discount2').html("- "+dataJson['discount']+" đ");
@@ -1156,7 +1158,7 @@
           $('#listCart2').html(list);
           $("#item_subtotal2").html(total+" đ");
           $('#shipment_fee_modal2').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) >100){
+          if(parseInt(dataJson['discount']) <10){
             total-= parseInt(dataJson['discount']);
           }else{
             total*=(1- parseInt(dataJson['discount'])/100);
@@ -1211,19 +1213,19 @@
                             $('#giftcard').addClass('is-valid');
                             $('#coupon_title').html(dataJson['title']);
                             if (dataJson['code'].includes('FREESHIP')) {
-                                $('#discount').html('- ' + dataJson['discount'] + ' đ');
+                                $('#discount').html('- $' + dataJson['discount']);
                                 total -= parseFloat(dataJson['discount']);
                             } else {
                                 $('#discount').html('- ' + dataJson['discount'] + '%');
                                 total *= (1 - parseFloat(dataJson['discount']) / 100);
                             };
-                            total += 24200;
-                            $('#total_items').html(Math.floor(total) + ' đ');
-                            $('#total_cart').html(Math.floor(total) + ' đ');
+                            total += 2;
+                            $('#total_items').html("$"+Math.floor(total));
+                            $('#total_cart').html("$"+Math.floor(total));
                         } else {
-                            total += 24200;
-                            $('#total_items').html(Math.floor(total) + ' đ');
-                            $('#total_cart').html(Math.floor(total) + ' đ');
+                            total += 2;
+                            $('#total_items').html("$"+Math.floor(total));
+                            $('#total_cart').html("$"+Math.floor(total));
                             $('#added_coupon').addClass('d-none');
                             $('#giftcard').removeClass('is-valid');
                             $('#giftcard').addClass('is-invalid');
@@ -1231,8 +1233,8 @@
                         }
                     } else {
                         total += 24200;
-                        $('#total_items').html(Math.floor(total) + ' đ');
-                        $('#total_cart').html(Math.floor(total) + ' đ');
+                        $('#total_items').html("$"+Math.floor(total));
+                        $('#total_cart').html("$"+Math.floor(total));
                         $('#added_coupon').addClass('d-none');
                         $('#giftcard').removeClass('is-valid');
                         $('#giftcard').addClass('is-invalid');

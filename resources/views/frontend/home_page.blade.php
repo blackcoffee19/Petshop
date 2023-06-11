@@ -97,7 +97,7 @@
         <div class="col">
           <div class="card card-product">
             <div class="card-body">
-                <div class="text-center position-relative ">
+                <div class="text-center position-relative d-flex flex-column justify-content-center align-items-center">
                   <div class=" position-absolute top-0 start-0">
                     @if ($pet->sale !=0)
                     <span class="badge bg-success">-{{$pet->sale}}%</span>
@@ -111,7 +111,7 @@
                     @endphp
                   </div>
                   <a href="{{route('productdetail',$pet->id_product)}}"> 
-                      <img src="{{asset('resources/image/pet/'.$pet->image)}}" alt="{{$pet->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
+                      <img src="{{asset('resources/image/pet/'.$pet->Library[0]->image)}}" alt="{{$pet->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
                   </a>
                   <div class="card-product-action">
                     <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-product="{{$pet->id_product}}"><i
@@ -152,7 +152,7 @@
                       @for ($i = 0; $i < 5-ceil($rating); $i++)
                       <i class="bi bi-star fs-4 text-warning"></i>
                       @endfor
-                      <span class="text-black-50 ms-3">({{$rating}})</span>
+                      <span class="text-black-50 ms-3">({{number_format($rating,2)}})</span>
                   </p> 
                 </div>
               <div class="d-flex justify-content-between align-items-center mt-3">
@@ -205,7 +205,7 @@
               <div class="card-body">
                 <div class="text-center  position-relative d-flex flex-column justify-content-center align-items-center"> 
                   <a href="{{route('productdetail',$s_pet->id_product)}}">
-                    <img src="{{asset('resources/image/pet/'.$s_pet->image)}}" alt="{{$s_pet->product_name}}" class="mb-3 img-fluid" style="object-fit: contain; height: 195px">
+                    <img src="{{asset('resources/image/pet/'.$s_pet->Library[0]->image)}}" alt="{{$s_pet->product_name}}" class="mb-3 img-fluid" style="object-fit: contain; height: 195px">
                   </a>
                   <div class="card-product-action">
                     <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-product="{{$s_pet->id_product}}">
@@ -247,11 +247,14 @@
                         @for ($i = 0; $i < $rating; $i++)
                         <i class="bi bi-star-fill text-warning"></i>
                         @endfor
+                        @if (is_float($rating))
+                        <i class="bi bi-star-half fs-4 text-warning"></i>
+                        @endif
                         @for ($i = 0; $i < 5-$rating; $i++)
                         <i class="bi bi-star text-warning"></i>
                         @endfor
                     </p>
-                    <span class="text-muted small">Sold: {{count($s_pet->Comment->where('rating','!=',null))}}</span>
+                    <span class="text-black-50 ms-3">({{number_format($rating,2)}})</span>
                   </div>
                 </div>
                 <div class="d-grid mt-2">

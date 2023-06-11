@@ -127,28 +127,28 @@
                     <span class="d-none">{{$sum = 0}}</span>
                     @if (Auth::check())
                         @for ($i = 0; $i < count($carts); $i++)
-                            <span class="d-none">{{$sum += $carts[$i]->Product->per_price * $carts[$i]->qty}}</span>
+                            <span class="d-none">{{$sum += $carts[$i]->Product->per_price * $carts[$i]->amount}}</span>
                             <tr>
                                 <td class="text-center col-1" style="font-size: 1.2rem">{{$i+1}}</td>
                                 <td class="text-center col-6" style="font-size: 1.2rem">
                                     <a href="{{route('productdetail',[$carts[$i]->id_product])}}" class="text-decoration-none">
                                         {{$carts[$i]->Product->product_name}}</td>
                                     </a>
-                                <td class="text-center col-2" style="font-size: 1.2rem">{{$carts[$i]->qty}}</td>
+                                <td class="text-center col-2" style="font-size: 1.2rem">{{$carts[$i]->amount}}</td>
                                 <td class="text-center col-3" style="font-size: 1.2rem">${{$carts[$i]->Product->per_price}}</td>
 
                             </tr>
                         @endfor
                     @else
                             @for( $i = 0; $i < count($carts); $i++)
-                            <span class="d-none">{{$sum += $carts[$i]['per_price'] * $carts[$i]['qty']}}</span>
+                            <span class="d-none">{{$sum += $carts[$i]['per_price'] * $carts[$i]['amount']}}</span>
                             <tr>
                                 <td class="text-center col-1" style="font-size: 1.2rem">{{$i+1}}</td>
                                 <td class="text-center col-6" style="font-size: 1.2rem">
                                     <a href="{{route('productdetail',[$carts[$i]['id_product']])}}" class="text-decoration-none">
                                         {{$carts[$i]['name']}}</td>
                                     </a>
-                                <td class="text-center col-2" style="font-size: 1.2rem">{{$carts[$i]['qty']}}</td>
+                                <td class="text-center col-2" style="font-size: 1.2rem">{{$carts[$i]['amount']}}</td>
                                 <td class="text-center col-3" style="font-size: 1.2rem">${{$carts[$i]['per_price']}}</td>
                             </tr>
                             @endfor
@@ -156,8 +156,8 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2" class="text-black-50">Shipping fee</td>
-                        <td colspan="2" class="text-black-50">$3</td>
+                        <td colspan="2" class="text-black">Shipping fee</td>
+                        <td colspan="2" class="text-black text-center">$2</td>
                     </tr>
                     <tr id="add_coupon" class="d-none">
                         <td colspan="2" class="text-black-50">Discount</td>
@@ -173,16 +173,7 @@
                     </tr>
                 </tfoot>
             </table>
-            <div class="mt-4">
-                <div class="input-group">
-                    <label for="coupon" class="input-group-text" style="background-color: #ffffff"><i class="fa-solid fa-badge-percent fa-2xl text-center" style="color: #f5c211;"></i></label>
-                    <input type="text" name="coupon" id="coupon" placeholder="Add coupon" class="form-control fs-4" style="height: 40px" {{!Auth::check()?'disabled':''}}>
-                </div>
-                <span id="isvalid_coupon" class="text-danger mt-2 d-none"></span>
-                @if (!Auth::check())
-                <span class="mt-2 text-danger">Just User can use coupon</span>
-                @endif
-            </div>
+            
         </div>
     </div>
     
@@ -191,52 +182,76 @@
 @section('script')
     <script>
         $(document).ready(function(){
-            const host = "https://vapi.vnappmob.com";
-            const getProvince = host+"/api/province/";
-            $.getJSON(getProvince,function(data){
-                $('#province').append("<option selected>--Choose 1 province--</option>");
-                console.log(data);
-                $.each(data.results,function(key,value){
-                    $('#province').append(`<option value='${value.province_id}'>${value.province_name}</option>`);
-                });
-            });
-            //Need add shipping fee
-            $('#province').change(function async(e){
-                e.preventDefault();
-                let getDistric = host+"/api/province/district/"+$(this).val();
-                $('#district').removeAttr('disabled');
-                let str = "<option selected>--Choose 1 district--</option>";
-                $.getJSON(getDistric,function(data){
-                    $.each(data.results,function(key,value){
-                        str+=`<option value=${value.district_id}>${value.district_name}</option>`;
+            // const host = "https://vapi.vnappmob.com";
+            // const getProvince = host+"/api/province/";
+            // $.getJSON(getProvince,function(data){
+            //     $('#province').append("<option selected>--Choose 1 province--</option>");
+            //     console.log(data);
+            //     $.each(data.results,function(key,value){
+            //         $('#province').append(`<option value='${value.province_id}'>${value.province_name}</option>`);
+            //     });
+            // });
+            // //Need add shipping fee
+            // $('#province').change(function async(e){
+            //     e.preventDefault();
+            //     let getDistric = host+"/api/province/district/"+$(this).val();
+            //     $('#district').removeAttr('disabled');
+            //     let str = "<option selected>--Choose 1 district--</option>";
+            //     $.getJSON(getDistric,function(data){
+            //         $.each(data.results,function(key,value){
+            //             str+=`<option value=${value.district_id}>${value.district_name}</option>`;
+            //         })
+            //         $('#district').html(str);
+            //     });
+            // });
+            // $('#district').change(function(e){
+            //     e.preventDefault();
+            //     $('#ward').removeAttr('disabled');
+            //     $('#province option:selected').val($('#province option:selected').text());
+            //     let str = '<option selected>--Choose 1 ward--</option>';
+            //     let getWard = host+"/api/province/ward/"+$(this).val();
+            //     $.getJSON(getWard,function(data){
+            //         $.each(data.results,function(key,value){
+            //             str+=`<option value=${value.ward_id}>${value.ward_name}</option>`;
+            //         });
+            //         $('#ward').html(str);
+            //     });
+            // });
+            // $('#ward').change(function(e){
+            //     e.preventDefault();
+            //     $('#district option:selected').val($('#district option:selected').text());
+            //     if($(this).val().length>0){
+            //         $('input[name=address]').removeAttr('disabled');
+            //     }else{
+            //         $('input[name=address]').attr('disabled','disabled');
+            //     }
+            //     $('#ward option:selected').val($('#ward option:selected').text());
+            // })
+            const ghn_api_province = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+            const ghn_api_district = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+            const ghn_api_ward ="https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
+            const ghn_api_dev = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
+            const ghn_api_service = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
+            const ghn_fee = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+            const ghtk_api = "https://services-staging.ghtklab.com";
+            $.ajax({
+                method: "GET",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Token', '40c06a9e-ee0f-11ed-a281-3aa62a37e0a5');
+                    xhr.setRequestHeader("Content-Type", "application/json")
+                },
+                url: ghn_api_province,
+                success: function (data) {
+                    $("#province").append('<option>--Select Province --</option>');
+                    data.data.forEach(el=>{
+                    $("#province").append(`<option value="${el.ProvinceID}">${el.ProvinceName}</option>`)
                     })
-                    $('#district').html(str);
-                });
-            });
-            $('#district').change(function(e){
-                e.preventDefault();
-                $('#ward').removeAttr('disabled');
-                $('#province option:selected').val($('#province option:selected').text());
-                let str = '<option selected>--Choose 1 ward--</option>';
-                let getWard = host+"/api/province/ward/"+$(this).val();
-                $.getJSON(getWard,function(data){
-                    $.each(data.results,function(key,value){
-                        str+=`<option value=${value.ward_id}>${value.ward_name}</option>`;
-                    });
-                    $('#ward').html(str);
-                });
-            });
-            $('#ward').change(function(e){
-                e.preventDefault();
-                $('#district option:selected').val($('#district option:selected').text());
-                if($(this).val().length>0){
-                    $('input[name=address]').removeAttr('disabled');
-                }else{
-                    $('input[name=address]').attr('disabled','disabled');
+                },
+                error: function (request, status, error) {
+                    console.log();(request.responseText);
                 }
-                $('#ward option:selected').val($('#ward option:selected').text());
-            })
-            
+            });
+
             $('#payment-site').hide();
             $('#next, #back').click(function(e){
                 e.preventDefault();
@@ -323,52 +338,7 @@
                     $("input[name='submit']").attr('disabled','disabled');
                 }
             });
-            if($('#coupon').val().length>0){
-                $.get(window.location.origin+"/index.php/ajax/checkcoupon/"+$('#coupon').val(),function(data){
-                    let disc = parseInt(data); 
-                    if(disc >0){
-                        $('#coupon').addClass('is-valid');
-                        $('#coupon').removeClass('is-invalid');
-                        $('#isvalid_coupon').addClass('d-none');
-                        $('#add_coupon').removeClass('d-none');
-                        $('#add_coupon').children('.text-danger-50').text(`-${disc}%`);
-                        let new_total = parseInt($('#total_order').data('total'));
-                        new_total *= (1-disc/100);
-                        $('#total_order').text('$'+new_total);
-                        $('input[name=code_coupon]').val($('#coupon').val());
-                        
-                    }else{
-                        $('#coupon').removeClass('is-valid');
-                        $('#add_coupon').addClass('d-none');
-                        $('#isvalid_coupon').removeClass('d-none').html('We so sorry this coupon not work');
-                        $('#coupon').addClass('is-invalid');
-                        $('#total_order').text("$"+$('#total_order').data('total'));
-                    }
-                })
-            };
-            $('#coupon').change(function(){
-                $.get(window.location.origin+"/index.php/ajax/checkcoupon/"+$(this).val(),function(data){
-                    let disc = parseInt(data); 
-                    if(disc >0){
-                        $('#coupon').addClass('is-valid');
-                        $('#coupon').removeClass('is-invalid');
-                        $('#isvalid_coupon').addClass('d-none');
-                        $('#add_coupon').removeClass('d-none');
-                        $('#add_coupon').children('.text-danger-50').text(`-${disc}%`);
-                        let new_total = parseInt($('#total_order').data('total'));
-                        new_total *= (1-disc/100);
-                        $('#total_order').text('$'+new_total);
-                        $('input[name=code_coupon]').val($('#coupon').val());
-                        
-                    }else{
-                        $('#coupon').removeClass('is-valid');
-                        $('#add_coupon').addClass('d-none');
-                        $('#isvalid_coupon').removeClass('d-none').html('We so sorry this coupon not work');
-                        $('#coupon').addClass('is-invalid');
-                        $('#total_order').text("$"+$('#total_order').data('total'));
-                    }
-                })
-            })
+            
         })
     </script>
 @endsection
