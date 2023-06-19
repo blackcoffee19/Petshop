@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('email');
             $table->boolean('default')->default(false);
+            $table->timestamps();
         });
     }
 

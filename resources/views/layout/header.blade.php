@@ -88,48 +88,181 @@
             <div class="d-flex align-items-center lh-1">
               <div class="list-inline me-4 dropdown dropdown-fullwidth">
                 @if (Auth::check())
-                  <div class="list-inline-item me-5">
-
-                      <a href="{{route('favourite')}}" class="text-muted position-relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                          class="feather feather-heart">
-                          <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                          </path>
-                        </svg>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary countFav">
-                          {{count(Auth::user()->Favourite)}}
-                        </span>
+                  @if (Auth::user()->admin == 0)
+                    <div class="list-inline-item me-3">
+                      <a href="{{ route('wishlist') }}" class="text-muted position-relative">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                              class="feather feather-heart">
+                              <path
+                                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                              </path>
+                          </svg>
+                          <span
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                              <span class="fw-bold countFav">
+                                  {{ count(Auth::user()->Favourite) }}
+                              </span>
+                          </span>
                       </a>
-                  </div>
-                  <div class='list-inline-item me-5 '>
-                    <a class="text-muted dropdown-toggle dropdown_news" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                      <span class="position-absolute top-0 translate-middle badge rounded-pill bg-primary">
-                        {{count($news)}}
-                      </span>
-                    </a>
-                    <div class="dropdown-menu pb-0">
-                        <table class="text-start table news_table">
-                          @foreach ($news as $new)
-                          <tr>
-                            <td class="text-center" style="vertical-align: middle">
-                              @if ($new->image != null)
-                              <i class="fa-regular fa-sparkles fa-2xl" style="color: #f5c211;"></i>
-                              @else
-                              <i class="fa-solid fa-pen-field fa-2xl align-self-center"></i>
-                              @endif
-                            </td>
-                            <td>
-                              <a class="text-decoration-none" href="{{route($new->link ,$new->attr)}}">
-                                {{$new->title}}
-                              </a>
-                            </td>
-                          </tr>
-                          @endforeach
-                        </table>
-                    </div>    
+                  </div>  
+                  @endif
+                  <div class="list-inline-item me-3">
+                      <a href="#!" class=" text-muted dropdown-toggle user_dropdown position-relative dropdown_news " role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20"
+                              height="20" fill="currentColor">
+                              <path
+                                  d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z" />
+                          </svg>
+                          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                              <span class="fw-bold ">
+                                  {{ isset($news) ? count($news) : 0 }}
+                              </span>
+                          </span>
+                      </a>
+                      <div class=" dropdown-menu dropdown-menu-end dropdown-menu-lg shadow p-0 border-0">
+                        <div class="border-bottom p-5 d-flex justify-content-between align-items-center">
+                          <div>
+                              <h5 class="mb-1">Notifications</h5>
+                              <p class="mb-0 small">You have {{isset($news)? count($news):0}} unread notificates</p>
+                          </div>
+                        </div>
+                        <div data-simplebar style="height: 250px">
+                            <ul class="list-group list-group-flush notification-list-scroll fs-6 ">
+                                @if (isset($news))
+                                    @foreach ($news as $new)
+                                        <li class="list-group-item px-5 py-4 list-group-item-action">
+                                            @if (Auth::check() && Auth::user()->admin == "0")
+                                                @if ($new->link == 'show_coupon')
+                                                <a href="javascript:void(0)"  class="text-muted modal_coupon" data-bs-toggle="modal" data-bs-target="#couponModal" data-coupon="{{$new->attr}}">
+                                                    <div class="d-flex">
+                                                        <img src="{{ asset('resources/image/icons/tags.svg') }}" class="avatar avatar-md rounded-circle me-3" width="40" height="40"/>
+                                                        <div class="ms-4">
+                                                            <p class="mb-1 text-dark">
+                                                                {{$new->title}}
+                                                            </p>
+                                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                                    height="12" fill="currentColor"
+                                                                    class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                                    <path
+                                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                                    <path
+                                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                                </svg><small class="ms-2">
+                                                                @php
+                                                                    $date_new = $new->created_at;
+                                                                    $date_cur =  date('Y-m-d H:i:s');
+                                                                    $difference = strtotime($date_cur) - strtotime($date_new);
+                                                                    $days= $difference/(60*60*24);
+                                                                    if($days>30){
+                                                                        if(($days /30)%12 >1){
+                                                                            echo floor(($days /30)%12 )." years";
+                                                                        }else{
+                                                                            echo floor($days /30) .' months';
+                                                                        }
+                                                                    }else if($days >1){
+                                                                        echo floor($days). " days";
+                                                                    }else{
+                                                                        echo floor($difference/(60*60)). " hours";
+                                                                    }
+                                                                    // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                                                @endphp    
+                                                                </small></span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                @else
+                                                <a href="{{ route($new->link, $new->attr) }}" class="text-muted">
+                                                    <div class="d-flex">
+                                                        <img src="{{ asset('resources/image/pet/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
+                                                        <div class="ms-4">
+                                                            <p class="mb-1 text-dark">
+                                                                {{$new->title}}
+                                                            </p>
+                                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                                    height="12" fill="currentColor"
+                                                                    class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                                    <path
+                                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                                    <path
+                                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                                </svg><small class="ms-2">
+                                                                @php
+                                                                    $date_new = $new->created_at;
+                                                                    $date_cur =  date('Y-m-d H:i:s');
+                                                                    $difference = strtotime($date_cur) - strtotime($date_new);
+                                                                    $days= $difference/(60*60*24);
+                                                                    if($days>30){
+                                                                        if(($days /30)%12 >1){
+                                                                            echo floor(($days /30)%12 )." years";
+                                                                        }else{
+                                                                            echo floor($days /30) .' months';
+                                                                        }
+                                                                    }else if($days >1){
+                                                                        echo floor($days). " days";
+                                                                    }else{
+                                                                        echo floor($difference/(60*60)). " hours";
+                                                                    }
+                                                                    // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                                                @endphp    
+                                                                </small></span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                @endif
+                                            @else
+                                            <a href="javascript:void(0)" class="text-muted manager_notificate" data-bs-toggle="modal" data-bs-target="#viewModalOrder2" data-order="{{$new->id_news}}">
+                                                <div class="d-flex">
+                                                    <img src="{{ asset('resources/image/user/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
+                                                    <div class="ms-4">
+                                                        <p class="mb-1 text-dark">
+                                                            {{$new->title}}
+                                                        </p>
+                                                        <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                                height="12" fill="currentColor"
+                                                                class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                                <path
+                                                                    d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                                <path
+                                                                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                            </svg><small class="ms-2">
+                                                            @php
+                                                                $date_new = $new->created_at;
+                                                                $date_cur =  date('Y-m-d H:i:s');
+                                                                $difference = strtotime($date_cur) - strtotime($date_new);
+                                                                $days= $difference/(60*60*24);
+                                                                if($days>30){
+                                                                    if(($days /30)%12 >1){
+                                                                        echo floor(($days /30)%12 )." years";
+                                                                    }else{
+                                                                        echo floor($days /30) .' months';
+                                                                    }
+                                                                }else if($days >1){
+                                                                    echo floor($days). " days";
+                                                                }else{
+                                                                    echo floor($difference/(60*60)). " hours";
+                                                                }
+                                                            @endphp    
+                                                            </small>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </a>                                                           
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                @else
+                                <li class="list-group-item px-5 py-4 list-group-item-action">
+                                    <h4 class="text-muted text-center">There are no notificates</h4>
+                                </li>
+                                @endif
+                            </ul>
+                        </div>
+                        <div class="border-top px-5 py-4 text-center">
+                            <a href="#!" class=" "> View All </a>
+                        </div>
+                      </div>
                   </div>
                 @endif
                 <div class="list-inline-item me-5">
@@ -146,13 +279,16 @@
                       @if (Auth::check())
                       <span class="fw-bold countCart" >
                         @php
+                        if(Auth::user()->admin ==0){
                           $sum=0;
-                            foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
-                              $sum+=$value->qty;
-                            }
-                            echo $sum;
+                          foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
+                            $sum+=$value->qty;
+                          }
+                          echo $sum;
+                        }else{
+                          echo count($orders);
+                        }
                         @endphp
-
                       </span>
                       @endif
                       @if (Session::has("cart"))
@@ -172,20 +308,42 @@
                     </span>
                   </a>
                 </div>
-                <div class="list-inline-item">
+                <div class="list-inline-item dropdown dropdown-fullwidth">
                   @if (Auth::check())
-                      <a class="text-muted"  href="{{route('profie')}}">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="feather feather-user">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                          </svg>
-                          {{Auth::user()->name}}
-                      </a>
-                      <a href="{{route('signout')}}" class="text-muted ms-2" >
-                        <i class="fa-sharp fa-solid fa-arrow-right-from-bracket" style="font-size: 1.2rem"></i>
-                      </a>
+                    <a class="text-muted  dropdown-toggle user_dropdown" role="button" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
+                      @if (Auth::user()->image)
+                      <img src="{{asset('resources/image/user/'.Auth::user()->image)}}" alt="" class="img-thumbnail rounded-circle" style="width: 40px; height: 40px;object-fit: cover">
+                      @else
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-user">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                      @endif
+                        {{Auth::user()->name}}
+                        @if (!Auth::user()->email_verified)
+                            <img src="{{asset('resources/image/icons/warning.png')}}" width="18" height="18" class=" my-auto ms-3 img-fluid rounded-circle">
+                        @endif
+                    </a>
+                    <div class=" dropdown-menu pb-0 ">
+                      <div class="list-group">
+                        @if (Auth::user()->admin == '1')
+                          <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                        @endif
+                        <a href="{{ route('accountorder') }}" class="list-group-item list-group-item-action"><i class="fa-solid fa-truck"></i> Order</a>
+                        <a href="{{ route('profie') }}" class="list-group-item list-group-item-action d-flex flex-row justify-content-between align-items-center">
+                          <span><i class="fa-solid fa-gear"></i>  Setting</span>
+                            @if (!Auth::user()->email_verified)
+                            <img src="{{asset('resources/image/icons/warning.png')}}" width="15" height="15" class=" img-fluid rounded-circle">
+                            @endif
+                        </a>
+                        @if(Auth::user()->admin == '0')
+                        <a href="{{ route('accountaddress') }}" class="list-group-item list-group-item-action"><i class="fa-solid fa-location-pin"></i>Address</a>
+                        @endif
+                        <a href="{{ route('signout') }}" class="list-group-item list-group-item-action"><i class="bi bi-box-arrow-in-right"></i> Sign out</a>
+                      </div>
+                    </div>
                       {{-- <a href="{{route('signout')}}" class=" me-4 text-black"><i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i></a> --}}
                   @else
                       <a class="text-decoration-none text-dark mx-2 sign" data-bs-toggle="modal" data-bs-target="#userModal" href="#!">
@@ -233,49 +391,184 @@
           <div class="col-lg-4 col-xxl-3 text-end d-none d-lg-block mx-auto ">
             <div class="list-inline position-relative dropdown dropdown-fullwidth">
               @if (Auth::check())
-              <div class="list-inline-item me-5">
-
-                  <a href="{{route('favourite')}}" class="text-muted position-relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="feather feather-heart">
-                      <path
-                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                      </path>
-                    </svg>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary countFav">
-                      {{count(Auth::user()->Favourite)}}
-                    </span>
+                @if (Auth::user()->admin == '0')
+                  <div class="list-inline-item me-3">
+                    <a href="{{ route('wishlist') }}" class="text-muted position-relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="feather feather-heart">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                            <span class="fw-bold countFav">
+                                {{ count(Auth::user()->Favourite) }}
+                            </span>
+                        </span>
+                    </a>
+                </div>  
+              @endif  
+                <div class="list-inline-item me-3">
+                  <a href="#!" class=" text-muted dropdown-toggle user_dropdown position-relative dropdown_news " role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20"
+                          height="20" fill="currentColor">
+                          <path
+                              d="M224 0c-17.7 0-32 14.3-32 32V49.9C119.5 61.4 64 124.2 64 200v33.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416H424c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4V200c0-75.8-55.5-138.6-128-150.1V32c0-17.7-14.3-32-32-32zm0 96h8c57.4 0 104 46.6 104 104v33.4c0 47.9 13.9 94.6 39.7 134.6H72.3C98.1 328 112 281.3 112 233.4V200c0-57.4 46.6-104 104-104h8zm64 352H224 160c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z" />
+                      </svg>
+                      <span
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                          <span class="fw-bold ">
+                              {{ isset($news) ? count($news) : 0 }}
+                          </span>
+                      </span>
                   </a>
-      	      </div>
-      	      <div class='list-inline-item me-5 '>
-      		      <a class="text-muted dropdown-toggle dropdown_news" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-      		      	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-      		      	<span class="position-absolute translate-middle badge rounded-pill bg-primary">
-                    {{count($news)}}
-                  </span>
-      		      </a>
-                <div class="dropdown-menu pb-0">
-                    <table class="text-start table news_table">
-                      @foreach ($news as $new)
-                      <tr>
-                        <td class="text-center" style="vertical-align: middle">
-                          @if ($new->image != null)
-                          <img src="{{asset('resources/image/pet/'.$new->image)}}" class="img-thumbnail rounded-circle" alt="" style="width: 50px;height: 50px;;object-fit: cover">
-                          @else
-                          <i class="fa-solid fa-pen-field fa-2xl align-self-center"></i>
-                          @endif
-                        </td>
-                        <td>
-                          <a class="text-decoration-none" href="{{route($new->link ,$new->attr)}}">
-                            {{$new->title}}
-                          </a>
-                        </td>
-                      </tr>
-                      @endforeach
-                    </table>
-                </div>    
-      	      </div>
+                  <div class=" dropdown-menu dropdown-menu-end dropdown-menu-lg shadow p-0 border-0">
+                    <div class="border-bottom p-5 d-flex justify-content-between align-items-center">
+                      <div>
+                          <h5 class="mb-1">Notifications</h5>
+                          <p class="mb-0 small">You have {{isset($news)? count($news):0}} unread notificates</p>
+                      </div>
+                    </div>
+                    <div data-simplebar style="height: 250px">
+                      <ul class="list-group list-group-flush notification-list-scroll fs-6 ">
+                        @if (isset($news))
+                          @foreach ($news as $new)
+                            <li class="list-group-item px-5 py-4 list-group-item-action">
+                              @if (Auth::check() && Auth::user()->admin == "0")
+                                @if ($new->link == 'show_coupon')
+                                <a href="javascript:void(0)"  class="text-muted modal_coupon" data-bs-toggle="modal" data-bs-target="#couponModal" data-coupon="{{$new->attr}}">
+                                    <div class="d-flex">
+                                        <img src="{{ asset('resources/image/icons/tags.svg') }}" class="avatar avatar-md rounded-circle me-3" width="40" height="40"/>
+                                        <div class="ms-4">
+                                            <p class="mb-1 text-dark">
+                                                {{$new->title}}
+                                            </p>
+                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                    height="12" fill="currentColor"
+                                                    class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                    <path
+                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                </svg><small class="ms-2">
+                                                @php
+                                                    $date_new = $new->created_at;
+                                                    $date_cur =  date('Y-m-d H:i:s');
+                                                    $difference = strtotime($date_cur) - strtotime($date_new);
+                                                    $days= $difference/(60*60*24);
+                                                    if($days>30){
+                                                        if(($days /30)%12 >1){
+                                                            echo floor(($days /30)%12 )." years";
+                                                        }else{
+                                                            echo floor($days /30) .' months';
+                                                        }
+                                                    }else if($days >1){
+                                                        echo floor($days). " days";
+                                                    }else{
+                                                        echo floor($difference/(60*60)). " hours";
+                                                    }
+                                                    // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                                @endphp    
+                                                </small></span>
+                                        </div>
+                                    </div>
+                                </a>
+                                @else
+                                  <a href="{{ route($new->link, $new->attr) }}" class="text-muted">
+                                    <div class="d-flex">
+                                      <img src="{{ asset('resources/image/pet/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
+                                      <div class="ms-4">
+                                        <p class="mb-1 text-dark">
+                                            {{$new->title}}
+                                        </p>
+                                        <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                height="12" fill="currentColor"
+                                                class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                <path
+                                                    d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                            </svg><small class="ms-2">
+                                            @php
+                                                $date_new = $new->created_at;
+                                                $date_cur =  date('Y-m-d H:i:s');
+                                                $difference = strtotime($date_cur) - strtotime($date_new);
+                                                $days= $difference/(60*60*24);
+                                                if($days>30){
+                                                    if(($days /30)%12 >1){
+                                                        echo floor(($days /30)%12 )." years";
+                                                    }else{
+                                                        echo floor($days /30) .' months';
+                                                    }
+                                                }else if($days >1){
+                                                    echo floor($days). " days";
+                                                }else{
+                                                    echo floor($difference/(60*60)). " hours";
+                                                }
+                                                // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                            @endphp    
+                                            </small></span>
+                                        </div>
+                                    </div>
+                                  </a>
+                                @endif
+                              @else
+                                  <a href="javascript:void(0)" class="text-muted manager_notificate" data-bs-toggle="modal" data-bs-target="#viewModalOrder2" data-order="{{$new->id_news}}">
+                                  <div class="d-flex">
+                                    <img src="{{ asset('resources/image/user/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
+                                    <div class="ms-4">
+                                      <p class="mb-1 text-dark">
+                                          {{$new->title}}
+                                      </p>
+                                      <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                              height="12" fill="currentColor"
+                                              class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                              <path
+                                                  d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                              <path
+                                                  d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                          </svg><small class="ms-2">
+                                          @php
+                                              $date_new = $new->created_at;
+                                              $date_cur =  date('Y-m-d H:i:s');
+                                              $difference = strtotime($date_cur) - strtotime($date_new);
+                                              $days= $difference/(60*60*24);
+                                              if($days>30){
+                                                  if(($days /30)%12 >1){
+                                                      echo floor(($days /30)%12 )." years";
+                                                  }else{
+                                                      echo floor($days /30) .' months';
+                                                  }
+                                              }else if($days >1){
+                                                  echo floor($days). " days";
+                                              }else{
+                                                  echo floor($difference/(60*60)). " hours";
+                                              }
+                                          @endphp    
+                                          </small>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  </a>                                                           
+                              @endif
+                            </li>
+                          @endforeach
+                        @else
+                        <li class="list-group-item px-5 py-4 list-group-item-action">
+                            <h4 class="text-muted text-center">There are no notificates</h4>
+                        </li>
+                        @endif
+                      </ul>
+                    </div>
+                    <div class="border-top px-5 py-4 text-center">
+                        <a href="#!" class=" "> View All </a>
+                    </div>
+                  </div>
+              </div>
+              
               @endif
               <div class="list-inline-item me-5">
                 <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
@@ -291,11 +584,15 @@
                     @if (Auth::check())
                       <span class="fw-bold countCart" >
                         @php
+                        if(Auth::user()->admin ==0){
                           $sum=0;
-                            foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
-                              $sum+=$value->qty;
-                            }
-                            echo $sum;
+                          foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
+                            $sum+=$value->amount;
+                          }
+                          echo $sum;
+                        }else{
+                          echo count($orders);
+                        }
                         @endphp
                       </span>
                       @endif
@@ -316,9 +613,9 @@
                   </span>
                 </a>
               </div>
-              <div class="list-inline-item">
+              <div class="list-inline-item dropdown dropdown-fullwidth">
                   @if (Auth::check())
-                      <a class="text-muted"  href="{{route('profie')}}">
+                      <a class="text-muted dropdown-toggle user_dropdown" role="button" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
                         @if (Auth::user()->image)
                             <img src="{{asset('resources/image/user/'.Auth::user()->image)}}" alt="" class="img-thumbnail rounded-circle" style="width: 40px; height: 40px;object-fit: cover">
                         @else
@@ -330,11 +627,28 @@
                         </svg>
                         @endif
                           {{Auth::user()->name}}
+                          @if (!Auth::user()->email_verified)
+                              <img src="{{asset('resources/image/icons/warning.png')}}" width="18" height="18" class=" my-auto ms-3 img-fluid rounded-circle">
+                          @endif
                       </a>
-                      <a href="{{route('signout')}}" class="text-muted" >
-                        <i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i>
-                      </a>
-                      {{-- <a href="{{route('signout')}}" class=" me-4 text-black"><i class="fa-sharp fa-solid fa-arrow-right-from-bracket"></i></a> --}}
+                      <div class=" dropdown-menu pb-0 ">
+                        <div class="list-group">
+                          @if (Auth::user()->admin == '1')
+                            <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action">Dashboard</a>
+                          @endif
+                          <a href="{{ route('accountorder') }}" class="list-group-item list-group-item-action"><i class="fa-solid fa-truck"></i> Order</a>
+                          <a href="{{ route('profie') }}" class="list-group-item list-group-item-action d-flex flex-row justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-gear"></i>  Setting</span>
+                              @if (!Auth::user()->email_verified)
+                              <img src="{{asset('resources/image/icons/warning.png')}}" width="15" height="15" class=" img-fluid rounded-circle">
+                              @endif
+                          </a>
+                          @if(Auth::user()->admin == '0')
+                          <a href="{{ route('accountaddress') }}" class="list-group-item list-group-item-action"><i class="fa-solid fa-location-pin"></i>Address</a>
+                          @endif
+                          <a href="{{ route('signout') }}" class="list-group-item list-group-item-action"><i class="bi bi-box-arrow-in-right"></i> Sign out</a>
+                        </div>
+                      </div>
                   @else
                       <a href="#!" class="text-muted" data-bs-toggle="modal" data-bs-target="#userModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -535,7 +849,7 @@
   </div>
 </div>
 {{-- Shopping cart --}}
-@if (Auth::check() && Auth::user()->admin == '2')
+@if (Auth::check() && Auth::user()->admin != 0)
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
     <div class="offcanvas-header border-bottom">
         <div class="text-start">
@@ -544,91 +858,86 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div>
-            <ul class="list-group list-group-flush">
-                @if (isset($orders) && count($orders)>0)
-                    @foreach ($orders as $order)
-                        <li class='list-group-item py-3 ps-0 border-top border-bottom'>
-                            <div class='row align-items-center'>
-                                <div class='col-1'>
-                                    @if ($order->id_user && isset($order->User->avatar))
-                                        <img src="{{asset('resources/image/user/'.$order->User->avatar)}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
-                                    @else
-                                        <img src="{{asset('resources/image/user/user.png')}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
-                                    @endif
-                                </div>
-                                <div class='col-2 '>
-                                    <span>#{{$order->order_code}}</span><br>
-                                    <small class="text-muted">{{date_format($order->created_at,"F j Y, g:i a")}}</small>
-                                </div>
-                                <div class='col-2'>Items: <p>{{count($order->Cart)}}</p>
-                                </div>
-                                <div class="col-2">
-                                    @php
-                                    $sum =0;
-                                    foreach ($order->Cart as $cart) {
-                                        if($cart->sale > 0){
-                                            $sum += $cart->price*(1 - $cart->sale/100)*($cart->amount/1000);
-                                        }else{
-                                            $sum += $cart->price*($cart->amount/1000);
-                                        };
-                                    };   
-                                    if($order->code_coupon){
-                                        if($order->Coupon->discount <= 100){
-                                            $sum = $sum*(1 - $order->Coupon->discount/100);
-                                        }else{
-                                            $sum -= $order->Coupon->discount;
-                                        }
-                                    }
-                                    $sum += $order->shipping_fee;
-                                    echo number_format($sum,0,'',' ')."đ";
-                                    @endphp
-                                </div>
-                                <div class="col-2">
-                                    @switch($order->status)
-                                        @case('confirmed')
-                                            <h5 class="badge bg-warning text-capitalize">{{$order->status}}</h5>
-                                            @break
-                                        @case('unconfirmed')
-                                            <h5 class="badge bg-dark text-capitalize">{{$order->status}}</h5>
-                                            @break
-                                        @case('delivery')
-                                            <h5 class="badge bg-primary text-capitalize">{{$order->status}}</h5>
-                                            @break
-                                    @endswitch
-                                </div>
-                                <div class="col-3">
-                                    @switch($order->status)
-                                        @case('confirmed')
-                                            <button type="button" class="btn btn-danger check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
-                                                Update          
-                                            </button>
-                                            @break
-                                        @case('unconfirmed')
-                                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
-                                                Confirm  
-                                            </button>
-                                            @break
-
-                                        @case('delivery')
-                                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
-                                                Update
-                                            </button>
-                                        @break        
-                                    @endswitch
-                                </div>
-                            </div>
-                        </li>
-                    @endforeach
-                @else
+      <div>
+        <ul class="list-group list-group-flush">
+          @if (isset($orders) && count($orders)>0)
+              @foreach ($orders as $order)
                 <li class='list-group-item py-3 ps-0 border-top border-bottom'>
-                    <h4 class="text-muted text-center text-uppercase">
-                        There are no New Order
-                    </h4>
+                  <div class='row align-items-center'>
+                      <div class='col-1'>
+                          @if ($order->id_user && isset($order->User->image))
+                              <img src="{{asset('resources/image/user/'.$order->User->image)}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
+                          @else
+                              <img src="{{asset('resources/image/user/user.png')}}" alt="" width="40" height="40" class="img-fluid rounded-circle">
+                          @endif
+                      </div>
+                      <div class='col-2 '>
+                          <span>#{{$order->order_code}}</span><br>
+                          <small class="text-muted">{{date_format(date_create($order->created_at),"F j Y, g:i a")}}</small>
+                      </div>
+                      <div class='col-2'>Items: <p>{{count($order->Cart)}}</p>
+                      </div>
+                      <div class="col-2">
+                        @php
+                        $sum =0;
+                        foreach ($order->Cart as $cart) {
+                          $sum += $cart->price*(1 - $cart->sale/100)*$cart->amount;
+                        };   
+                        if($order->code_coupon){
+                            if($order->Coupon->discount >= 10){
+                                $sum = $sum*(1 - $order->Coupon->discount/100);
+                            }else{
+                                $sum -= $order->Coupon->discount;
+                            }
+                        }
+                        $sum += $order->shipping_fee;
+                        echo "$".number_format($sum,2,'.',' ');
+                        @endphp
+                      </div>
+                      <div class="col-2">
+                        @switch($order->status)
+                          @case('confirmed')
+                              <h5 class="badge bg-warning text-capitalize">{{$order->status}}</h5>
+                              @break
+                          @case('unconfirmed')
+                              <h5 class="badge bg-dark text-capitalize">{{$order->status}}</h5>
+                              @break
+                          @case('delivery')
+                              <h5 class="badge bg-primary text-capitalize">{{$order->status}}</h5>
+                              @break
+                        @endswitch
+                      </div>
+                      <div class="col-3">
+                        @switch($order->status)
+                          @case('confirmed')
+                            <button type="button" class="btn btn-danger check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                Update          
+                            </button>
+                            @break
+                          @case('unconfirmed')
+                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                Confirm  
+                            </button>
+                            @break
+                          @case('delivery')
+                            <button type="button" class="btn btn-primary check_order" data-bs-toggle="modal" data-bs-target="#viewModalOrder" data-order="{{$order->id_order}}" >
+                                Update
+                            </button>
+                          @break        
+                        @endswitch
+                      </div>
+                  </div>
                 </li>
-                @endif
-            </ul>
-        </div>
+              @endforeach
+          @else
+          <li class='list-group-item py-3 ps-0 border-top border-bottom'>
+            <h4 class="text-muted text-center text-uppercase">
+                There are no New Order
+            </h4>
+          </li>
+          @endif
+        </ul>
+      </div>
     </div>
 </div>
 

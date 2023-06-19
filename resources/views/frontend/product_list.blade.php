@@ -127,7 +127,7 @@
                         </div>
                         <div class="card-img-top h-50 d-flex flex-row justify-content-center align-content-center position-relative" style="height: 230px;">
                             <a class="h-100" href="{{route('productdetail',[$pet->id_product])}}">
-                                <img src="{{asset('/resources/image/pet/'.$pet['image'])}}" class="rounded-0 img-fluid h-100" style="max-height: 220px;object-fit: cover{{$pet->quantity == 0? ';filter: blur(4px)': ''}}" alt="{{$pet->id_product}}" >
+                                <img src="{{asset('/resources/image/pet/'.$pet->Library[0]->image)}}" class="rounded-0 img-fluid h-100" style="max-height: 220px;object-fit: cover{{$pet->quantity == 0? ';filter: blur(4px)': ''}}" alt="{{$pet->id_product}}" >
                             </a>
                             @if ($pet->quantity ==0)
                                 <div class="position-absolute w-100" style="z-index: 2; top:10px">

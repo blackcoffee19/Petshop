@@ -1,5 +1,6 @@
 @extends('welcome')
 @section('content')
+
     <main class="container-fluid">
         <section class="mb-lg-14 mb-8 mt-8">
             <div class="container">
@@ -25,15 +26,15 @@
                                         @foreach ($carts as $cart)
                                             <li class="list-group-item py-3 py-lg-0 px-0 border-top">
                                                 <div class="row align-items-center">
-                                                    <div class="col-3 col-md-2">
+                                                    <div class="col-3 col-md-2 my-3">
                                                         @if (count($cart->Product->Library)>0)
-                                                            <img src="{{ asset('resource/image/pet/'.$cart->Product->Library[0]->image) }}" alt="Ecommerce" class="img-fluid">
+                                                            <img src="{{ asset('resources/image/pet/'.$cart->Product->Library[0]->image) }}" alt="Ecommerce" class="img-fluid">
                                                         @endif
                                                     </div>
                                                     <div class="col-3 col-md-2">
-                                                        <a href="{{ route('productsdetail', $cart->id_product) }}"
+                                                        <a href="{{ route('productdetail', $cart->id_product) }}"
                                                             class="text-inherit">
-                                                            <h6 class="mb-0">{{ $cart->Product->name }}</h6>
+                                                            <h6 class="mb-0">{{ $cart->Product->product_name }}</h6>
                                                         </a>
                                                         <div class="mt-2 small lh-1">
                                                             <a href="{{ route('removeId', $cart->id_cart) }}" class="text-decoration-none text-inherit">
@@ -63,13 +64,13 @@
                                                             <input type="hidden" name="max_quan" value="{{ $cart->Product->quantity }}">
                                                             <div class=" col-6">
                                                                 <div class="input-group input-spinner ">
-                                                                    <button type="button" class="btn btn-outline-secondary btn_minus" style="border-radius: 10px 0 0 10px;" data-field="quantity">
+                                                                    <button type="button" class="btn btn-outline-secondary btn_minus btn-sm" style="border-radius: 10px 0 0 10px;" data-field="quantity">
                                                                         <i class="bi bi-dash-lg"></i>
                                                                     </button>
                                                                     <input type="text" name="quan"
                                                                         class="border border-secondary text-center pt-1 fs-4 text-secondary"
                                                                         style="width: 50px;" value="{{ $cart->amount }}" />
-                                                                    <button type="button" class="btn btn-outline-secondary btn_plus" style="border-radius: 0 10px 10px 0;">
+                                                                    <button type="button" class="btn btn-outline-secondary btn_plus btn-sm" style="border-radius: 0 10px 10px 0;">
                                                                         <i class="bi bi-plus-lg"></i>
                                                                     </button>
                                                                 </div>
@@ -83,12 +84,12 @@
                                                     </div>
                                                     <div class="col-2 text-lg-end text-start text-md-end col-md-2">
                                                         <span  class="fw-bold">
-                                                            {{ number_format($cart->Product->sale > 0 ? $cart->Product->per_price * (1 - $cart->Product->sale / 100) : $cart->Product->price, 2, '.', ' ') }}
+                                                            ${{ number_format($cart->Product->sale > 0 ? $cart->Product->per_price * (1 - $cart->Product->sale / 100) : $cart->Product->per_price, 2, '.', ' ') }}
                                                         </span>
                                                     </div>
                                                 </div>
                                                 @php
-                                                    $price = $cart->Product->sale > 0 ? $cart->Product->per_price * (1 - $cart->Product->sale / 100) : $cart->Product->price;
+                                                    $price = $cart->Product->sale > 0 ? $cart->Product->per_price * (1 - $cart->Product->sale / 100) : $cart->Product->per_price;
                                                     $sum += ($price * $cart->amount);
                                                 @endphp
                                             </li>
@@ -147,11 +148,11 @@
                                                             <input type="hidden" name="max_quan" value="{{ $cart['max'] }}">
                                                             <div class="col-5 col-md-6 col-lg-5 mx-auto">
                                                                 <div class="input-group input-spinner ">
-                                                                    <button type="button" class="btn btn-outline-secondary btn_minus" style="border-radius: 10px 0 0 10px;" data-field="quantity">
+                                                                    <button type="button" class="btn btn-outline-secondary btn_minus btn-sm" style="border-radius: 10px 0 0 10px;" data-field="quantity">
                                                                         <i class="bi bi-dash-lg"></i>
                                                                     </button>
                                                                     <input type="text" name="quan" class="border border-secondary text-center pt-1 fs-4 text-secondary" style="width: 50px;" value="{{ $cart['amount'] }}" />
-                                                                    <button type="button" class="btn btn-outline-secondary btn_plus" style="border-radius: 0 10px 10px 0;">
+                                                                    <button type="button" class="btn btn-outline-secondary btn_plus btn-sm" style="border-radius: 0 10px 10px 0;">
                                                                         <i class="bi bi-plus-lg"></i>
                                                                     </button>
                                                                 </div>
@@ -168,9 +169,7 @@
                                                     </div>
                                                     <!-- price -->
                                                     <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                                                        <span
-                                                            class="fw-bold">${{ number_format($cart['sale'] > 0 ? $cart['per_price'] * (1 - $cart['sale'] / 100) : $cart['per_price'], 2, '.', '') }}
-                                                            </span>
+                                                        <span class="fw-bold">${{ number_format($cart['sale'] > 0 ? $cart['per_price'] * (1 - $cart['sale'] / 100) : $cart['per_price'], 2, '.', '') }}</span>
                                                     </div>
                                                 </div>
                                             </li>
@@ -209,16 +208,14 @@
                                             <div class="me-auto">
                                                 <div>Item Subtotal</div>
                                             </div>
-                                            <span id="item_subtotal"
-                                                data-subtotal="{{ $sum }}">${{ number_format($sum, 2, '.', '') }}
-                                                </span>
+                                            <span id="item_subtotal" data-subtotal="{{$sum }}">${{ number_format($sum, 2, '.', '') }} </span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="me-auto">
                                                 <div>Service Fee <i class="bi bi-exclamation-circle text-muted" data-bs-toggle="tooltip"
                                                     title="Shipping fee depends on the shipping address"></i></div>
                                             </div>
-                                            <span>$2</span>
+                                            <span>$2.00</span>
                                         </li>
                                         @if (Auth::check())
                                         <li id="added_coupon"
@@ -228,8 +225,7 @@
                                             </div>
                                             <div id="coupon_title">{{ isset($coupon) ? $coupon->title : '' }}</div>
                                             <div class="ms-auto text-danger">
-                                                <span
-                                                    id="discount">{{ !isset($coupon) ? ($coupon->freeship ? '- ' . number_format($coupon->discount, 0, '', '') . ' đ' : '- ' . $coupon->discount . '%') : '' }}</span>
+                                                <span id="discount">{{ isset($coupon) ? (($coupon->freeship ? '- $' . number_format($coupon->discount, 2, '.', ''): '- ' . $coupon->discount . '%')) : '' }}</span>
                                             </div>
                                         </li>   
                                         @endif
@@ -246,19 +242,17 @@
                                                 }
                                             @endphp
                                             <span class="fw-bold" id="total_items"
-                                                data-total="{{ $sum}}">${{number_format($total,2,'.','')}}</span>
+                                                data-total="{{$sum}}">${{number_format($total,2,'.','')}}</span>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="d-grid mb-1 mt-4">
                                     <a href="{{ route('order') }}"
-                                        class="btn btn-primary btn-lg d-flex justify-content-between align-items-center">Go
-                                        to Checkout <span class="fw-bold"
-                                            id="total_cart">${{$total}}</span></a>
+                                        class="btn btn-primary btn-lg d-flex justify-content-between align-items-center">Go to Checkout 
+                                        <span class="fw-bold" id="total_cart">${{$total}}</span></a>
                                 </div>
-                                <p><small>By placing your order, you agree to be bound by the Freshcart <a
-                                            href="#!">Terms of Service</a>
-                                        and <a href="#!">Privacy Policy.</a> </small>
+                                <p><small>By placing your order, you agree to be bound by the Freshcart 
+                                    <a href="#!">Terms of Service</a> and <a href="#!">Privacy Policy.</a> </small>
                                 </p>
                                 <div class="mt-8">
                                     <h2 class="h5 mb-3">Add Promo or Gift Card</h2>
@@ -281,55 +275,4 @@
             </div>
         </section>
     </main>
-@endsection
-@section ('script')
-<script>
-    $(document).ready(function() {
-        $('#checkCoupon').click(function() {
-            if ($('#giftcard').val().length > 0) {
-                $.get(window.location.origin + "/index.php/ajax/add-coupon/" + $('#giftcard').val(),function(data) {
-                    let total = parseInt($('#total_items').data('total'));
-                    let subtotal = parseInt($('#item_subtotal').data('subtotal'));
-                    if (data) {
-                        let dataJson = jQuery.parseJSON(data);
-                        if (!dataJson['error']) {
-                            $('#added_coupon').removeClass('d-none');
-                            $('#wrong_code').addClass('d-none');
-                            $('#giftcard').removeClass('is-invalid')
-                            $('#giftcard').addClass('is-valid');
-                            $('#coupon_title').html(dataJson['title']);
-                            if (dataJson['code'].includes('FREESHIP')) {
-                                $('#discount').html('- $' + dataJson['discount']);
-                                total -= parseFloat(dataJson['discount']);
-                            } else {
-                                $('#discount').html('- ' + dataJson['discount'] + '%');
-                                total *= (1 - parseFloat(dataJson['discount']) / 100);
-                            };
-                            total += 2;
-                            $('#total_items').html("$"+Math.floor(total));
-                            $('#total_cart').html("$"+Math.floor(total));
-                        } else {
-                            total += 2;
-                            $('#total_items').html("$"+Math.floor(total));
-                            $('#total_cart').html("$"+Math.floor(total));
-                            $('#added_coupon').addClass('d-none');
-                            $('#giftcard').removeClass('is-valid');
-                            $('#giftcard').addClass('is-invalid');
-                            $('#wrong_code').removeClass('d-none').html(dataJson['error']);
-                        }
-                    } else {
-                        total += 2;
-                        $('#total_items').html("$"+Math.floor(total));
-                        $('#total_cart').html("$"+Math.floor(total));
-                        $('#added_coupon').addClass('d-none');
-                        $('#giftcard').removeClass('is-valid');
-                        $('#giftcard').addClass('is-invalid');
-                        $('#wrong_code').removeClass('d-none').html("This code is not exited");
-                    }
-
-                })
-            }
-        })
-    })
-</script>
 @endsection

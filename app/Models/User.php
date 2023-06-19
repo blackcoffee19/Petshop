@@ -63,10 +63,14 @@ class User extends Authenticatable
     	return $this->hasMany(Message::class,'id_user','id_user');
     }
     public function Groupmessage1(){
-    	return $this->hasMany(Message::class,'id_user','id_user1');
+    	return $this->hasMany(Message::class,'id_user','id_user');
     }
     public function Groupmessage2(){
-    	return $this->hasMany(Message::class,'id_user','id_user2');
+    	return $this->hasMany(Message::class,'id_user','id_admin');
+    }
+    public function Address()
+    {
+        return $this->hasMany(Address::class, 'id_user', 'id_user');
     }
     public function Resetpassword(){
         return $this->hasMany(ResetPassword::class, 'email', 'email');

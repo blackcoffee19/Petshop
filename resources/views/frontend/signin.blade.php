@@ -43,49 +43,33 @@
                 @endif
                 <h1 class="text-center mb-4">Sign up</h1>
                 <hr>
-                <span class="text-black-50">You must to input * statement</span>
+                <span class="text-black-50">You must to input <span class="text-danger">*</span> statement</span>
                 <hr>
                 <form action="{{route('signup')}}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3 form-floating">
                         <input type="text" name="user_fullname" id="user_fullname" class="form-control">
-                        <label class="form-label" for="user_fullname">Full Name *</label>
+                        <label class="form-label" for="user_fullname">Full Name <span class="text-danger">*</span></label>
                         <span id="invalidName" class="text-danger"></span>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <label class="form-label" for="user_gender">Gender *</label>
-                            <select name="user_gender" id="user_gender" class="form-select">
-                                <option value="1" selected>Male</option>
-                                <option value="2">Female</option>
-                                <option value="3">Other</option>
-                                <option value="4">Unknow</option>
-                            </select>
-                        </div>
-                        <div class="col-5">
-                            <label for="user_dob" class="form-label">Date of birth *</label>
-                            <input type="date" name="user_dob" id="user_dob" class="form-control" min="1920-12-31" max="2010-12-31">
-                            <span id="invalidDOB" class="text-danger"></span>
-                        </div>
                     </div>
                     <div class="mb-3 form-floating">
                         <input type="text" name="user_phone" id="user_phone" class="form-control">
-                        <label class="form-label" for="user_phone">Phone number *</label>
+                        <label class="form-label" for="user_phone">Phone number <span class="text-danger">*</span></label>
                         <span id="invalidPhone" class="text-danger"></span>
                     </div>
                     <div class="mb-3 form-floating">
                         <input type="text" name="user_email" id="user_email" class="form-control">
-                        <label class="form-label" for="user_email">Email *</label>
+                        <label class="form-label" for="user_email">Email <span class="text-danger">*</span></label>
                         <span id="invalidEmail" class="text-danger"></span>
                     </div>
                     <div class="mb-3 form-floating">
                         <input type="password" name="user_pass1" id="user_pass1" class="form-control" >
-                        <label class="form-label" for="user_pass1">Password *</label>
+                        <label class="form-label" for="user_pass1">Password <span class="text-danger">*</label></label>
                         <span id="invalidPass1" class="text-danger"></span>
                     </div>
                     <div class="mb-3 form-floating">
                         <input type="password" name="user_pass2" id="user_pass2" class="form-control">
-                        <label class="form-label" for="user_pass2">Re-password *</label>
+                        <label class="form-label" for="user_pass2">Re-password <span class="text-danger">*</span></label>
                         <span id="invalidPass2" class="text-danger"></span>
                     </div>
                     <div class="mb-4">
@@ -127,32 +111,32 @@
                     @for ($i = 0; $i < count($random_pet); $i++)
                     <div class="carousel-item card {{$i == 0? "active": ""}} card-product rounded-2 shadow">
                         <div class="card-body">
-                            <div class="text-center position-relative ">
-                              <div class=" position-absolute top-0 start-0">
-                                @if ($random_pet[$i]->sale !=0)
-                                <span class="badge bg-success">-{{$random_pet[$i]->sale}}%</span>
-                                @endif
-                                @php 
-                                    $today =new DateTime();
-                                    $pet_createdate = DateTime::createFromFormat('Y-m-d H:i:s',$random_pet[$i]->created_at);
-                                    if($today->diff($pet_createdate)->format('%a') <4){
-                                      echo "<span class='badge bg-danger'>HOT</span>";
-                                    }
-                                @endphp
-                              </div>
-                              <a href="{{route('productdetail',$random_pet[$i]->id_product)}}"> 
-                                  <img src="{{asset('resources/image/pet/'.$random_pet[$i]->image)}}" alt="{{$random_pet[$i]->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
-                              </a>
-                              <div class="card-product-action">
-                                <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-bs-product="{{$random_pet[$i]->id_product}}"><i
-                                    class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i></a>
-                                <a class="btn-action {{Auth::check()? 'addFav':''}}" 
-                                {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle='tooltip' data-bs-html='true' title='Wishlist' data-bs-idproduct=$random_pet[$i]->id_product"}} >
-                                  <i class="bi {{Auth::check() ? (count(Auth::user()->Favourite->where('id_product','=',$random_pet[$i]->id_product))>0 ? 'bi-heart-fill text-danger' : 'bi-heart'): 'bi-heart'}}"></i></a>
-                                <a role="button" class="btn-action  compare_pet" data-bs-toggle="tooltip" data-bs-html="true" title="Compare"  data-bs-product="{{$random_pet[$i]->id_product}}">
-                                  <i class="bi bi-arrow-left-right"></i>
+                            <div class="text-center position-relative d-flex flex-column justify-content-center align-items-center">
+                                <div class=" position-absolute top-0 start-0">
+                                  @if ($random_pet[$i]->sale !=0)
+                                  <span class="badge bg-success">-{{$random_pet[$i]->sale}}%</span>
+                                  @endif
+                                  @php 
+                                      $today =new DateTime();
+                                      $pet_createdate = DateTime::createFromFormat('Y-m-d H:i:s',$random_pet[$i]->created_at);
+                                      if($today->diff($pet_createdate)->format('%a') <4){
+                                        echo "<span class='badge bg-danger'>HOT</span>";
+                                      }
+                                  @endphp
+                                </div>
+                                <a href="{{route('productdetail',$random_pet[$i]->id_product)}}"> 
+                                    <img src="{{asset('resources/image/pet/'.$random_pet[$i]->Library[0]->image)}}" alt="{{$random_pet[$i]->product_name}}" class="mb-3 img-fluid mx-auto" style="width: 212px; height: 212px; object-fit: contain">
                                 </a>
-                              </div>
+                                <div class="card-product-action">
+                                  <a href="#!" class="btn-action btn_modal" data-bs-toggle="modal" data-bs-target="#quickViewModal" data-product="{{$random_pet[$i]->id_product}}"><i
+                                      class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i></a>
+                                  <a class="btn-action {{Auth::check()? 'addFav':''}}" 
+                                  {{!Auth::check() ?'data-bs-toggle=modal data-bs-target=#userModal href=#!': "data-bs-toggle='tooltip' data-bs-html='true' title='Wishlist' data-bs-idproduct=$random_pet[$i]->id_product"}} >
+                                    <i class="bi {{Auth::check() ? (count(Auth::user()->Favourite->where('id_product','=',$random_pet[$i]->id_product))>0 ? 'bi-heart-fill text-danger' : 'bi-heart'): 'bi-heart'}}"></i></a>
+                                  <a role="button" class="btn-action  compare_pet" data-bs-toggle="tooltip" data-bs-html="true" title="Compare"  data-bs-product="{{$random_pet[$i]->id_product}}">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                  </a>
+                                </div>
                             </div>
                             <div class="text-small mb-1">
                                 <a href="{{route('productdetail',$random_pet[$i]->id_product)}}" class="text-decoration-none text-muted">
@@ -163,16 +147,16 @@
                                 <a href="{{route('productdetail',$random_pet[$i]->id_product)}}" class="text-inherit text-decoration-none">{{$random_pet[$i]->product_name}}</a>
                             </h2>
                             <div>
-                                @php
-                                    $rating = 0;
-                                    if (count($random_pet[$i]->Comment->where('rating','!=',null)) >0) {
-                                      foreach ($random_pet[$i]->Comment->where('rating','!=',null) as $cmt) {
-                                        $rating += $cmt->rating;
-                                      }
-                                      $rating /= count($random_pet[$i]->Comment->where('rating','!=',null));
-                                    }
-                                @endphp
-                                <p>
+                                <p> 
+                                    @php
+                                        $rating = 0;
+                                        if (count($random_pet[$i]->Comment->where('rating','!=',null)) >0) {
+                                        foreach ($random_pet[$i]->Comment->where('rating','!=',null) as $cmt) {
+                                            $rating += $cmt->rating;
+                                        }
+                                        $rating /= count($random_pet[$i]->Comment->where('rating','!=',null));
+                                        }
+                                    @endphp
                                     @for ($j = 0; $j < floor($rating); $j++)
                                     <i class="bi bi-star-fill fs-4 text-warning"></i>
                                     @endfor
@@ -182,33 +166,32 @@
                                     @for ($j = 0; $j < 5-ceil($rating); $j++)
                                     <i class="bi bi-star fs-4 text-warning"></i>
                                     @endfor
-                                    <span class="text-black-50 ms-3">({{$rating}})</span>
-                                  </p>
-                                  <span class="ms-2 text-primary">({{count($random_pet[$i]->Comment->where('rating','!=',null))}} solds)</span>
+                                    <span class="text-black-50 ms-3">({{number_format($rating,2)}})</span>
+                                </p> 
                             </div>
-                          <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div >
-                              @if ($random_pet[$i]->sale>0)
-                              <span class="fs-4 text-danger">${{$random_pet[$i]->per_price *(1- $random_pet[$i]->sale /100)}}</span>
-                                <span class="text-decoration-line-through text-muted">${{$random_pet[$i]->per_price}}</span>
-                              @else
-                              <span class=" fs-4 text-black">${{$random_pet[$i]->per_price}}</span>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                              <div>
+                                @if ($random_pet[$i]->sale>0)
+                                    <span class="fs-4 text-danger">${{$random_pet[$i]->per_price *(1- $random_pet[$i]->sale /100)}}</span>
+                                  <span class="text-decoration-line-through text-muted">${{$random_pet[$i]->per_price}}</span>
+                                @else
+                                    <span class=" fs-4 text-black">${{$random_pet[$i]->per_price}}</span>
                                 @endif
-                            </div>
-                            <div>
+                              </div>
+                              <div>
                                 <button data-bs-id="{{$random_pet[$i]->id_product}}" type="button" class="btn btn-primary btn addToCart">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                  class="feather feather-plus">
-                                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg> Add</button>
-                          </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="feather feather-plus">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg> Add
+                                </button>
+                              </div>
+                            </div>
                         </div>
                     </div>
-                    </div>
                     @endfor
-                    
                 </div>
             </div>
         </div>
@@ -222,7 +205,7 @@
             let valiEmail = /^[a-zA-Z0-9]{5,}@gmail\.com$/;
             let valiPhone = /^[0-9]{9,11}$/;
             
-            $('#condition,input[name=user_fullname],input[name=user_phone],input[name=user_email],input[name=user_pass1],input[name=user_pass2],input[name=user_dob]').change(function(){
+            $('#condition,input[name=user_fullname],input[name=user_phone],input[name=user_email],input[name=user_pass1],input[name=user_pass2]').change(function(){
                 if($('#condition').is(':checked') && $('input[name=user_fullname]').val().trim().length>0 && $('input[name=user_phone]').val().trim().length>0 && $('input[name=user_email]').val().trim().length>0 && $('input[name=user_pass1]').val().trim().length >0 && $('input[name=user_pass2]').val().trim().length>0){
                     $('#signup_submit').prop('disabled',false);
                 }else{
@@ -245,15 +228,6 @@
                 }else{
                     $(this).removeClass('is-invalid');
                     $('#invalidEmail').html();
-                };
-            });
-            $('input[name=user_dob]').change(function(){
-                if($(this).val()==null){
-                    $(this).addClass('is-invalid');
-                    $('#invalidDOB').html('Choose your date of birth');
-                }else{
-                    $(this).removeClass('is-invalid');
-                    $('#invalidDOB').html();
                 };
             });
             $('input[name=user_fullname]').change(function(){

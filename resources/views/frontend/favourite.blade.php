@@ -58,7 +58,7 @@
                             </div>
                           </td>
                           <td class="align-middle">
-                            <a href="{{route('productdetail',$fav->id_product)}}"><img src="{{asset('resources/image/pet/'.$fav->Product->image)}}" class="icon-shape" width="80" height="80" alt="" style="object-fit: cover"></a>
+                            <a href="{{route('productdetail',$fav->id_product)}}"><img src="{{asset('resources/image/pet/'.$fav->Product->Library[0]->image)}}" class="icon-shape" width="80" height="80" alt="" style="object-fit: cover"></a>
                           </td>
                           <td class="align-middle">
                             <div>

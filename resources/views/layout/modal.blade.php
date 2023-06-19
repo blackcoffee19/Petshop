@@ -36,7 +36,7 @@
                     Left: <span id="quantityModal"></span>
                   </button> 
                 </div>
-                <form action="" method="post" class="row">
+                <form action="{{route('productdetail')}}" method="post" class="row">
                   @csrf
                   <input type="hidden" name="id_pro">
                   <input type="hidden" name="max_quan" >
@@ -207,7 +207,7 @@
           <h1 class="modal-title fs-5">Edit Delivery</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form action="" id="edit_order" method="post">
+        <form action="{{route('user_editorder')}}" id="edit_order" method="post">
             @csrf
             <div class="modal-body">
                 <div class="row">
@@ -285,8 +285,8 @@
                         <label class="col-form-label col-lg-4 col-md-3">Service fee</label>
                         <div class="col-lg-3 col-md-4">
                           <div class=" input-group">
+                            <label class="input-group-text" for="edit_servicefee" >$</label>
                             <input type="text" class="form-control" name="edit_servicefee" id="edit_servicefee" disabled >
-                            <label class="input-group-text" for="edit_servicefee" >đ</label>
                           </div>
                         </div>
                         <div class="col-1 d-none">
@@ -327,7 +327,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
             </div>
-            <form action="" method="post">
+            <form action="{{route('post_address')}}" method="post">
               @csrf
               <div class="row g-3">
                 <div class="col-12">
@@ -397,7 +397,7 @@
                     <th  rowspan="2" >Amount</th>
                   </tr>
                   <tr>
-                    <th>Price (1kg)</th>
+                    <th>Price</th>
                     <th>Sale</th>
                   </tr>
                 </thead>
@@ -475,7 +475,7 @@
                     <th  rowspan="2" >Amount</th>
                   </tr>
                   <tr>
-                    <th>Price (1kg)</th>
+                    <th>Price</th>
                     <th>Sale</th>
                   </tr>
                 </thead>
@@ -542,7 +542,7 @@
                     <th  rowspan="2" >Amount</th>
                   </tr>
                   <tr>
-                    <th>Price (1kg)</th>
+                    <th>Price</th>
                     <th>Sale</th>
                   </tr>
                 </thead>

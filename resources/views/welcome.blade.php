@@ -28,6 +28,7 @@
         <link rel="stylesheet" href="node_modules/feather-webfont/dist/feather-icons.css">
         <link rel="stylesheet" href="node_modules/simplebar/dist/simplebar.css">
         <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+        <script src="https://www.paypal.com/sdk/js?client-id={{ env('PAYPAL_SANDBOX_CLIENT_ID') }}"></script>
         <script src="node_modules/jquery/dist/jquery.min.js"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -65,6 +66,10 @@
                 color: #999;
                 background-color: #999;
             }
+            .user_dropdown::after{
+                content: none
+            }
+
             .for-contact{
                 backdrop-filter: blur(5px);
                     background-color: rgba(10, 38, 71, 0.8);

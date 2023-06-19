@@ -21,11 +21,15 @@ use App\Models\Banner;
 use App\Models\News;
 use App\Models\Message;
 use App\Models\Groupmessage;
+use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Str;
+use App\Mail\VerificationEmail;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Facades\Hash;
 class MyController extends Controller
 {
     public function homePage(){
@@ -47,6 +51,7 @@ class MyController extends Controller
         $breed_get= [];
         $price_get=0;
         $age_get=0;
+        $types = TypeProduct::all();
         // Ưu tiên Search trước
         //Search by name
         if($req->search2 != ""){
@@ -84,18 +89,22 @@ class MyController extends Controller
                 $list_pets = Product::orderBy('per_price',$sort_type)->get();
             }
         }
-        return view('frontend.product_list',compact('list_pets','sort_type','breed_get','price_get','age_get','type_name','breed_name'));
+        return view('frontend.product_list',compact('list_pets','sort_type','breed_get','price_get','age_get','type_name','breed_name','types'));
     }
     public function productDetail($id){
-        $pet = Product::where('id_product','=',$id)->first();
-        $id_bre = DB::table('products')->select('id_breed')
-                                        ->where('id_product','=',$id)->first();
-        $list_relate= Product::where('id_breed',$id_bre->id_breed)
-                                            ->whereNot('id_product','=',$id)
-                                            ->inRandomOrder()->limit(5)->get();
-        $comments = Comment::where('id_product','=',$id)->where('reply_comment','=',null)->get();
-        $types= TypeProduct::all();
-        return view('frontend.product_detail2',compact('pet','list_relate','comments','types'));
+        if($id == null){
+            return redirect('/not_found')->with("error","Product Not Found");
+        }else{
+            $pet = Product::where('id_product','=',$id)->first();
+            $id_bre = DB::table('products')->select('id_breed')
+                                            ->where('id_product','=',$id)->first();
+            $list_relate= Product::where('id_breed',$id_bre->id_breed)
+                                                ->whereNot('id_product','=',$id)
+                                                ->inRandomOrder()->limit(5)->get();
+            $comments = Comment::where('id_product','=',$id)->where('reply_comment','=',null)->get();
+            $types= TypeProduct::all();
+            return view('frontend.product_detail2',compact('pet','list_relate','comments','types'));
+        }
     }
     public function removeCart($id){
         if(Auth::check()){
@@ -231,14 +240,14 @@ class MyController extends Controller
             }
             if($check){
                 $new = ["id_product"=>$id,"amount"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->Library[0]->image,'sale'=>$sale];
-                $num+=1;
+                $num++;
                 array_push($arr_new,$new);
                 Session::put("cart",$arr_new);
             }else{
                 Session::put("cart",$arr_new);
             }
         }else{
-            $num+=1;
+            $num++;
             $cart_session = ["id_product"=>$id,"amount"=>1,"per_price"=>$product->per_price,"name"=>$product->product_name,"max"=>$product->quantity,"image"=>$product->Library[0]->image,'sale'=>$sale];
             Session::push("cart",$cart_session);
         };
@@ -272,6 +281,7 @@ class MyController extends Controller
         }
         echo $order;
     }
+    
     public function cancel_order(Request $req){
         $order = Order::find($req['id_order']);
         $order->status = 'cancel';
@@ -380,13 +390,11 @@ class MyController extends Controller
     public function post_signUp(Request $req){
         $new_user = new User();
         $new_user->name = $req["user_fullname"];
-        $new_user->gender = intval($req["user_gender"]);
         $checkEmail = User::where('email','=',$req["user_email"])->get();
         if(count($checkEmail)>0){
             return redirect()->back()->with(["error"=>"Email has signed up. Choose another email or sign in"]);
         }
         $new_user->email = $req["user_email"];
-        $new_user->dob= $req["user_dob"];
         $new_user->password = bcrypt($req["user_pass2"]);
         $new_user->phone_number = $req["user_phone"];
         if($req->hasFile('user_img')){
@@ -408,6 +416,7 @@ class MyController extends Controller
             $new_user->image= null;
         };
         $new_user->admin = 0;
+        $new_user->email_verification_token =Str::random(32);
         $new_user->created_at= Carbon::now()->format('Y-m-d H:i:s');
         $new_user->save();
         $vali = ["email"=>$new_user->email,"password"=>$req["user_pass2"]];
@@ -415,30 +424,53 @@ class MyController extends Controller
             if(Session::has("cart")){
                 $cart_session = Session::get("cart");
                 foreach($cart_session as $key => $value){
-                    $foundPro = Auth::user()->Cart->where('id_product','=',$value["id_product"])->where('order_code','=',null)->first();
-                    if($foundPro){
-                        if(($foundPro->amount + $value["amount"]) >= Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity){
-                            $foundPro->amount = Auth::user()->Cart->where('id_product','=',$value["id_product"])->first()->Product->quantity;
-                        }else{
-                            $foundPro->amount += $value["amount"];
-                        };
-                        $foundPro->save();
-                    }else{
-                        $addToUserCart = new Cart();
-                        $addToUserCart->order_code = null;
-                        $addToUserCart->id_user = $new_user->id_user;
-                        $addToUserCart->id_product = $value["id_product"];
-                        $addToUserCart->amount = $value["amount"];
-                        $addToUserCart->created_at = Carbon::now()->format('Y-m-d H:i:s');
-                        $addToUserCart->save();
-                    }
+                    $addToUserCart = new Cart();
+                    $addToUserCart->order_code = null;
+                    $addToUserCart->id_user = $new_user->id_user;
+                    $addToUserCart->id_product = $value["id_product"];
+                    $addToUserCart->amount = $value["amount"];
+                    $addToUserCart->created_at = Carbon::now()->format('Y-m-d H:i:s');
+                    $addToUserCart->save();            
                 }
                 Session::forget("cart");
             };
             return redirect('/');
+            return redirect('/signup/confirm')->with('success_signup','Congratulation! You signed up successfully');
         }else{
             return redirect()->back()->with('error','Sign up failue. Try again');
         }
+    }
+    public function get_signupconfirm(){
+        return view('frontend.success');
+    }
+    public function send_verifyEmail(){
+        $user = User::find(Auth::user()->id_user);
+        $user->email_verification_token =Str::random(32);
+        $user->save();
+        $mailData = [
+            'title' => 'Mail to Verification',
+            'url' => route('verify',$user->email_verification_token)
+        ];
+        try {
+            Mail::to($user->email)->send(new VerificationEmail($mailData));
+        } catch (\Throwable $th) {
+            echo "Send verify email unsuccessfully";
+        }
+        echo "Mail has been sending please check your email to verified the account";
+    }
+    public function verifyEmail($token = null){
+        if($token == null) {
+    		return redirect('signin')->with('verified_error', 'Invalid Login attempt');
+        }
+        $user = User::where('email_verification_token',$token)->first();
+        if(!$user){
+            return redirect('signin')->with('verified_error', 'Invalid Login attempt');
+        }
+        $user->email_verified = true;
+        $user->email_verified_at = Carbon::now()->format('Y-m-d H:i:s');
+        $user->email_verification_token = '';
+        $user->save();
+        return redirect('/')->with('verified', 'Your account is activated, you can log in now');
     }
     public function get_signIn(){
         $sign = "signin";
@@ -485,15 +517,48 @@ class MyController extends Controller
     public function get_profie(){
         return view('frontend.profie');
     }
-    public function post_user(Request $req){
-        $tb ="";
+    public function post_editprofie(Request $req){
         $req->validate([
             "new_password2"=>"same:new_password1",
         ],[
             "new_password2.same"=>"Re-password not match"
         ]);
-        $user = User::where('id_user','=',$req->id_user)->first();
-        if($req->hasFile('profie_image')){
+        $user = User::find(Auth::user()->id_user);
+        $user->name = $req['new_name'];
+        if($req['new_email'] != $user->email){
+            $user->email = $req['new_email'];
+            $user->email_verified = false;
+        };
+        $checkPhone = User::where('phone','=',$req['new_phone'])->where('id_user','!=',Auth::user()->id_user)->get();
+        if(count($checkPhone) == 0 && !$user->phone){
+            $user->phone = $req['new_phone'];
+            $comment = Comment::where('name','=','Guest')->where('phone','=',$req['new_phone'])->get();
+            foreach($comment as $cmt){
+                $cmt->name=null;
+                $cmt->id_user = $user->id_user;
+                $cmt->phone = null;
+                $cmt->save();
+            }
+            $orders = Order::where('id_user','=',null)->where('phone','=',$req['new_phone'])->get();
+            $num=0;
+            foreach($orders as $order){
+                $cr_order_code = "USR".$user->id_user."_".$num;
+                foreach($order->Cart as $cart){
+                    $cart->order_code = $cr_order_code;
+                    $cart->id_user = $user->id_user;
+                    $cart->save();
+                }
+                $order->order_code = $cr_order_code;
+                $order->id_user = $user->id_user;
+                $order->save();
+                $num++;
+            }
+        }else if(count($checkPhone) == 0){
+            $user->phone = $req['new_phone'];
+        }else{
+            return redirect()->back()->with('error','Error: This phone number has signed by another account');
+        }
+        if(isset($req['changeImg']) && $req->hasFile('profie_image')){
             $file = $req->file('profie_image');
             $duoi = $file->getClientOriginalExtension();
             if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
@@ -507,27 +572,101 @@ class MyController extends Controller
                 $hinh = "user_".$num."_".$name;
             };
             $file->move('resources/image/user/',$hinh);
-            $user->image=$hinh;
-        }else{
-            $user->image = Auth::user()->image;
-        };
-        $checkEmail = User::where('email','=',$req->profie_email)->where('id_user','!=',$req->id_user)->get();
-        if(count($checkEmail)>0){
-            return redirect()->back()->with('error','Email had signed choose another');
-        }else{
-            $user->email = $req->profie_email;
+            $user->avatar=$hinh;
         }
-        $user->dob= $req->dateOfBirth;
-        $user->phone_number=$req->profie_phone;
-        $user->name=$req->profie_name;
-        $user->gender =$req->profie_gender;
-        if($req->changePass == "on"){
-            $user->password = bcrypt($req->new_password2);
-        }
-        $user->updated_at =Carbon::now()->format('Y-m-d H:i:s');
         $user->save();
-        $tb="Change your profie succesfful";
-        return redirect()->back()->with(["message"=>$tb]);
+        $news = News::where('link','=','accountsetting')->where('id_user','=',Auth::user()->id_user)->first();
+        if($user->password && $user->phone && $news){
+            $news->delete();
+        };
+        return redirect()->back()->with('message','Change profie successfully');
+    }
+    public function check_password(Request $req){
+        $user = User::find(Auth::user()->id_user);
+        if (Hash::check($req['current_password'], $user->password)) {
+            echo "Accept";
+        }else{
+            echo "Incorrect password";
+        }
+    }
+    public function post_changepassword(Request $req){
+        $user = User::find(Auth::user()->id_user);
+        $user->password = bcrypt($req['new_password']);
+        $user->save();
+        $news = News::where('link','=','accountsetting')->where('id_user','=',Auth::user()->id_user)->first();
+        if($user->password && $user->phone && $news){
+            $news->delete();
+        };
+        return redirect()->back()->with('message','Change Password successfully');
+    }
+    public function get_orderhistory(){
+        if(Auth::user()->admin != '2'){
+            $orders = Order::where('id_user','=',Auth::user()->id_user)->orderBy('created_at','desc')->paginate(6);
+            foreach($orders as $order){
+                $sum = 0;
+                foreach($order->Cart as $cart){
+                    $sum += $cart->price*(1 - $cart->sale/100)*$cart->amount;
+                }
+                if($order->Coupon){
+                    if($order->Coupon->discount >= 10){
+                        $sum *= (1-$order->Coupon->discount /100);
+                    }else{
+                        $sum-=$order->Coupon->discount;
+                    }
+                }
+                $sum += $order->shipping_fee;
+                $order->total = $sum;
+            }
+        }else{
+            $orders = Order::orderBy('created_at','desc')->paginate(6);
+            foreach($orders as $order){
+                $sum = 0;
+                foreach($order->Cart as $cart){
+                    $sum += $cart->sale > 0? $cart->price*(1 - $cart->sale/100)*($cart->amount): $cart->price*($cart->amount);
+                }
+                if($order->Coupon){
+                    if($order->Coupon->discount >= 10){
+                        $sum *= (1-$order->Coupon->discount /100);
+                    }else{
+                        $sum-=$order->Coupon->discount;
+                    }
+                }
+                $sum += $order->shipping_fee;
+                $order->total = $sum;
+            }
+        }
+        return view('frontend.user_history',compact('orders'));
+    }
+    public function get_address(){
+        return view('frontend.user_address');
+    }
+    public function setdefault_address($id){
+        foreach(Auth::user()->Address as $add){
+            if($add->id_address != $id && $add->default ){
+                $add->default = false;
+                $add->save();
+            }
+        }
+        $address = Address::where('id_user','=',Auth::user()->id_user)->where('id_address','=',$id)->first();
+        $address->default = true;
+        $address->save();
+        return redirect()->back()->with('message','Change Default Address successfully');
+    }
+    public function check_email($email){
+        $checkEmail = User::where('email','=',$email)->get();
+        $msg = "";
+        if(count($checkEmail)>0){
+            $msg = "existed";
+        }
+        echo $msg;
+    }
+    public function check_phone($phone){
+        $checkPhone = User::where('phone','=',$phone)->get();
+        $msg = "";
+        if(count($checkPhone)>0){
+            $msg = "existed";
+        }
+        echo $msg;
     }
     public function signOut(){
         Auth::logout();
@@ -544,56 +683,106 @@ class MyController extends Controller
         $types = TypeProduct::all();
         return view('frontend.checkout',compact('carts','types')); 
     }
+    public function add_address(Request $req){
+        $newAdd = new Address();
+        $newAdd->id_user =Auth::user()->id_user;
+        $newAdd->receiver = $req['nameReciever'];
+        $newAdd->address = $req['addressReciever'];
+        $newAdd->ward = $req['ward'];
+        $newAdd->district = $req['district']; 
+        $newAdd->province = $req['province'];
+        $newAdd->phone = $req['phoneReciever'];
+        $newAdd->email = $req['emailReciever'];
+        $newAdd->district_id = intval($req['district_id']);
+        $newAdd->ward_id = intval($req['ward_id']);
+        $newAdd->province_id = intval($req['province_id']);
+        if(isset($req['saveAddress'])){
+            $defautlAddress = Address::where('id_user','=',Auth::user()->id_user)->where('default','=',true)->first();
+            if($defautlAddress){
+                $defautlAddress->default = false;
+                $defautlAddress->save();
+            }
+            $newAdd->default = true;
+        };
+        $newAdd->save();
+        return redirect()->back();
+    }
+    public function remove_address($id){
+        $add = Address::where('id_address','=',$id)->first();
+        $add->delete();
+        $address = Address::where('id_user','=',Auth::user()->id_user)->first();
+        $address->default = true;
+        $address->save();
+        return redirect()->back()->with('message','Delete Address successfully');
+    }
+    public function get_addressdetail($id){
+        $address = Address::find($id);
+        echo $address;
+    }
+    public function model_coupon($code){
+        $coupon = Coupon::where('code','=',$code)->where('status',true)->first();
+        $coupon->used = count(Order::where('id_user','=',Auth::user()->id_user)->where('code_coupon','=',$code)->where('status','<>','cancel')->get());
+        if($coupon){
+            echo $coupon;
+        }else{
+            echo '';
+        };
+    }
     public function get_order(){
+        if(Session::has('coupon')){
+            $coupon =Coupon::find(Session::get('coupon')); 
+            $coupon->freeship = Coupon::where('id_coupon','=',Session::get('coupon'))->where('code','LIKE','%FREESHIP%')->first() ? true :false;
+        }else{
+            $coupon = null;
+        }
         $carts=[];
         $guest_order = "";
-        $types= TypeProduct::all();
         if(!Auth::check()){
-            $carts = Session::get("cart"); 
+            $carts = Session::get("cart");
+            $address = null;
         }else{
             $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
+            $address = Auth::user()->Address->sortByDesc('default');
+            $check = true;
+            foreach($address as $add){
+                if($add->default){
+                    $check = false;
+                }
+            };
+            if($check && count($address)>0){
+                $address[0]->default = true;
+                $address[0]->save();
+            }
         }
-        return view('frontend.order',compact('carts','types'));
+        return view('frontend.order',compact('carts','address','coupon'));
     }
     public function post_order(Request $req){
         $new_order = new Order();
         if(Auth::check()){
             $new_order->id_user = $req["id_user"];
             $new_order->order_code ="USR".Auth::user()->id_user."_".count(Auth::user()->Order);
+            $address = Address::find($req['select_address']);
+            $new_order->receiver = $address['receiver']; 
+            $new_order->phone = $address['phone'];
+            $new_order->email = $address['email'];
+            $new_order->address = $address['address'].", ".$address['ward'].", ".$address['district'].", ".$address['province'];
+            $new_order->code_coupon = $req['code_coupon'];
         }else{
             $nnum = count(Order::where('order_code','LIKE','%GUT%')->get());
-            $new_order->order_code = "GUT_".$nnum;
-        }
-        $new_order->cus_name = $req["name"];
-        $new_order->cus_address = $req["address"].', '.$req["ward"].','.$req["district"].', '.$req["province"];
-        $new_order->cus_phone = $req["phone"];
-        $new_order->cus_email = $req["email"];
-        $new_order->shipping_fee =$req["code_coupon"] == "FREESHIP"?0: $req["shipping"] ;
-        $coupons = Coupon::where('code','=',($req["code_coupon"]))->first();
-        if(Auth::check()){
-            $checkCp = count(Order::where([['id_user', '=', Auth::user()->id_user],['code_coupon', '=', $req["code_coupon"]]])->get()) >= Coupon::where('code','=',$req["code_coupon"])->first()->max ? false:true;
-            if($coupons && $checkCp){
-                $new_order->code_coupon = $req["code_coupon"];
-            }
-        }
-        $new_order->method = $req["method"];
-        if($req->hasFile('file_img')){
-            $file = $req->file('file_img');
-            $duoi = $file->getClientOriginalExtension();
-            if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
-                return redirect()->back()->with('error','File image must be jpg,png,jpeg,webp');
-            }
-            $name=$file->getClientOriginalName();
-            $num=0;
-            $hinh = "payment_".$num."_".$name;
-            while(file_exists('resources/image/payment/',$hinh)){
-                $num++;
-                $hinh = "payment_".$num."_".$name;
+            $order_code = "GUT_".$nnum;
+            while(Order::where('order_code','=',$order_code)->first()){
+                $nnum++;
+                $order_code ="GUT_".$nnum;
             };
-            $file->move('resources/image/payment/',$hinh);
-            $new_order->image=$hinh;
-        };
-        $new_order->status = "unconfimred";
+            $new_order->order_code = $order_code;
+            $new_order->receiver = $req["name"];
+            $new_order->address = $req["address"].', '.$req["ward"].','.$req["district"].', '.$req["province"];
+            $new_order->phone = $req["phone"];
+            $new_order->email = $req["email"];
+        }
+        $new_order->shipping_fee =$req["shipment_fee"];
+        $new_order->delivery_method = $req['delivery_method'];
+        $new_order->status = "unconfirmed";
         $new_order->created_at = Carbon::now()->format('Y-m-d H:i:s');
         $new_order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         $new_order->save();
@@ -611,26 +800,32 @@ class MyController extends Controller
                 $cart->Product->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->Product->save();
                 $cart->order_code = $new_order->order_code;
+                $cart->price = $cart->Product->price;
+                $cart->sale = $cart->Product->sale;
+                $cart->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->save();
             }
         }else{
             $current_guest_cart = Session::get('cart');
             foreach($current_guest_cart as $key => $value){
                 $guest_cart = new Cart();
-                $guest_cart->order_code=$new_order->order_code;
+                $guest_cart->order_code=$order_code;
                 $guest_cart->id_product= $value["id_product"];
+                $guest_cart->price = $value["per_price"];
+                $guest_cart->sale = $value["sale"];
                 $guest_cart->amount = $value["amount"];
                 $guest_cart->created_at = Carbon::now()->format('Y-m-d H:i:s');
+                $guest_cart->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $guest_cart->save();
                 $product = Product::where('id_product','=',$value["id_product"])->first();
                 $product->quantity -=$value["amount"];
                 $product->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $product->save();
             }
-            Session::remove("cart");
+            Session::forget("cart");
+            Session::forget('coupon');
         }
-        
-        return redirect('/')->with(["message"=>"Order Successfully"]);
+        return redirect('/')->with(["message"=>"Order Successfully, plz wait for Admin Confirm"]);
     }
     public function modal_product($id){
         $product = Product::find($id);
@@ -716,7 +911,7 @@ class MyController extends Controller
                     $html_list.="<li class='list-group-item py-3 ps-0 border-top border-bottom'>
                         <div class='row align-items-center'>
                         <div class='col-3 col-md-2'>
-                            <img src='resources/image/pet/".$cart->Product->image."' alt='".$cart->Product->product_name."' class='img-fluid' style='width: 200px'></div>
+                            <img src='resources/image/pet/".$cart->Product->Library[0]->image."' alt='".$cart->Product->Library[0]->product_name."' class='img-fluid' style='width: 200px'></div>
                         <div class='col-4 col-md-6 col-lg-5'>
                             <a href='".route('productdetail',[$cart->id_product])."' class='text-inherit'>
                             <h6 class='mb-0'>".$cart->Product->product_name."</h6>
@@ -806,14 +1001,34 @@ class MyController extends Controller
     }
     public function cartadd_quan(Request $req, $id){
         $req->validate([
-            "cart_quant"=>"required|numeric"
-        ],[]);
-        $cart = Cart::find($id);
-        if(intval($req['cart_quant']) == 0){
-            $cart->delete();
+            'quan' =>"required|numeric|min:0"
+        ],[
+            'quan.required'=>"",
+            'quan.numeric'=>"",
+            'quan.min'=>""
+        ]);
+        if(Auth::check()){
+            $cart = Cart::find($id);
+            if(intval($req['quan']) == 0){
+                $cart->delete();
+            }else{
+                $cart->amount = $req['quan'] > $cart->Product->quantity?$cart->Product->quantity:$req['quan'] ;
+                $cart->save();
+            }
         }else{
-            $cart->amount = $req['cart_quant'] > $cart->Product->quantity?$cart->Product->quantity:$req['cart_quant'] ;
-            $cart->save();
+            $arr_cart = Session::get("cart");
+            $arr_new = [];
+            foreach($arr_cart as $key => $value){
+                if($key == $id && intval($req['quan'])!=0){
+                    $addQuan = intval($req['quan']) > intval($value['max']) ? intval($value['max']) : intval($req['quan']);
+                    array_push($arr_new,["id_product" => $value["id_product"],"amount"=>$addQuan,"per_price"=>$value["per_price"],"name"=>$value["name"],"max"=>$value["max"],"image"=>$value['image'],'sale'=>$value['sale']]);
+                } else if($key == $id && intval($req['quan'])==0){
+                    continue;
+                }else{
+                    array_push($arr_new,$value);
+                }
+            }
+            Session::put("cart",$arr_new);
         }
         return redirect()->back();
     }
@@ -830,7 +1045,6 @@ class MyController extends Controller
         $html_list .= "<li class='list-group-item py-3 ps-0 border-top border-bottom'><div class='text-black-50 text-center'>Cart is emty</div></li>";
         echo $html_list;
     }
-    //Compare
     public function addCompare($id){
         $msg="";
         $pet = Product::find($id);
@@ -1053,6 +1267,316 @@ class MyController extends Controller
         $like= Like::where('id_user','=',Auth::user()->id_user)->where('id_comment','=',$id)->first();
         $like->delete();
         $num = count(Like::where('id_comment','=',$id)->get());
+        echo $num;
+    }
+    public function ghn_getservice(Request $req){
+        $district = $req['district'];
+        $data = array(
+            "shop_id" => 124157,
+            "from_district" => 1444,
+            "to_district"=>intval($district)
+        );
+        $payload = json_encode( $data );
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "Token: ea19c297-efa4-11ed-943b-f6b926345ef9", 
+            ),
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS     => $payload, 
+        ));        
+        $response = curl_exec($curl);
+        curl_close($curl);
+        echo $response;
+    }
+    public function gtn_servicefee (Request $req){
+        $ward = $req['ward'];
+        $service_id = intval($req['service_id']);
+        $district = intval($req['district']);
+        $total_weight = 0;
+        if(Auth::check() && $total_weight == 0){
+            $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
+            foreach($carts as $cart){
+                $total_weight+=$cart->Product->weight * $cart->amount;
+            }
+        }else if($total_weight ==0){
+            $carts = Session::get('cart');
+            foreach($carts as $cart){
+                $total_weight+= Product::find($cart['id_product'])->weight * $cart['amount'];
+            }
+        }
+        
+        $data = array(
+            "from_district_id" => 1444,
+            "service_id" => $service_id,
+            "service_type_id"=> null,
+            "to_district_id" => $district,
+            "to_ward_code"=>$ward,
+            "weight" => floor($total_weight),
+        );
+        $payload = json_encode( $data );
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "Token: ea19c297-efa4-11ed-943b-f6b926345ef9", 
+                "ShopId: 124157",
+            ),
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS     => $payload, 
+        ));        
+        $response = curl_exec($curl);
+        curl_close($curl);
+        echo $response;
+    }
+    public function ghtk_servicefee(Request $req){
+        $province = $req['province'];
+        $district = $req['district'];
+        $method = $req['method'];
+        $total_weight = 0;
+        $subtotal=0;
+        if(Auth::check()){
+            $carts = Cart::where('id_user','=',Auth::user()->id_user)->where('order_code','=',null)->get();
+            foreach($carts as $cart){
+                $total_weight+=$cart->amount;
+                $subtotal += $cart->price*(1-$cart->sale/100)*($cart->amount/1000);
+            }
+        }else{
+            $carts = Session::get('cart');
+            foreach($carts as$cart){
+                $total_weight+=$cart['amount'];
+                $subtotal += $cart['per_price']*(1-$cart['sale']/100)*($cart['amount']/1000);
+            }
+        }
+        //api GHTK
+        $arr_deliver = array();
+        $data = array(
+            "pick_province" => "Hồ Chí Minh",
+            "pick_district" => "Quận 3",
+            "pick_ward"=> "Phường 14",
+            "province" => $province,
+            "district" => $district,
+            "weight" => $total_weight,
+            "value" => $subtotal,
+            "transport" => "fly",
+            "deliver_option" => "none",
+        );
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://services.giaohangtietkiem.vn/services/shipment/fee?" . http_build_query($data),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => array(
+                "Token: 1830630245Ca1E494982d10B95FaFFbe6bF78641",
+            ),
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+        if($method == 'fly' || !$method){
+            array_push($arr_deliver,$response);
+        }
+
+        $data2 = array(
+            "pick_province" => "Hồ Chí Minh",
+            "pick_district" => "Quận 3",
+            "pick_ward"=> "Phường 14",
+            "province" => $province,
+            "district" => $district,
+            "weight" => $total_weight,
+            "value" => $subtotal,
+            "transport" => "road",
+            "deliver_option" => "none",
+        );
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://services.giaohangtietkiem.vn/services/shipment/fee?" . http_build_query($data2),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => array(
+                "Token: 1830630245Ca1E494982d10B95FaFFbe6bF78641",
+            ),
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+        if($method == 'road'||!$method){
+            array_push($arr_deliver,$response);
+        };
+
+        $data3 = array(
+            "pick_province" => "Hồ Chí Minh",
+            "pick_district" => "Quận 3",
+            "pick_ward"=> "Phường 14",
+            "province" => $province,
+            "district" => $district,
+            "weight" => $total_weight,
+            "value" => $subtotal,
+            "transport" => "fly",
+            "deliver_option" => "xteam",
+        );
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://services.giaohangtietkiem.vn/services/shipment/fee?" . http_build_query($data3),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HTTPHEADER => array(
+                "Token: 1830630245Ca1E494982d10B95FaFFbe6bF78641",
+            ),
+        ));
+        $response = curl_exec($curl);
+        curl_close($curl);
+        if($method == 'xteam' || !$method){
+            array_push($arr_deliver,$response);
+        };
+        echo json_encode($arr_deliver);
+        // dd($data,$response);
+    }
+    public function modal_order($id){
+        if(Auth::check() && Auth::user()->admin != "2"){
+            echo "Wrong way bro";
+        }else{
+            $order = Order::find($id);
+            $name =[];
+            $images =[];
+            $order->cart = $order->Cart->toArray();
+            foreach($order->Cart as $cart){
+                array_push($images,$cart->Product->Library[0]->image);
+                array_push($name,$cart->Product->product_name);          
+            };
+            $order->image = $images;
+            $order->product = $name;
+            $order->discount = $order->code_coupon?$order->Coupon->discount: 0;
+            $order->coupon_title = $order->code_coupon?$order->Coupon->title: '';
+            echo $order;
+        }
+    }
+    public function modal_notificate($id){
+        if(Auth::check() && Auth::user()->admin == "0" ){
+            echo "Wrong way bro";
+        }else{
+            $code = News::find($id)->link;
+            $order = Order::where("order_code",'=',$code)->first();
+            $name =[];
+            $images =[];
+            $order->cart = $order->Cart->toArray();
+            foreach($order->Cart as $cart){
+                array_push($images,$cart->Product->Library[0]->image);
+                array_push($name,$cart->Product->name);          
+            };
+            $order->image = $images;
+            $order->product = $name;
+            $order->news = $id;
+            $order->discount = $order->code_coupon?$order->Coupon->discount: 0;
+            $order->coupon_title = $order->code_coupon?$order->Coupon->title: '';
+            echo $order;
+        }
+    }
+    public function post_confirmorder(Request $req){
+        $order = Order::find($req['id_order']);
+        $order->status = $req['status_order'];
+        $order->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+        $order->save();
+        switch($req['status_order']){
+            case "finished":
+                if($order->id_user == null){
+                    foreach($order->Cart as $cart){
+                        $comment = new Comment();
+                        $comment->id_product = $cart->id_product;
+                        $comment->name = "Guest";
+                        $comment->verified = true;
+                        $comment->rating = 5;
+                        $comment->phone = $order->phone;
+                        $comment->created_at = Carbon::now()->format('Y-m-d H:i:s');
+                        $comment->save();
+                    }
+                }else{
+                    $new = new News();
+                    $new->order_code = $order->order_code;
+                    $new->title = "How do you think about your order?";
+                    $new->id_user = $order->id_user;
+                    $new->link = "feedback";
+                    $new->attr = $order->order_code;
+                    $new->created_at = Carbon::now()->format('Y-m-d H:i:s');
+                    $new->save();
+                }
+            break;
+            case "transaction failed":
+                foreach($order->Cart as $cart){
+                    $product = $cart->Product;
+                    $product->quantity += $cart->amount;
+                    $product->save();
+                    $cart->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+                    $cart->save();
+                }
+            break;
+            case "delivery":
+                Mail::to($order->email)->send(new OrderShipped($order));
+            break;
+            default:
+        }
+        return redirect()->back();
+    }
+    public function post_removenoti(Request $req){
+        if(isset($req['id_notificate'])){
+            $new = News::find($req['id_notificate']);
+            $new->delete();
+        }
+        return redirect()->back();
+    }
+    public function list_allorder(){
+        $orders = Order::orderBy('created_at','desc')->paginate(6);
+        foreach($orders as $order){
+            $sum = 0;
+            foreach($order->Cart as $cart){
+                $sum += $cart->price*(1 - $cart->sale/100)*$cart->amount;
+            }
+            if($order->Coupon){
+                if($order->Coupon->discount >= 10){
+                    $sum *= (1-$order->Coupon->discount /100);
+                }else{
+                    $sum-=$order->Coupon->discount;
+                }
+            }
+            $sum += $order->shipping_fee;
+            $order->total = $sum;
+        }
+        return view('user.pages.About.order',compact('orders'));
+    }
+    public function denied_order(Request $req){
+        $order = Order::find($req['id_order']);
+        $phone =$order->phone; 
+        $order->phone = "G_".$phone;
+        $order->save();
+        $list_order = Order::where('id_user','=',null)->where('phone','=',Auth::user()->phone)->get();
+        $num = count($list_order);
+        echo $num;
+    }
+    public function accept_order(Request $req){
+        $order = Order::find($req['id_order']);
+        if($order->status == 'finished'){
+            foreach($order->Cart as $cart){
+                $cmt = Comment::where('id_product','=',$cart->id_product)->where('id_user','=',null)->where('phone','=',Auth::user()->phone)->first();
+                $cmt->name=null;
+                $cmt->id_user = Auth::user()->id_user;
+                $cmt->phone = null;
+                $cmt->save();
+            }
+        }
+        $num=count(Auth::user()->Order);
+        $cr_order_code = "USR".Auth::user()->id_user."_".$num;
+        foreach($order->Cart as $cart){
+            $cart->order_code = $cr_order_code;
+            $cart->id_user = Auth::user()->id_user;
+            $cart->save();
+        }
+        $order->order_code = $cr_order_code;
+        $order->id_user = Auth::user()->id_user;
+        $order->save();
+        $list_order = Order::where('id_user','=',null)->where('phone','=',Auth::user()->phone)->get();
+        $num = count($list_order);
         echo $num;
     }
 }

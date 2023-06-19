@@ -7,51 +7,34 @@
                 $('#listCartmodal').html(data);
                 $('input[name=_token]').val($('meta[name="csrf-token"]').attr('content'));
                 let idInterval1,idInterval2;
-                $('.btn_minus').mousedown(function(e){
+                $('.btn_minus').click(function(e){
                     e.preventDefault();
-                    let current = parseInt($(this).next().val());
-                    idInterval1 = setInterval(() => {
-                        if(current >1){
-                        current--;
-                        $(this).next().val(current);
-                        }
-                        $(this).parent().next().removeClass('d-none');  
-                    }, 100);
+                    let current = parseFloat($(this).next().val());
+                    if(current >1){
+                      current--;
+                      $(this).next().val(current);
+                    }
+                    $(this).parent().next().removeClass('d-none');
                 });
-                $(".btn_minus").mouseup(function(e){
-                    e.preventDefault();
-                    clearInterval(idInterval1);
-                    clearInterval(idInterval2);
-                })
                 $('.btn_plus').mousedown(function(e){
                     e.preventDefault();
-                    let max = parseInt($('#quantityModal').text())?parseInt($('#quantityModal').text()): parseInt($(this).parent().parent().prev().val());
-                    let current = parseInt($(this).prev().val());
-                    idInterval2 = setInterval(()=> {
-                        if(max>current){
-                        current++;
-                        $(this).prev().val(current);
-                        }
-                        $(this).parent().next().removeClass('d-none');
-                    },100);
-                });
-                $('.btn_plus').mouseup(function(e){
-                    e.preventDefault();
-                    clearInterval(idInterval1);
-                    clearInterval(idInterval2);
+                    let max = parseFloat($('#quantityModal').text())?parseFloat($('#quantityModal').text()): parseFloat($(this).parent().parent().prev().val());
+                    let current = parseFloat($(this).prev().val());
+                    if(max>current){
+                      current++;
+                      $(this).prev().val(current);
+                    }
+                    $(this).parent().next().removeClass('d-none');
                 });
                 $('input[name=quan]').on('focusout',function(e){
                     e.preventDefault();
                     let validateNum =/^\d{1,10}$/;
                     let currentVl = $(this).val();
                     $(this).val(validateNum.test(currentVl)?currentVl:1);
-                    console.log(currentVl);
-                    console.log($(this).val() == parseInt($(this).parent().data('amount')));
-                    console.log(parseInt($(this).parent().data('amount')));
-                    if(parseInt($(this).parent().data('amount')) != $(this).val()){
-                    $(this).parent().next().removeClass('d-none');
+                    if(parseFloat($(this).parent().data('amount')) != $(this).val()){
+                      $(this).parent().next().removeClass('d-none');
                     }else{
-                    $(this).parent().next().addClass('d-none');
+                      $(this).parent().next().addClass('d-none');
                     }
                 });
                 $('#clearCart').click(function(){
@@ -101,7 +84,7 @@
               strStart+="<i class='bi bi-star-fill'></i>"
             }
             
-            if(parseInt(dataProduct['rating'])%1 !==0){
+            if(parseFloat(dataProduct['rating'])%1 !==0){
               strStart+="<i class='bi bi-star-half'></i>";
             }
             for(let j = 0; j < 5-Math.ceil(dataProduct['rating']);j++){
@@ -117,7 +100,7 @@
             
             $('#ratingModal').html(strStart);
             $('#soldModal').html(`(${dataProduct["sold"]} solds)`);
-            if(parseInt(dataProduct["sale"])>0){
+            if(parseFloat(dataProduct["sale"])>0){
               $('.hasSale').removeClass('d-none');
               $('#priceModal').html(`$${dataProduct["per_price"]}`);
               $('#saleModal').html(`${dataProduct["sale"]}% Off`);
@@ -194,33 +177,23 @@
       let idInterval3,idInterval4;
       $('.btn_minus').mousedown(function(e){
           e.preventDefault();
-          let current = parseInt($(this).next().val());
-          idInterval3 = setInterval(()=>{
-            if(current >1){
-              current--;
-              $(this).next().val(current);
-            }
-          },100);
+          let current = parseFloat($(this).next().val());
+          if(current >1){
+            current--;
+            $(this).next().val(current);
+          }
           $(this).parent().parent().next().children().removeClass('d-none');
-      }).mouseup(function(e){
-        e.preventDefault();
-        clearInterval(idInterval3);
       });
-      $('.btn_plus').mousedown(function(e){
+      $('.btn_plus').click(function(e){
           e.preventDefault();
-          let max = parseInt($('#quantityModal').text())?parseInt($('#quantityModal').text()): parseInt($(this).parent().parent().prev().val());
-          let current = parseInt($(this).prev().val());
-          idInterval4 =setInterval(()=>{
-            if(max>current){
-              current++;
-              $(this).prev().val(current);
-            }
-          },100);
+          let max = parseFloat($('#quantityModal').text())?parseFloat($('#quantityModal').text()): parseFloat($(this).parent().parent().prev().val());
+          let current = parseFloat($(this).prev().val());
+          if(max>current){
+            current++;
+            $(this).prev().val(current);
+          }
           $(this).parent().parent().next().children().removeClass('d-none');
 
-      }).mouseup(function(e){
-        e.preventDefault();
-        clearInterval(idInterval4)
       });
       $('input[name=quan]').on('focusout',function(e){
           e.preventDefault();
@@ -247,13 +220,13 @@
           $("#listAddress").html(data);
         });
       })
-      // const ghn_api_province = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
-      // const ghn_api_district = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
-      // const ghn_api_ward ="https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
-      // const ghn_api_dev = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
-      // const ghn_api_service = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
-      // const ghn_fee = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
-      // const ghtk_api = "https://services-staging.ghtklab.com";
+      const ghn_api_province = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+      const ghn_api_district = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+      const ghn_api_ward ="https://online-gateway.ghn.vn/shiip/public-api/master-data/ward";
+      const ghn_api_dev = "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province";
+      const ghn_api_service = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services";
+      const ghn_fee = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+      const ghtk_api = "https://services-staging.ghtklab.com";
       // $.ajax({
       //   method: "GET",
       //   beforeSend: function (xhr) {
@@ -300,7 +273,6 @@
       $('#district').change(function(e){
           e.preventDefault();
           $('#ward').removeAttr('disabled');
-          // $('#province option:selected').val($('#province option:selected').text());
           let str = '<option selected>--Choose Ward--</option>';
           $.ajax({
             method: "GET",
@@ -332,13 +304,13 @@
           let check = 0;
           let deliver_method = jQuery.parseJSON(dataJson[1]);
           if(deliver_method['fee']['delivery']){
-            let totall = parseInt($("#total").data('subtotal'))+deliver_method['fee']['fee'];
+            let totall = parseFloat($("#total").data('subtotal'))+deliver_method['fee']['fee']*0.000043;
             if(deliver_method['fee']['fee']!=$("input[name=shipment_fee]").val()){
-              $("#shippment_fee").html("$"+deliver_method['fee']['ship_fee_only']);
-              $("#total").html("$"+totall);
+              $("#shippment_fee").html("$"+(deliver_method['fee']['ship_fee_only']*0.000043).toFixed(2));
+              $("#total").html("$"+totall.toFixed(2));
             }
-            $(".totalPay").text((totall*0.000043).toFixed(2));
-            $("input[name=shipment_fee]").val(deliver_method['fee']['fee']);
+            $(".totalPay").text(totall.toFixed(2));
+            $("input[name=shipment_fee]").val(deliver_method['fee']['fee']*0.000043);
             if(deliver_method['fee']['extFees'].length>0){
               let ex_fee = 0;
               let transtalate2 = {"Phụ phí hàng nông sản/thực phẩm khô": "Surcharge for agricultural products/dry food"};
@@ -346,7 +318,7 @@
                 ex_fee+=el['amount'];
                 $('#extra_ship').html(`<div class='ms-3 text-muted'>${transtalate2[el['title']]}</div>`);
               });
-              $("#extra_ship_display").html("+ "+ex_fee+" đ");
+              $("#extra_ship_display").html("+ $"+ex_fee*0.000043);
               if(ex_fee!=0){
                 $('#extra_ship').parent().removeClass('d-none');
               }else{
@@ -371,33 +343,34 @@
           }
 
           $('#delivery_method').change(function(){
-            if(parseInt($('#delivery_method option:selected').val()) <10){
-              $("#img_logictic").attr('src',"{{asset('images/icons/ghtk.png')}}");
-
+            if(parseFloat($('#delivery_method option:selected').val()) <10){
+              $("#img_logictic").attr('src',"{{asset('resources/image/icons/ghtk.png')}}");
               $.get(window.location.origin+'/index.php/ajax/ghtk_service/fee?province='+$("#province option:selected").text()+"&district="+$("#district option:selected").text(),function(data1){
                   let dataJson3 = jQuery.parseJSON(data1);
                   let deliver_method4 = jQuery.parseJSON(dataJson3[$('#delivery_method option:selected').val()]);
                   if(deliver_method4['fee']['delivery']){
-                    let totall3 = parseInt($("#total").data('subtotal'))+deliver_method4['fee']['fee'];
+                    let totall3 = parseFloat($("#total").data('subtotal')) +deliver_method4['fee']['fee']*0.000043;
                     if(deliver_method4['fee']['fee']!=$("input[name=shipment_fee]").val()){
-                      $("#shippment_fee").html(deliver_method4['fee']['ship_fee_only']+" đ");
-                      $("#total").html(totall3 +" đ");
+                      $("#shippment_fee").html("$"+(deliver_method4['fee']['ship_fee_only']*0.000043).toFixed(2));
+                      $("#total").html("$"+totall3.toFixed(2));
                     }
-                    $(".totalPay").text((totall3*0.000043).toFixed(2));
-                    $("input[name=shipment_fee]").val(deliver_method4['fee']['fee']);
-                    if(parseInt($('#delivery_method').val()) == 2){
+                    $(".totalPay").text(totall3.toFixed(2));
+                    $("input[name=shipment_fee]").val(deliver_method4['fee']['fee']*0.000043);
+                    if(parseFloat($('#delivery_method').val()) == 2){
                       $('#extra_ship').parent().addClass('d-none');
                     }else{
                       $('#extra_ship').parent().removeClass('d-none');
                     }
+                    $("#paypal_btn").removeAttr("disabled");
+                    $("#submit_order").removeAttr("disabled");
+                    $("#error_delivery").html('');
                     if(deliver_method4['fee']['extFees'].length>0){
-                      let transtalate2 = {"Phụ phí hàng nông sản/thực phẩm khô": "Surcharge for agricultural products/dry food"};
                       let ex_fee3 = 0;
                       deliver_method4['fee']['extFees'].forEach(el=>{
                         ex_fee3+=el['amount'];
-                        $('#extra_ship').html(`<div class='ms-3 text-muted'>${transtalate2[el['title']]}</div>`);
+                        $('#extra_ship').html(`<div class='ms-3 text-muted'>${el['title']}</div>`);
                       });
-                      $("#extra_ship_display").html("+ "+ex_fee3+" đ");
+                      $("#extra_ship_display").html("+ $"+ex_fee3*0.000043);
                       if(ex_fee3!=0){
                         $('#extra_ship').parent().removeClass('d-none');
                       }else{
@@ -411,19 +384,22 @@
                 let newdata4 = data5.slice(0,data5.length-1);
                 let dataJs4 = jQuery.parseJSON(newdata4);
                 if(dataJs4['code']==200){
-                  let total_ghn =dataJs4['data']['total']+ parseInt($("#total").data('subtotal'));
-                  let shipping = dataJs4['data']['total'];
-                  if(shipping!=$("input[name=shipment_fee]").val()){
-                    $("#shippment_fee").html(shipping+" đ");
-                    $("#total").html(total_ghn +" đ");
-                  }
-                  $(".totalPay").text((total_ghn*0.000043).toFixed(2));
+                  let total_ghn =dataJs4['data']['total']*0.000043+ parseFloat($("#total").data('subtotal'));
+                  let shipping = dataJs4['data']['total']*0.000043;
+                  $("#shippment_fee").html("$"+shipping.toFixed(2));
+                  $("#total").html("$"+total_ghn.toFixed(2));
+                  $(".totalPay").text(total_ghn.toFixed(2));
                   $("input[name=shipment_fee]").val(shipping);
+                  $("#paypal_btn").removeAttr("disabled");
+                  $("#submit_order").removeAttr("disabled");
+                  $("#error_delivery").html('');
                 }else{
-                  console.log(dataJs4);
+                    $("#error_delivery").html("Error: "+dataJs4['code_message_value']);
+                    $("#paypal_btn").attr("disabled",'disabled');
+                    $("#submit_order").attr("disabled",'disabled');
                 }
               });
-              $("#img_logictic").attr('src',"{{asset('images/icons/GHN2.png')}}");
+              $("#img_logictic").attr('src',"{{asset('resources/image/icons/GHN2.png')}}");
               $('#extra_ship').parent().addClass('d-none');
             };
           });
@@ -453,21 +429,23 @@
                 let dataJs2 = jQuery.parseJSON(newdata2);
                 //Change method
                 $('#delivery_method').change(function(){
-                  if(parseInt($('#delivery_method option:selected').val()) <10){
-                    $("#img_logictic").attr('src',"{{asset('images/icons/ghtk.png')}}");
-
+                  if(parseFloat($('#delivery_method option:selected').val()) <10){
+                    $("#img_logictic").attr('src',"{{asset('resources/image/icons/ghtk.png')}}");
                     $.get(window.location.origin+'/index.php/ajax/ghtk_service/fee?province='+$("#province option:selected").text()+"&district="+$("#district option:selected").text(),function(data3){
                         let dataJson2 = jQuery.parseJSON(data3);                        
                         let deliver_method2 =  jQuery.parseJSON(dataJson2[$('#delivery_method option:selected').val()]);
                         if(deliver_method2['fee']['delivery']){
-                          let totall2 = parseInt($("#total").data('subtotal'))+deliver_method2['fee']['fee'];
+                          let totall2 = parseFloat($("#total").data('subtotal'))+deliver_method2['fee']['fee']*0.000043;
                           if(deliver_method2['fee']['fee']!=$("input[name=shipment_fee]").val()){
-                            $("#shippment_fee").html(deliver_method2['fee']['ship_fee_only']+" đ");
-                            $("#total").html(totall2 +" đ");
+                            $("#shippment_fee").html("$"+(deliver_method2['fee']['ship_fee_only']*0.000043).toFixed(2));
+                            $("#total").html("$"+totall2);
                           }
-                          $(".totalPay").text((totall2*0.000043).toFixed(2));
-                          $("input[name=shipment_fee]").val(deliver_method2['fee']['fee']);
-                          if(parseInt($('#delivery_method').val()) == 2){
+                          $("#paypal_btn").removeAttr("disabled");
+                          $("#submit_order").removeAttr("disabled");
+                          $("#error_delivery").html('');
+                          $(".totalPay").text(totall2.toFixed(2));
+                          $("input[name=shipment_fee]").val(deliver_method2['fee']['fee']*0.000043);
+                          if(parseFloat($('#delivery_method').val()) == 2){
                             $('#extra_ship').parent().addClass('d-none');
                           }else {
                             $('#extra_ship').parent().removeClass('d-none');
@@ -479,7 +457,7 @@
                               ex_fee2+=el['amount'];
                               $('#extra_ship').html(`<div class='ms-3 text-muted'>${transtalate2[el['title']]}</div>`);
                             });
-                            $("#extra_ship_display").html("+ "+ex_fee2+" đ");
+                            $("#extra_ship_display").html("+ $"+ex_fee2);
                             if(ex_fee2!=0){
                               $('#extra_ship').parent().removeClass('d-none');
                             }else{
@@ -492,16 +470,19 @@
                     $.get(window.location.origin+"/index.php/ajax/ghn_service/fee?ward="+$('#ward option:selected').val()+"&district="+$('#district option:selected').val()+"&service_id="+$('#delivery_method option:selected').val(),function(data4){
                       let newdata3 = data4.slice(0,data4.length-1);
                       let dataJs3 = jQuery.parseJSON(newdata3);
-                      let total_ghn =dataJs3['data']['total']+ parseInt($("#total").data('subtotal'));
-                      let shipping = dataJs3['data']['total'];
+                      let total_ghn =dataJs3['data']['total']*0.000043+ parseFloat($("#total").data('subtotal'));
+                      let shipping = dataJs3['data']['total']*0.000043;
                       if(shipping!=$("input[name=shipment_fee]").val()){
-                        $("#shippment_fee").html(shipping+" đ");
-                        $("#total").html(total_ghn +" đ");
+                        $("#shippment_fee").html("$"+shipping.toFixed(2));
+                        $("#total").html("$"+total_ghn.toFixed(2));
                       }
-                      $(".totalPay").text((total_ghn*0.000043).toFixed(2));
+                      $(".totalPay").text((total_ghn).toFixed(2));
                       $("input[name=shipment_fee]").val(shipping);
+                      $("#paypal_btn").removeAttr("disabled");
+                      $("#submit_order").removeAttr("disabled");
+                      $("#error_delivery").html('');
                     });
-                    $("#img_logictic").attr('src',"{{asset('images/icons/GHN2.png')}}");
+                    $("#img_logictic").attr('src',"{{asset('resources/image/icons/GHN2.png')}}");
                     $('#extra_ship').parent().addClass('d-none');
                   };
                 });
@@ -509,11 +490,11 @@
             })
             $('#ghn_services').html(str2);
         });
-        if($('input[name="nameReciever"]').val().trim().length > 0 && $('input[name="emailReciever"]').val().trim().length >0 && $('input[name="phoneReciever"]').val().trim().length>0 && $('#ward').val() &&(($('#paypal').is(':checked') && $('#paypal_btn').data('success') == "success")|| $("#cashonDelivery").is(':checked'))){
-          $('#submit_order').removeAttr('disabled');
-        }else{
-          $("#submit_order").attr('disabled','disabled');
-        };
+        // if($('input[name="nameReciever"]').val().trim().length > 0 && $('input[name="emailReciever"]').val().trim().length >0 && $('input[name="phoneReciever"]').val().trim().length>0 && $('#ward').val() &&(($('#paypal').is(':checked') && $('#paypal_btn').data('success') == "success")|| $("#cashonDelivery").is(':checked'))){
+        //   $('#submit_order').removeAttr('disabled');
+        // }else{
+        //   $("#submit_order").attr('disabled','disabled');
+        // };
       });
       $("#submit_order").click(function(){
         $('#delivery_method option:selected').val($('#delivery_method option:selected').parent().attr('label')+" - "+$('#delivery_method option:selected').text());
@@ -524,7 +505,7 @@
         @endif
       });
       $('.user_editorder').click(function() {
-          $.get(window.location.origin + "/index.php/account/ajax/edit_order/" + $(this).data('idorder'),function(data) {
+          $.get(window.location.origin + "/index.php/ajax/edit_order/" + $(this).data('idorder'),function(data) {
             function toNonAccentVietnamese(str) {
               str = str.replace(/A|Á|À|Ã|Ạ|Â|Ấ|Ầ|Ẫ|Ậ|Ă|Ắ|Ằ|Ẵ|Ặ/g, "A");
               str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -543,7 +524,7 @@
               // Some system encode vietnamese combining accent as individual utf-8 characters
               str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // Huyền sắc hỏi ngã nặng 
               str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // Â, Ê, Ă, Ơ, Ư
-              return str;
+              return str.toLowerCase();
             }   
             let data_order = jQuery.parseJSON(data);
             let add = data_order['address'].split(", ");
@@ -603,7 +584,7 @@
                       list_district+="<option value=''>-- Selected District --</option>";
                       let seleted_district = 0;
                       data.data.forEach(value=>{
-                        if(add[add.length-2].includes(toNonAccentVietnamese(value.DistrictName)) || add[add.length-2].includes(value.DistrictName)){
+                        if(add[add.length-2] == toNonAccentVietnamese(value.DistrictName) || add[add.length-2] == value.DistrictName){
                           list_district+=`<option value="${value.DistrictID}" selected>${value.DistrictName}</option>`;
                           seleted_district = value.DistrictID;
                         }else{
@@ -635,8 +616,9 @@
                     success: function (data) {
                       let list_ward= "";
                       list_ward+="<option value=''>-- Select Ward --</option>";
+                      let changing =toNonAccentVietnamese(add[add.length-3]);
                       data.data.forEach(value=>{
-                        if(add[add.length-3].includes(toNonAccentVietnamese(value.WardName)) || add[add.length-3].includes(value.WardName)){
+                        if(changing.includes(toNonAccentVietnamese(value.WardName)) || changing.includes(value.WardName)){
                           list_ward+=`<option value="${value.WardCode}" selected>${value.WardName}</option>`;
                         }else{
                           list_ward+=`<option value="${value.WardCode}">${value.WardName}</option>`;
@@ -665,7 +647,7 @@
             $('#edit_coupon').val(data_order['code_coupon']);
             $('#name_coupon').html(data_order['name_coupon']);
             $('#deli_method').html(data_order['delivery_method']);
-            $('#edit_servicefee').val(data_order['shipping_fee']);
+            $('#edit_servicefee').val(data_order['shipping_fee'].toFixed(2));
             $("#edit_payment").val(data_order['method']);
             $('#edit_cusname, #edit_cusaddr,#edit_cusphone,#edit_cusemail').change(function(){
                 if ($('#edit_cusname').val().length > 0 && $('#edit_cusaddr').val()
@@ -719,7 +701,7 @@
                     if(deliver_method['fee']['delivery']){
                       $("#edit_servicefee").parent().parent().next().removeClass('d-none');
                       $('#edit_servicefee').parent().parent().next().next().removeClass('d-none');
-                      $("#new_servicefee").val(deliver_method['fee']['fee']+" đ");
+                      $("#new_servicefee").val("$"+(deliver_method['fee']['fee']*0.000043).toFixed(2));
                     }else{
                       $("#submit_editorder").attr('disabled','disabled');
                       $("#error_delivery").html('Look like Giao Tiet Kiem didn\'t support this location, Try to choose another province or district or ward near you');
@@ -755,7 +737,7 @@
                             let dataJs2 = jQuery.parseJSON(newdata2);
                             $("#edit_servicefee").parent().parent().next().removeClass('d-none');
                             $('#edit_servicefee').parent().parent().next().next().removeClass('d-none');
-                            $("#new_servicefee").val(dataJs2['data']['total']+" đ");
+                            $("#new_servicefee").val("$"+dataJs2['data']['total']);
                           })
                         }
                       })
@@ -1049,25 +1031,25 @@
             if(dataJson['discount'] >= 10){
               $('#discount2').html("- "+dataJson['discount']+"%");
             }else{
-              $('#discount2').html("- "+dataJson['discount']+" đ");
+              $('#discount2').html("- $"+dataJson['discount']);
             }
           }
           let list ="";
           let total = 0;
             for (let i = 0; i < dataJson['cart'].length; i++) {
-              list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='images/products/${dataJson['image'][i]}'><br>${dataJson['product'][i]}</td><td>${dataJson['cart'][i]['price']} đ</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}g</td></tr>`;
-              total+=parseInt(dataJson['cart'][i]['sale']) >0 ?(parseInt(dataJson['cart'][i]['price'])*(1- parseInt(dataJson['cart'][i]['sale'])/100))*(parseInt(dataJson['cart'][i]['amount'])/1000):parseInt(dataJson['cart'][i]['price'])*(parseInt(dataJson['cart'][i]['amount'])/1000);
+              list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='resources/image/pet/${dataJson['image'][i]}'><br>${dataJson['product'][i]}</td><td>$${dataJson['cart'][i]['price']}</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}g</td></tr>`;
+              total+=parseFloat(dataJson['cart'][i]['sale']) >0 ?(parseFloat(dataJson['cart'][i]['price'])*(1- parseFloat(dataJson['cart'][i]['sale'])/100))*(parseFloat(dataJson['cart'][i]['amount'])/1000):parseFloat(dataJson['cart'][i]['price'])*(parseFloat(dataJson['cart'][i]['amount'])/1000);
             };
           $('#listCart2').html(list);
-          $("#item_subtotal2").html(total+" đ");
-          $('#shipment_fee_modal2').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) <10){
-            total-= parseInt(dataJson['discount']);
+          $("#item_subtotal2").html("$"+total);
+          $('#shipment_fee_modal2').html("$"+dataJson['shipping_fee']);
+          if(parseFloat(dataJson['discount']) <10){
+            total-= parseFloat(dataJson['discount']);
           }else{
-            total*=(1- parseInt(dataJson['discount'])/100);
+            total*=(1- parseFloat(dataJson['discount'])/100);
           }
-          total+=parseInt(dataJson['shipping_fee']);
-          $('#total_order2').html(total+" đ");
+          total+=parseFloat("$"+dataJson['shipping_fee']);
+          $('#total_order2').html("$"+total);
           $("#status_order2").html(dataJson['status']);
         })
       })
@@ -1087,25 +1069,26 @@
             if(dataJson['discount'] >= 10){
               $('#discount').html("- "+dataJson['discount']+"%");
             }else{
-              $('#discount').html("- "+dataJson['discount']+" đ");
+              $('#discount').html("- $"+dataJson['discount']);
             }
           }
           let list ="";
           let total = 0;
-            for (let i = 0; i < dataJson['cart'].length; i++) {
-              list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='images/products/${dataJson['image'][i]}'></td><td>${dataJson['product'][i]}</td><td>${dataJson['cart'][i]['price']} đ</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}g</td></tr>`;
-              total+=parseInt(dataJson['cart'][i]['sale']) >0 ?(parseInt(dataJson['cart'][i]['price'])*(1- parseInt(dataJson['cart'][i]['sale'])/100))*(parseInt(dataJson['cart'][i]['amount'])/1000):parseInt(dataJson['cart'][i]['price'])*(parseInt(dataJson['cart'][i]['amount'])/1000);
-            };
+
+          for (let i = 0; i < dataJson['cart'].length; i++) {
+            list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='resources/image/pet/${dataJson['image'][i]}'></td><td>${dataJson['product'][i]}</td><td>$${dataJson['cart'][i]['price']}</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}</td></tr>`;
+            total+=parseFloat(dataJson['cart'][i]['sale']) >0 ?(parseFloat(dataJson['cart'][i]['price'])*(1- parseFloat(dataJson['cart'][i]['sale'])/100))*(parseFloat(dataJson['cart'][i]['amount'])):parseFloat(dataJson['cart'][i]['price'])*(parseFloat(dataJson['cart'][i]['amount']));
+          };
           $('#listCart').html(list);
-          $("#item_subtotal").html(total+" đ");
-          $('#shipment_fee_modal').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) <10){
-            total-= parseInt(dataJson['discount']);
+          $("#item_subtotal").html("$"+total);
+          $('#shipment_fee_modal').html("$"+dataJson['shipping_fee'].toFixed(2));
+          if(parseFloat(dataJson['discount']) <10){
+            total-= parseFloat(dataJson['discount']);
           }else{
-            total*=(1- parseInt(dataJson['discount'])/100);
+            total*=(1- parseFloat(dataJson['discount'])/100);
           }
-          total+=parseInt(dataJson['shipping_fee']);
-          $('#total_order').html(total+" đ");
+          total+=parseFloat(dataJson['shipping_fee']);
+          $('#total_order').html("$"+total.toFixed(2));
           $("#status_order option[value="+dataJson['status']+"]").attr("selected", true);
           if(dataJson['status'] == 'unconfirmed'){
             $("#status_order option[value='unconfirmed']").removeAttr('disabled');
@@ -1129,10 +1112,8 @@
         })
       })
       $('.check_order2').click(function(){
-        console.log(window.location.origin+"/index.php/ajax/check-order/"+$(this).data('order'));
         $.get(window.location.origin+"/index.php/ajax/check-order/"+$(this).data('order'),function(data){
           let dataJson = jQuery.parseJSON(data);
-          console.log(dataJson);
           $('input[name=id_order2]').val(dataJson['id_order']);
           $("#receiver2").html(dataJson['receiver']);
           $("#address2").html(dataJson['address']+","+dataJson['ward']+","+dataJson['district']+","+dataJson['province']);
@@ -1146,25 +1127,25 @@
             if(dataJson['discount'] >= 10){
               $('#discount2').html("- "+dataJson['discount']+"%");
             }else{
-              $('#discount2').html("- "+dataJson['discount']+" đ");
+              $('#discount2').html("- $"+dataJson['discount']);
             }
           }
           let list ="";
           let total = 0;
-            for (let i = 0; i < dataJson['cart'].length; i++) {
-              list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='images/products/${dataJson['image'][i]}'></td><td>${dataJson['product'][i]}</td><td>${dataJson['cart'][i]['price']} đ</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}g</td></tr>`;
-              total+=parseInt(dataJson['cart'][i]['sale']) >0 ?(parseInt(dataJson['cart'][i]['price'])*(1- parseInt(dataJson['cart'][i]['sale'])/100))*(parseInt(dataJson['cart'][i]['amount'])/1000):parseInt(dataJson['cart'][i]['price'])*(parseInt(dataJson['cart'][i]['amount'])/1000);
-            };
+          for (let i = 0; i < dataJson['cart'].length; i++) {
+            list+=`<tr><td>${i+1}</td><td><img class='icon-shape icon-xl' src='resources/image/pet/${dataJson['image'][i]}'></td><td>${dataJson['product'][i]}</td><td>$${dataJson['cart'][i]['price']}</td><td>${dataJson['cart'][i]['sale']}%</td><td>${dataJson["cart"][i]['amount']}g</td></tr>`;
+            total+=parseFloat(dataJson['cart'][i]['sale']) >0 ?(parseFloat(dataJson['cart'][i]['price'])*(1- parseFloat(dataJson['cart'][i]['sale'])/100))*(parseFloat(dataJson['cart'][i]['amount'])):parseFloat(dataJson['cart'][i]['price'])*(parseFloat(dataJson['cart'][i]['amount'])/1000);
+          };
           $('#listCart2').html(list);
-          $("#item_subtotal2").html(total+" đ");
-          $('#shipment_fee_modal2').html(dataJson['shipping_fee']+" đ");
-          if(parseInt(dataJson['discount']) <10){
-            total-= parseInt(dataJson['discount']);
+          $("#item_subtotal2").html("$"+total);
+          $('#shipment_fee_modal2').html("$"+dataJson['shipping_fee']);
+          if(parseFloat(dataJson['discount']) <10){
+            total-= parseFloat(dataJson['discount']);
           }else{
-            total*=(1- parseInt(dataJson['discount'])/100);
+            total*=(1- parseFloat(dataJson['discount'])/100);
           }
-          total+=parseInt(dataJson['shipping_fee']);
-          $('#total_order2').html(total+" đ");
+          total+=parseFloat(dataJson['shipping_fee']);
+          $('#total_order2').html("$"+total);
           $("#status_order2 option[value="+dataJson['status']+"]").attr("selected", true);
           
           $('#order_token2').val($('meta[name="csrf-token"]').attr('content'));
@@ -1202,8 +1183,8 @@
       $('#checkCoupon').click(function() {
             if ($('#giftcard').val().length > 0) {
                 $.get(window.location.origin + "/index.php/ajax/add-coupon/" + $('#giftcard').val(),function(data) {
-                    let total = parseInt($('#total_items').data('total'));
-                    let subtotal = parseInt($('#item_subtotal').data('subtotal'));
+                    let total = parseFloat($('#total_items').data('total'));
+                    let subtotal = parseFloat($('#item_subtotal').data('subtotal'));
                     if (data) {
                         let dataJson = jQuery.parseJSON(data);
                         if (!dataJson['error']) {
@@ -1213,28 +1194,26 @@
                             $('#giftcard').addClass('is-valid');
                             $('#coupon_title').html(dataJson['title']);
                             if (dataJson['code'].includes('FREESHIP')) {
-                                $('#discount').html('- $' + dataJson['discount']);
-                                total -= parseFloat(dataJson['discount']);
+                                $('#discount').html('- $' + dataJson['discount'].toFixed(2));
+                                total = subtotal- parseFloat(dataJson['discount']);
                             } else {
                                 $('#discount').html('- ' + dataJson['discount'] + '%');
-                                total *= (1 - parseFloat(dataJson['discount']) / 100);
+                                total =  subtotal * (1 - parseFloat(dataJson['discount']) / 100);
                             };
                             total += 2;
-                            $('#total_items').html("$"+Math.floor(total));
-                            $('#total_cart').html("$"+Math.floor(total));
+                            $('#total_items').html("$"+total.toFixed(2));
+                            $('#total_cart').html("$"+total.toFixed(2));
                         } else {
-                            total += 2;
-                            $('#total_items').html("$"+Math.floor(total));
-                            $('#total_cart').html("$"+Math.floor(total));
+                            $('#total_items').html("$"+total.toFixed(2));
+                            $('#total_cart').html("$"+total.toFixed(2));
                             $('#added_coupon').addClass('d-none');
                             $('#giftcard').removeClass('is-valid');
                             $('#giftcard').addClass('is-invalid');
                             $('#wrong_code').removeClass('d-none').html(dataJson['error']);
                         }
                     } else {
-                        total += 24200;
-                        $('#total_items').html("$"+Math.floor(total));
-                        $('#total_cart').html("$"+Math.floor(total));
+                        $('#total_items').html("$"+total.toFixed(2));
+                        $('#total_cart').html("$"+total.toFixed(2));
                         $('#added_coupon').addClass('d-none');
                         $('#giftcard').removeClass('is-valid');
                         $('#giftcard').addClass('is-invalid');
