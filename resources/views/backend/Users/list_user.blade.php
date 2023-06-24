@@ -1,99 +1,155 @@
 @extends('admin')
 @section('content')
-<div class="col-sm-7 col-md-8 mx-auto mt-4 bg-light " style=" overflow: scroll">
-    <div class="row">
-        <div class="mx-auto p-4 rounded-2"  >
-            <div class="row">
-                <h2 class="col-3">User</h2>
-                <div class="col-3">
-                    <select name="sortType" id="sortType" class="form-select">
-                        <option value="all" {{!$sortType == "all"? "selected":""}}>All Users</option>
-                        <option value="admin"{{$sortType =='admin'?"selected":""}}>Admin</option>
-                        <option value="user"{{$sortType =='user'?"selected":""}}>User</option>
-                    </select>
+  <main>
+    <div class="container">
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>User</h2>
+                        <!-- breacrumb -->
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="#" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    User
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div>
+                        <a href="{{ route('adduser') }}" class="btn btn-primary">Add New User</a>
+                    </div>
                 </div>
             </div>
-            <hr>
-            @if (Session::has("message"))
-            <div class="alert alert-success">{{Session::get("message")}}</div>
-            @endif
-            @if (Session::has("error"))
-            <div class="alert alert-danger">{{Session::get("error")}}</div>
-            @endif
-            <table class="table table-responsive">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User Name</th>
-                        <th>Gender</th>
-                        <th>Address</th>
-                        <th>Email</th>
-                        <th>Phone Number</th>
-                        <th>Authory</th>
-                        <th>Image</th>
-                        <th>Del</th>
-                        <th>Edt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($users as $user)
-                    <tr>
-                        <td>{{$user->id_user}}</td>
-                        <td><a href="#!" class="text-primary btn-user-order" data-bs-toggle="modal" data-bs-target="#userOrderModal" data-iduser="{{$user->id_user}}">{{$user->name}}</a></td>
-                        <td>{{$user->gender == 1? "Male": ($user->gender == 2?"Female":($user->gender==3?"Other":"Unknow"))}}</td>
-                        <td>{{$user->address}}</td>
-                        <td>{{$user->email}}</td>
-                        <td>{{$user->phone_number}}</td>
-                        <td>{{$user->admin == 1?"Admin": "Guest"}}</td>
-                        <td>
-                            <img src="{{asset('../resources/image/user/'.($user->image ? $user->image: 'no_image.jpg'))}}" alt="{{$user->name}}" class="img-thumbnail" width="70px">
-                        </td>
-                        <td>
-                            <a href="{{route('deleteUser',[$user->id_user])}}"><i class="fa-sharp fa-solid fa-trash text-danger"></i></a>
-                        </td>
-                        <td>
-                            <a href="{{route('edituser',[$user->id_user])}}"><i class="fa-sharp fa-solid fa-pen text-secondary"></i></a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            @if (!$sortType)
-            {{$users->links()}}
-            @endif
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-12 mb-5">
+                <div class="card h-100 card-lg">
+                    <div class="p-6">
+                        <div class="row justify-content-between">
+                            <div class="col-md-4 col-lg-3 col-12">
+                                <div class="input-group">
+                                    <input class="form-control" type="search" name="searchUser" id="searchUser"placeholder="Search Users" aria-label="Search" value="{{isset($search)?$search:''}}"/>
+                                    <label for="searchUser"class="input-group-text"><i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-4">
+                                <select name="sortType" id="sortType" class="form-select">
+                                    <option value="all" {{!$sortType == "all"? "selected":""}}>All Users</option>
+                                    <option value="admin"{{$sortType =='admin'?"selected":""}}>Admin</option>
+                                    <option value="user"{{$sortType =='user'?"selected":""}}>User</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Session::has("message"))
+                    <div class="alert alert-success">{{Session::get("message")}}</div>
+                    @endif
+                    @if (Session::has("error"))
+                    <div class="alert alert-danger">{{Session::get("error")}}</div>
+                    @endif
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table
+                                class="table table-centered table-hover table-borderless mb-0 table-with-checkbox text-nowrap">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Purchase Date</th>
+                                        <th>Phone</th>
+                                        <th>Rank</th>
+                                        <th>Spent</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($users as $item)
+                                        <tr>
+                                            <td>{{ $item->id_user }}</td>
+                                            <td>
+                                                <img src="{{ asset('resources/image/user/' . $item->image) }}" alt="" style="width: 50px; ">
+                                                {{ $item->name }}
+                                            </td>
+                                            <td>{{ $item->email }}</td>
+                                            <td>{{ date_format(date_create($item->created_at), 'j/m/Y') }}</td>
+                                            <td>{{ $item->phone }}</td>
+                                            <td>
+                                                @if ($item->admin == '1')
+                                                    Admin
+                                                @endif
+                                                @if ($item->admin == '2')
+                                                    Manager
+                                                @endif
+                                                @if ($item->admin == "0")
+                                                    User
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $sum =0;
+                                                    foreach ($item->Order as $order) {
+                                                        foreach ($order->Cart as $cart) {
+                                                            $sum += $cart->price * (1-$cart->sale/100) *$cart->amount;
+                                                        }
+                                                        if($order->code_coupon){
+                                                            $sum -= $order->Coupon->discount <10? $order->Coupon->discount:0;
+                                                            $sum *= $order->Coupon->discount >=10 ? (1- $order->Coupon->discount/100) :1;
+                                                        };
+                                                        $sum += $order->shipping_fee;
+                                                    };
+                                                @endphp
+                                                ${{ number_format($sum, 2, '.', ' ') }}
+                                            </td>
+
+                                            <td>
+                                                @if ($item->admin != '1')
+                                                    <div class="dropdown">
+                                                        <a href="#" class="text-reset" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item" href=""> 
+                                                                    <i class="bi bi-eye me-3"></i>Detail
+                                                                </a>
+                                                            </li>
+
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{route('edituser',[$item->id_user])}}">
+                                                                    <i class="bi bi-pencil-square me-3"></i>Edit
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{{route('deleteUser',[$item->id_user])}}">
+                                                                    <i class="fa-sharp fa-solid fa-trash me-3"></i>Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-5">
+                            @if (!$sortType)
+                            {{$users->links('pagination.custom_pagi')}}
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-<div class="modal fade" id="userOrderModal" tabindex="-1" aria-labelledby="userOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-      <div class="modal-content p-4">
-        <div class="modal-header border-0">
-          <h5 class="modal-title fs-3 fw-bold" id="userOrderModalLabel"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <table class="table  table-striped">
-            <thead>
-                <tr class="bg-danger">
-                    <th>No</th>
-                    <th>Date</th>
-                    <th style="width: 30%">Order Pet</th>
-                    <th>Customer Name</th>
-                    <th style="width: 20%">Address</th>
-                    <th>Method</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="order_modal" class="table-group-divider">
-                
-            </tbody>
-          </table>
-        </div>
-        <div class="modal-footer border-0 justify-content-center">
-        </div>
-      </div>
-    </div>
-  </div>
+</main>
 @endsection
 @section('admin_script')
     <script>
@@ -102,7 +158,6 @@
                 window.location.assign(window.location.pathname+'?sortType='+$(this).val());
             });
             $('.btn-user-order').click(function(){
-                // alert(window.location.origin+'/index.php/ajax/userorder/'+$(this).data('iduser'));
                 $.get(window.location.origin+'/index.php/ajax/userorder/'+$(this).data('iduser'),function(data){
                     console.log(data);
                     $('#order_modal').html(data);

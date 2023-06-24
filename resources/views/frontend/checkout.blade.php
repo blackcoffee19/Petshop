@@ -64,7 +64,7 @@
                                                             <input type="hidden" name="max_quan" value="{{ $cart->Product->quantity }}">
                                                             <div class=" col-6">
                                                                 <div class="input-group input-spinner ">
-                                                                    <button type="button" class="btn btn-outline-secondary btn_minus btn-sm" style="border-radius: 10px 0 0 10px;" data-field="quantity">
+                                                                    <button type="button" class="btn btn-outline-secondary btn_minus btn-sm" data-id-cart="{{$cart->id_cart}}" style="border-radius: 10px 0 0 10px;" data-field="quantity">
                                                                         <i class="bi bi-dash-lg"></i>
                                                                     </button>
                                                                     <input type="text" name="quan"
@@ -249,7 +249,7 @@
                                 <div class="d-grid mb-1 mt-4">
                                     <a href="{{ route('order') }}"
                                         class="btn btn-primary btn-lg d-flex justify-content-between align-items-center">Go to Checkout 
-                                        <span class="fw-bold" id="total_cart">${{$total}}</span></a>
+                                        <span class="fw-bold" id="total_cart">${{number_format($total,2,'.','')}}</span></a>
                                 </div>
                                 <p><small>By placing your order, you agree to be bound by the Freshcart 
                                     <a href="#!">Terms of Service</a> and <a href="#!">Privacy Policy.</a> </small>

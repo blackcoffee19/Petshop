@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             insert_cart::class,
             insert_news::class,
             insert_library::class,
+            insert_expense::class,
             insert_address::class,
         ]);
     }

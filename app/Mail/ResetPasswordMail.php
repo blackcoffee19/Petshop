@@ -18,9 +18,10 @@ class ResetPasswordMail extends Mailable
      *
      * @return void
      */
-    public function __construct()
+    public $mailData;
+    public function __construct($mailData)
     {
-        //
+        $this->mailData = $mailData;
     }
 
     /**
@@ -28,7 +29,7 @@ class ResetPasswordMail extends Mailable
      *
      * @return \Illuminate\Mail\Mailables\Envelope
      */
-    public function envelope()
+    public function envelope(): Envelope
     {
         return new Envelope(
             subject: 'Reset Password Mail',
@@ -40,10 +41,10 @@ class ResetPasswordMail extends Mailable
      *
      * @return \Illuminate\Mail\Mailables\Content
      */
-    public function content()
+    public function content() : Content
     {
         return new Content(
-            view: 'view.name',
+            markdown: 'emails.reset_password',
         );
     }
 

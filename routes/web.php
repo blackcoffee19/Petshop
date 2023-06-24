@@ -118,7 +118,8 @@ Route::group(['prefix' => 'manager'], function () {
     Route::post('/remove-notificate', [MyController::class, 'post_removenoti'])->name('remove_notificate');
     Route::get('/list_order', [MyController::class, 'list_allorder'])->name('allorder');
 });
-// Auth::routes();
+
+
 Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
     Route::get('/dashboard',[AdminController::class,'get_dashboard'])->name('dashboard');
     Route::post('/confirm-order',[AdminController::class,'post_confirmOrder'])->name('statusOrder');
@@ -147,6 +148,7 @@ Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
     });
     Route::group(["prefix"=>"pets"],function(){
         Route::get('/list/{id?}',[AdminController::class,'get_listpet'])->name('listpet');
+        Route::get('/sort',[AdminController::class,'sort_pet'])->name('sortPet');
         Route::get('/search',[AdminController::class,'search_pet']);
         Route::get('/addpet',[AdminController::class,'get_addpet'])->name('addpet');
         Route::post('/addpet',[AdminController::class,'post_addpet'])->name('addpet');
@@ -164,8 +166,7 @@ Route::group(["prefix"=>"admin",'middleware'=>'AdminLogin'],function(){
     });
     Route::group(["prefix"=>"orders"],function(){
         Route::get('/list/{sort?}',[AdminController::class,'get_listorder'])->name('listorder');
-        Route::get('/editorder/{id}',[AdminController::class,'get_editorder'])->name('editorder');
-        Route::post('/editorder/{id}',[AdminController::class,'post_editorder'])->name('editorder');
+        Route::get('/orderdetail/{id}',[AdminController::class,'get_orderdetail'])->name('orderdetail');
     });
     Route::group(["prefix"=>'slides'],function(){
         Route::get('/',[AdminController::class,'get_listslide'])->name('listslide');

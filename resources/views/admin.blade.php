@@ -8,21 +8,23 @@
     <base href="{{asset('')}}">
     <title>Admin</title>
     <!-- CSS only -->
-
+    {{-- <link rel="stylesheet" href="{{asset('resources/css/pagination.css')}}"> --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <!-- JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.2.1/css/all.css">
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.2.1/css/sharp-solid.css">
     
-    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins&display=swap" rel="stylesheet">
     <!-- font-family: 'Montserrat', sans-serif;
     font-family: 'Poppins', sans-serif; -->
-    <link rel="stylesheet" href="resources/css/admin.css">
+    {{-- <link rel="stylesheet" href="resources/css/admin.css"> --}}
+    <link rel="stylesheet" href="resources/css/theme.min.css">
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.anychart.com/releases/8.0.0/js/anychart-base.min.js"></script>
+
     <style>
         *{
             margin: 0;
@@ -37,19 +39,34 @@
             content: none!important;
         }
     </style>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-M8S4MT3EYG');
+    </script>
 </head>
 <body>
+    @include('backend.header')
 
-    <div class="container-fluid ">
-        <div class="row position-relative" aria-live="polite" aria-atomic="true" >
-            @include('layout.notification')
-            @include('backend.menu')
+    <div class="main-wrapper">
+        @include('backend.menu')
+        <main class="main-content-wrapper">
             @yield('content')
-        </div>
+        </main>
     </div>
-    <script src="node_modules/jquery/dist/jquery.min.js"></script>
-    @include('layout.message')
+    <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
+    <!-- Theme JS -->
+    <script src="https://kit.fontawesome.com/2f28ccbbd6.js" crossorigin="anonymous"></script>
+    <script src="{{ asset('resources/js/theme.min.js') }}"></script>
+    <script src="{{ asset('resources/js/apexcharts.min.js') }}"></script>
+    {{-- @include('layout.notification') --}}
     @yield('admin_script')
+    @include('layout.message')
     <script>
         $(document).ready(function(){
             @if(Session::has('message_confirm'))

@@ -21,6 +21,7 @@ use App\Models\Banner;
 use App\Models\News;
 use App\Models\Message;
 use App\Models\Groupmessage;
+use App\Models\ResetPassword;
 use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -800,7 +801,7 @@ class MyController extends Controller
                 $cart->Product->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->Product->save();
                 $cart->order_code = $new_order->order_code;
-                $cart->price = $cart->Product->price;
+                $cart->price = $cart->Product->per_price;
                 $cart->sale = $cart->Product->sale;
                 $cart->updated_at = Carbon::now()->format('Y-m-d H:i:s');
                 $cart->save();
@@ -895,7 +896,7 @@ class MyController extends Controller
                     $new_cart->save();
                 }
             }
-            return redirect('/order');
+            return redirect('checkout');
         };
         return redirect()->back();
     }
@@ -1189,10 +1190,10 @@ class MyController extends Controller
     public function get_listmessage(Request $req){
         if($req['codegroup'] && $req['codegroup'] != "new" ){
             $get_gr = Groupmessage::where('code_group','=',$req['codegroup'])->first();
-            if(Auth::user()->admin == 1){
-                $user = $get_gr->User1;
+            if(Auth::user()->admin == 0){
+                $user = $get_gr->Admin;
             }else{
-                $user = $get_gr->User2;
+                $user = $get_gr->User;
             }
             $group = Message::where('code_group','=',$req['codegroup'])->get();
         }else{
@@ -1208,22 +1209,90 @@ class MyController extends Controller
             if($chat->id_user != Auth::user()->id_user){
                 $html.= "<div class='col-1 me-3 rounded-circle border text-center p-1' style='width:40px;height: 40px'>";
                 $html.= $chat->User->image?"<img src='resources/image/user/".$chat->User->image."' class='img-fluid h-100 rounded-circle' style='object-fit: cover'>":"<img src='resources/image/user/user.png' class='img-fluid h-100 rounded-circle' style='object-fit: cover'>";
-                $html.="</div><div class='col-8'><span>".$chat->User->name."</span><div class='text-wrap rounded-1 border py-1 px-2 bg-light'>";
-                $html.= $chat->message;
+                $html.="</div><div class='col-8'><span>".$chat->User->name."</span>";
+                if($chat->message !=null){
+                    $html.="<div class='text-wrap rounded-1 border py-1 px-2 bg-light'>";
+                    $html.= $chat->message;
+                }else if($chat->link != null){
+                    $html .= "<div>";
+                    $product = Product::find(intval($chat->link));
+                    if(!$product){
+                        $html.= "Not found product";
+                    }else{
+                        $src_image = "resources/image/pet/".$product->Library[0]->image; 
+                        $share_link = "<div class='card my-3'><a href='".route('productdetail',$product->id_product)."'>
+                        <div class='row g-0'>
+                          <div class='col-4'>
+                          <img src='$src_image' class='img-fluid rounded-start' >
+                          </div>
+                        <div class='col-8'>
+                          <div class='card-body'>
+                          <h5 class='card-title text-uppercase'>".$product->name."</h5>
+                          <p class='card-text'>View >> </p>
+                        </div></div></div></a></div>";
+                        $html.=    $share_link;
+                    };
+                };
+                if(!$chat->status){
+                    $chat->status = true;
+                    $chat->save();
+                };
                 $html.="</div><span class='text-black-50'>".$time."</span></div>";
             }else{
-                $html.= "<div class='col-2'></div>";
-                $html.="<div class='col-10 text-wrap rounded-1 border py-1 px-2 bg-light'>";
-                $html.= $chat->message;
+                $html.= "<div class='col-2 mx-auto'></div>";
+                if($chat->message !=null){
+                $html.="<div class='col-auto  text-wrap rounded-1 border py-1 px-2 bg-light'>";
+                    $html.= $chat->message;
+                }else{
+                    $html.="<div class='col-10 rounded-1 border py-1 px-2'>";
+                    $product = Product::find(intval($chat->link));
+                    if(!$product){
+                        $html.= "Not found product";
+                    }else{
+                        $src_image = count($product->Library)>0?"images/products/".$product->Library[0]->image: "images/category/".$product->TypeProduct->image; 
+                        $share_link = "<div class='card my-3' ><a href='".route('productdetail',$product->id_product)."'>
+                        <div class='row g-0'>
+                          <div class='col-4'>
+                          <img src='$src_image' class='img-fluid rounded-start' >
+                          </div>
+                        <div class='col-8'>
+                          <div class='card-body'>
+                          <h5 class='card-title text-uppercase'>".$product->name."</h5>
+                          <p class='card-text'>View >> </p>
+                        </div></div></div></a></div>";
+                        $html.=$share_link;
+                    }
+                }
                 $html.="</div>";
             }
             $html.= "</div>";
         };
+        if(Auth::user()->admin != '0'){
+            $all_group = Groupmessage::where('id_admin','=',Auth::user()->id_user)->get();
+            $unread_mess = 0;
+            foreach ($all_group as $gr){
+                $last_mess = $gr->Message->last();
+                if(($last_mess->id_user != Auth::user()->id_user) && (!$last_mess->status)){
+                    $unread_mess++;
+                }
+            }
+            $unread_mess += count(Message::whereNull('code_group')->get());
+        }else{
+            $all_group = Groupmessage::where('id_user','=',Auth::user()->id_user)->get();
+            $unread_mess = 0;
+            foreach ($all_group as $gr){
+                $last_mess = $gr->Message->last();
+                if(($last_mess->id_user != Auth::user()->id_user) && (!$last_mess->status)){
+                    $unread_mess++;
+                }
+            }
+        }
         $data = [
             'mess' => $html,
-            'name'=> $user->name
+            'name'=> $user->name,
+            'unread_mess' => $unread_mess
         ];
-        echo implode(',',$data);
+        echo implode('-/-',$data);
     }
     public function postajax_message(Request $req){
         $new_message = new Message();
@@ -1236,21 +1305,54 @@ class MyController extends Controller
             if(!$group_exist){
                 $new_gr = new Groupmessage();
                 $new_gr->code_group = $code;
-                $new_gr->id_user1 = $req['connect_user'];
-                $new_gr->id_user2 = Auth::user()->id_user;
+                $new_gr->id_user = $req['connect_user'];
+                $new_gr->id_admin = Auth::user()->id_user;
                 $new_gr->save();
             }
             foreach(Message::where('code_group','=',null)->where('id_user','=',$req['connect_user'])->get() as $mess){
                 $mess->code_group = $code;
+                $mess->status = true;
                 $mess->save();
             };
         };
+        if(isset($req['send_link'])){
+            $product_share =Product::find(intval($req['send_link'])); 
+            $new_message->link = $product_share->id_product;
+        }else{
+            $new_message->link = null;
+        }
         $new_message->code_group = $code;
         $new_message->id_user = Auth::user()->id_user;
-        $new_message->message = $req['send_message'];
+        $new_message->message = isset($req['send_message'])?$req['send_message']: null;
         $new_message->created_at = Carbon::now()->format('Y-m-d H:i:s');
         $new_message->save();
-        echo $req['send_message'];
+        if(isset($req['send_link'])){
+            $product_share =Product::find(intval($req['send_link'])); 
+            $new_message->share_link = route('productdetail',$product_share->id_product);
+            $new_message->name_product =$product_share->name;
+            $new_message->image = "resources/image/pet/". $product_share->Library[0]->image;
+        }
+        $unread_mess = 0;
+        if(Auth::user()->admin != '0'){
+            $all_group = Groupmessage::where('id_admin','=',Auth::user()->id_user)->get();
+            foreach ($all_group as $gr){
+                $last_mess = $gr->Message->last();
+                if(($last_mess->id_user != Auth::user()->id_user) && (!$last_mess->status)){
+                    $unread_mess++;
+                }
+            }
+            $unread_mess += count(Message::whereNull('code_group')->get());
+        }else{
+            $all_group = Groupmessage::where('id_user','=',Auth::user()->id_user)->get();
+            foreach ($all_group as $gr){
+                $last_mess = $gr->Message->last();
+                if(($last_mess->id_user != Auth::user()->id_user) && (!$last_mess->status)){
+                    $unread_mess++;
+                }
+            }
+        }
+        $new_message->unread_mess = $unread_mess;
+        echo $new_message;
     }
     public function get_test(){
         return view('frontend.testing');
@@ -1578,5 +1680,65 @@ class MyController extends Controller
         $list_order = Order::where('id_user','=',null)->where('phone','=',Auth::user()->phone)->get();
         $num = count($list_order);
         echo $num;
+    }
+    public function get_forgotpass(){
+        $site = "send";
+        return view('frontend.forgetpassword',compact('site'));
+    }
+    public function send_ressetmail(Request $req){
+        $req->validate([
+            "email_resset"=>"required|email",
+        ],[
+            "email_resset.required" =>"Email is required",
+            "email_resset.email" =>"Email is invalid",
+        ]);
+        $email = $req['email_resset'];
+        $user = User::where('email','=',$email)->first();
+
+        if(!$user){
+            return redirect()->back()->with('reset_error','Email hasn\'t signed up in Freshshop');
+        }
+        if(ResetPassword::find($email)){
+            $token_reset = ResetPassword::find($email);
+            $token_reset->updated_at =Carbon::now()->format('Y-m-d H:i:s');
+        }else{
+            $token_reset = new ResetPassword();
+            $token_reset->email = $email;
+            $token_reset->created_at = Carbon::now()->format('Y-m-d H:i:s');
+        }
+        $token_reset->token = Str::random(32);
+        $token_reset->save();
+        $mailData = [
+            'title' => 'Reset Password',
+            'url' => route('reset_password',$token_reset->token)
+        ];
+        try {
+            Mail::to($email)->send(new ResetPasswordMail($mailData));
+        } catch (\Throwable $th) {
+            dd($th);
+            return redirect()->back()->with('reset_error','Send mail to reset password unsuccessfully');
+        }
+        return redirect()->back()->with(['success'=>'Check your email to reset your password','email'=>$email]);
+    }
+    public function reset_newpassword($token = null){
+        if($token == null) {
+    		return redirect('/forgot_password')->with('reset_error', 'Something wrong! Try again');
+        }
+        $find_email = ResetPassword::where('token',$token)->first();
+        $email = $find_email->email;
+        if(!$find_email){
+            return redirect('/forgot_password')->with('verified_error', 'Invalid Login attempt');
+        }
+        $site = 'create';
+        return view('frontend.forgetpassword',compact('site','email'));
+    }
+    public function create_newpassword(Request $req){
+        $user = User::where('email','=',$req['account_email'])->first();
+        $user->password = bcrypt($req['new_password2']);
+        $user->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+        $user->save();
+        $find_email = ResetPassword::find($req['account_email'])->first();
+        $find_email->delete();
+        return redirect('/signin')->with('message_reset','Reset Password successfully. Now you can signin');
     }
 }

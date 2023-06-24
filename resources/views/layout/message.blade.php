@@ -17,14 +17,10 @@
                         @foreach ($groups as $group)
                             <a class="ms-3 show_chat position-relative" data-groupcode="{{ $group->code_group }}"
                                 data-iduser="" style="width:60px;height: 60px;">
-                                @if ($group->User->avatar)
-                                    <img src="{{ asset('resources/image/user/' . $group->User->avatar) }}" alt=""
-                                        class="img-thumbnail rounded-circle"
-                                        style="width:60px;height: 60px;object-fit: cover">
+                                @if ($group->User->image)
+                                    <img src="{{ asset('resources/image/user/' . $group->User->image) }}" alt="" class="img-thumbnail rounded-circle" style="width:60px;height: 60px;object-fit: cover">
                                 @else
-                                    <img src="{{ asset('resources/image/user/user.png') }}" alt=""
-                                        class="img-thumbnail rounded-circle"
-                                        style="width:60px;height: 60px;object-fit: cover">
+                                    <img src="{{ asset('resources/image/user/user.png') }}" alt="" class="img-thumbnail rounded-circle" style="width:60px;height: 60px;object-fit: cover">
                                 @endif
                                 @if (isset($group->new_mess) && $group->new_mess)
                                     <span
@@ -38,14 +34,10 @@
                     @foreach ($user_message as $user)
                         <a class="ms-3 show_chat position-relative" data-groupcode="" data-iduser="{{ $user->id_user }}"
                             style="width:60px;height: 60px;">
-                            @if ($user->avatar)
-                                <img src="{{ asset('resources/image/user/' . $user->avatar) }}" alt=""
-                                    class="img-thumbnail rounded-circle"
-                                    style="width:60px;height: 60px;object-fit: cover">
+                            @if ($user->image)
+                                <img src="{{ asset('resources/image/user/' . $user->image) }}" alt="" class="img-thumbnail rounded-circle" style="width:60px;height: 60px;object-fit: cover">
                             @else
-                                <img src="{{ asset('resources/image/user/user.png') }}" alt=""
-                                    class="img-thumbnail rounded-circle"
-                                    style="width:60px;height: 60px;object-fit: cover">
+                                <img src="{{ asset('resources/image/user/user.png') }}" alt="" class="img-thumbnail rounded-circle" style="width:60px;height: 60px;object-fit: cover">
                             @endif
                             <span
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
@@ -72,10 +64,8 @@
                     </div>
                     <div class="card-footer p-2 w-100 input_message ">
                         <div class="input-group">
-                            <input type="text" class="form-control " style="border-radius: 4px 0 0 4px"
-                                name="send_message" aria-describedby="button-submit">
-                            <button class="btn border button-submit" type="button" tabindex="1"
-                                style="color: #1c71d8;">
+                            <input type="text" class="form-control " style="border-radius: 4px 0 0 4px" name="send_message" aria-describedby="button-submit">
+                            <button class="btn border button-submit" type="button" tabindex="1" style="color: #1c71d8;">
                                 <i class="bi bi-send" style="font-size: 1.3rem"></i>
                             </button>
                         </div>
@@ -100,14 +90,10 @@
                     @foreach ($groups as $group)
                         <a class="me-3 show_chat position-relative" data-groupcode="{{ $group->code_group }}"
                             data-iduser="" style="width:40px;height: 40px;">
-                            @if ($group->Admin->avatar)
-                                <img src="{{ asset('resources/image/user/' . $group->Admin->avatar) }}" alt=""
-                                    class="img-thumbnail rounded-circle"
-                                    style="width:40px;height: 40px;object-fit: cover">
+                            @if ($group->Admin->image)
+                                <img src="{{ asset('resources/image/user/' . $group->Admin->image) }}" alt="" class="img-thumbnail rounded-circle" style="width:40px;height: 40px;object-fit: cover">
                             @else
-                                <img src="{{ asset('resources/image/user/admin.png') }}" alt=""
-                                    class="img-thumbnail rounded-circle"
-                                    style="width:40px;height: 40px;object-fit: cover">
+                                <img src="{{ asset('resources/image/user/admin.png') }}" alt="" class="img-thumbnail rounded-circle" style="width:40px;height: 40px;object-fit: cover">
                             @endif
                             @if (isset($group->new_mess) && $group->new_mess)
                                 <span
@@ -117,8 +103,7 @@
                             @endif
                         </a>
                     @endforeach
-                    <a class="me-3 show_chat" data-groupcode="new" data-iduser="{{ Auth::user()->id_user }}"
-                        style="width:40px;height: 40px; padding: 5px">
+                    <a class="me-3 show_chat" data-groupcode="new" data-iduser="{{ Auth::user()->id_user }}" style="width:40px;height: 40px; padding: 5px">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                             <path
                                 d="M160 368c26.5 0 48 21.5 48 48v16l72.5-54.4c8.3-6.2 18.4-9.6 28.8-9.6H448c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16H64c-8.8 0-16 7.2-16 16V352c0 8.8 7.2 16 16 16h96zm48 124l-.2 .2-5.1 3.8-17.1 12.8c-4.8 3.6-11.3 4.2-16.8 1.5s-8.8-8.2-8.8-14.3V474.7v-6.4V468v-4V416H112 64c-35.3 0-64-28.7-64-64V64C0 28.7 28.7 0 64 0H448c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H309.3L208 492z" />
@@ -159,3 +144,144 @@
         </a>
     </div>
 @endif
+<script>
+    // Chat script
+      $('#btn_close').click(function(){
+          $('#chatbox').toggleClass('d-none');
+      })
+      $('.show_chat').click(function(){
+        $('#chatbox').removeClass('d-none');
+        $('#messages').data('chat',$(this).data('groupcode'));
+        $('#messages').data('iduser',$(this).data('iduser'));
+        $.ajax(
+            {method: "GET",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            url: window.location.origin+'/index.php/ajax/message/show',
+            data: {'codegroup':$(this).data('groupcode'),'id_user':$(this).data('iduser')},
+            success: function (data) {
+              let data_mess  = data.split('-/-');
+              $('#messages').html(data_mess[0]);
+              $('#usr_contact').html(data_mess[0]?data_mess[1]:'');
+              
+            }}
+        )
+      });
+      $('.list_mess').click(function(){
+        if(!$('#chatbox').hasClass('d-none')){
+          $('#chatbox').addClass('d-none');
+        }
+      })
+      $('.button-submit').click(function(){
+        let message = $(this).siblings('input[name="send_message"]');
+        let chatbox = $(this).parents('.input_message').prev();
+        if(message.val().length>0){
+          $.ajax({
+            method: "POST",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            url: window.location.origin+'/index.php/ajax-post/message',
+            data: {'send_message':message.val(),'code_group':chatbox.data('chat'),'connect_user':chatbox.data('iduser')},
+            success: function (data) {
+              let mess_data = jQuery.parseJSON(data);
+              if(mess_data['message']){
+                  chatbox.append(`<div class="d-flex flex-row mb-4 mx-3"><div class="ms-auto">
+                    <div class="text-wrap rounded-1 py-1 px-2 bg-light">
+                      ${mess_data['message']}
+                    </div>
+                  </div>
+                </div>`);
+              }
+              $('.list_mess').find('span').html(mess_data['unread_mess']);
+            }
+          });
+          message.val('');
+        };
+      });
+    $('.show_listchat').click(function() {
+        let nextDD = $(this).next();
+        $('.chatbox').not(nextDD).removeClass('show');
+    })
+
+    function split(val) {
+        return val.split(/@\s*/);
+    }
+    function extractLast(term) {
+        return split(term).pop();
+    }
+    let availableTags = [];
+    @if (isset($name_products))
+        @foreach ($name_products as $key => $value)
+            var object = new Object();
+            @foreach ($value as $key2 => $value2)
+                object['{{ $key2 }}'] = "{{ $value2 }}";
+            @endforeach
+            availableTags.push(object);
+        @endforeach
+    @endif
+    $("input[name=send_message]").autocomplete({
+      minLength: 0,
+      source: function(request, response) {
+          var results, term = request.term;
+          var aData = $.map(availableTags, function(value, key) {
+            return {
+                label: value.name,
+                value: value.id
+            }
+          });
+          if (term.indexOf("@") >= 0) {
+            term = extractLast(request.term);
+            /* If they've typed anything after the "@": */
+            if (term.length > 0) {
+                results = $.ui.autocomplete.filter(
+                    aData, term);
+            } else {
+                results = ['Start typing...'];
+            }
+          }
+          response(results);
+      },
+      focus: function(event, ui) {
+          return false;
+      },
+      select: function(event, ui) {
+        let chatbox = $(this).parents('.input_message').prev();
+        $.ajax({
+            method: "POST",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                    'content')
+            },
+            url: window.location.origin +
+                '/index.php/ajax-post/message',
+            data: {
+                'send_link': ui.item.value,
+                'code_group': chatbox.data('chat'),
+                'connect_user': chatbox.data('iduser')
+            },
+            success: function(data) {
+              let mess_data = jQuery.parseJSON(data);
+              if (mess_data['link']) {
+                  let share = `<div class='row mb-4 mx-3'><div class='col-2 '></div><div class="col-10  rounded-1 border py-1 px-2 "><div class='card my-3'><a href='${mess_data['share_link']}'>
+                              <div class='row g-0'>
+                                <div class='col-4'>
+                                  <img src='${mess_data['image']}' class='img-fluid rounded-start' >
+                                </div>
+                              <div class='col-8'>
+                                <div class='card-body'>
+                                <h5 class='card-title text-uppercase'>${mess_data['name_product']}</h5>
+                                <p class="card-text">View >> </p>
+                              </div></div></div></a></div></div>`;
+                  chatbox.append(share);
+              };
+              $('.list_mess').find('span').html(mess_data['unread_mess']);
+            }
+        });
+        $("input[name=send_message]").val('');
+        return false;
+      }
+    })
+    $('.clear_chat').click(function(e){
+      e.preventDefault();
+      let code_gr = $('#messages').data('chat');
+      window.location.assign(window.location.origin+"/index.php/ajax/message/clear/"+code_gr);
+    })
+</script>

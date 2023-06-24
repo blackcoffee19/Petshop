@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "animate.css": "^4.1.1",
+        "apexcharts": "^3.41.0",
         "bootstrap-icons": "^1.10.3",
         "feather-webfont": "^4.22.3",
         "jquery-countdown": "^2.2.0",

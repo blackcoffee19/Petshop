@@ -134,83 +134,83 @@
                                     @foreach ($news as $new)
                                         <li class="list-group-item px-5 py-4 list-group-item-action">
                                             @if (Auth::check() && Auth::user()->admin == "0")
-                                                @if ($new->link == 'show_coupon')
-                                                <a href="javascript:void(0)"  class="text-muted modal_coupon" data-bs-toggle="modal" data-bs-target="#couponModal" data-coupon="{{$new->attr}}">
-                                                    <div class="d-flex">
-                                                        <img src="{{ asset('resources/image/icons/tags.svg') }}" class="avatar avatar-md rounded-circle me-3" width="40" height="40"/>
-                                                        <div class="ms-4">
-                                                            <p class="mb-1 text-dark">
-                                                                {{$new->title}}
-                                                            </p>
-                                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
-                                                                    height="12" fill="currentColor"
-                                                                    class="bi bi-clock text-muted" viewBox="0 0 16 16">
-                                                                    <path
-                                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                                                    <path
-                                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                                                                </svg><small class="ms-2">
-                                                                @php
-                                                                    $date_new = $new->created_at;
-                                                                    $date_cur =  date('Y-m-d H:i:s');
-                                                                    $difference = strtotime($date_cur) - strtotime($date_new);
-                                                                    $days= $difference/(60*60*24);
-                                                                    if($days>30){
-                                                                        if(($days /30)%12 >1){
-                                                                            echo floor(($days /30)%12 )." years";
-                                                                        }else{
-                                                                            echo floor($days /30) .' months';
-                                                                        }
-                                                                    }else if($days >1){
-                                                                        echo floor($days). " days";
-                                                                    }else{
-                                                                        echo floor($difference/(60*60)). " hours";
-                                                                    }
-                                                                    // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
-                                                                @endphp    
-                                                                </small></span>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                                @else
-                                                <a href="{{ route($new->link, $new->attr) }}" class="text-muted">
-                                                    <div class="d-flex">
-                                                        <img src="{{ asset('resources/image/pet/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
-                                                        <div class="ms-4">
-                                                            <p class="mb-1 text-dark">
-                                                                {{$new->title}}
-                                                            </p>
-                                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
-                                                                    height="12" fill="currentColor"
-                                                                    class="bi bi-clock text-muted" viewBox="0 0 16 16">
-                                                                    <path
-                                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                                                    <path
-                                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                                                                </svg><small class="ms-2">
-                                                                @php
-                                                                    $date_new = $new->created_at;
-                                                                    $date_cur =  date('Y-m-d H:i:s');
-                                                                    $difference = strtotime($date_cur) - strtotime($date_new);
-                                                                    $days= $difference/(60*60*24);
-                                                                    if($days>30){
-                                                                        if(($days /30)%12 >1){
-                                                                            echo floor(($days /30)%12 )." years";
-                                                                        }else{
-                                                                            echo floor($days /30) .' months';
-                                                                        }
-                                                                    }else if($days >1){
-                                                                        echo floor($days). " days";
-                                                                    }else{
-                                                                        echo floor($difference/(60*60)). " hours";
-                                                                    }
-                                                                    // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
-                                                                @endphp    
-                                                                </small></span>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                                @endif
+                                              @if ($new->link == 'show_coupon')
+                                              <a href="javascript:void(0)"  class="text-muted modal_coupon" data-bs-toggle="modal" data-bs-target="#couponModal" data-coupon="{{$new->attr}}">
+                                                  <div class="d-flex">
+                                                      <img src="{{ asset('resources/image/icons/tags.svg') }}" class="avatar avatar-md rounded-circle me-3" width="40" height="40"/>
+                                                      <div class="ms-4">
+                                                          <p class="mb-1 text-dark">
+                                                              {{$new->title}}
+                                                          </p>
+                                                          <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                                  height="12" fill="currentColor"
+                                                                  class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                                  <path
+                                                                      d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                                  <path
+                                                                      d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                              </svg><small class="ms-2">
+                                                              @php
+                                                                  $date_new = $new->created_at;
+                                                                  $date_cur =  date('Y-m-d H:i:s');
+                                                                  $difference = strtotime($date_cur) - strtotime($date_new);
+                                                                  $days= $difference/(60*60*24);
+                                                                  if($days>30){
+                                                                      if(($days /30)%12 >1){
+                                                                          echo floor(($days /30)%12 )." years";
+                                                                      }else{
+                                                                          echo floor($days /30) .' months';
+                                                                      }
+                                                                  }else if($days >1){
+                                                                      echo floor($days). " days";
+                                                                  }else{
+                                                                      echo floor($difference/(60*60)). " hours";
+                                                                  }
+                                                                  // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                                              @endphp    
+                                                              </small></span>
+                                                      </div>
+                                                  </div>
+                                              </a>
+                                              @else
+                                              <a href="{{ route($new->link, $new->attr) }}" class="text-muted">
+                                                  <div class="d-flex">
+                                                      <img src="{{ asset('resources/image/pet/'.$new->image) }}" alt="" class="avatar avatar-md rounded-circle" width="40" height="40"/>
+                                                      <div class="ms-4">
+                                                          <p class="mb-1 text-dark">
+                                                              {{$new->title}}
+                                                          </p>
+                                                          <span><svg xmlns="http://www.w3.org/2000/svg" width="12"
+                                                                  height="12" fill="currentColor"
+                                                                  class="bi bi-clock text-muted" viewBox="0 0 16 16">
+                                                                  <path
+                                                                      d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                                                                  <path
+                                                                      d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                                                              </svg><small class="ms-2">
+                                                              @php
+                                                                  $date_new = $new->created_at;
+                                                                  $date_cur =  date('Y-m-d H:i:s');
+                                                                  $difference = strtotime($date_cur) - strtotime($date_new);
+                                                                  $days= $difference/(60*60*24);
+                                                                  if($days>30){
+                                                                      if(($days /30)%12 >1){
+                                                                          echo floor(($days /30)%12 )." years";
+                                                                      }else{
+                                                                          echo floor($days /30) .' months';
+                                                                      }
+                                                                  }else if($days >1){
+                                                                      echo floor($days). " days";
+                                                                  }else{
+                                                                      echo floor($difference/(60*60)). " hours";
+                                                                  }
+                                                                  // $time= $date_cur->diffInDays($date_new)>1 ? $date_cur->diffInDays($date_new)." days ago": (($date_cur->diffInDays($date_new) == 0)? ($date_cur->diffInHours($date_new)> 0? $date_cur->diffInHours($date_new).' hours before': $date_cur->diffInMinutes($date_new). " minutes ago"): $date_cur->diffInDays($date_new)." day ago");
+                                                              @endphp    
+                                                              </small></span>
+                                                      </div>
+                                                  </div>
+                                              </a>
+                                              @endif
                                             @else
                                             <a href="javascript:void(0)" class="text-muted manager_notificate" data-bs-toggle="modal" data-bs-target="#viewModalOrder2" data-order="{{$new->id_news}}">
                                                 <div class="d-flex">
@@ -265,6 +265,7 @@
                       </div>
                   </div>
                 @endif
+                @if (Auth::check() && Auth::user()->admin !="1")
                 <div class="list-inline-item me-5">
                   <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
                     href="#offcanvasExample" role="button" aria-controls="offcanvasRight">
@@ -308,6 +309,8 @@
                     </span>
                   </a>
                 </div>
+                    
+                @endif
                 <div class="list-inline-item dropdown dropdown-fullwidth">
                   @if (Auth::check())
                     <a class="text-muted  dropdown-toggle user_dropdown" role="button" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
@@ -570,49 +573,51 @@
               </div>
               
               @endif
-              <div class="list-inline-item me-5">
-                <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-                  href="#offcanvasExample" role="button" aria-controls="offcanvasRight">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="feather feather-shopping-bag">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                  </svg>
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                    @if (Auth::check())
-                      <span class="fw-bold countCart" >
-                        @php
-                        if(Auth::user()->admin ==0){
-                          $sum=0;
-                          foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
-                            $sum+=$value->amount;
+              @if (Auth::check() && (Auth::user()->admin != "1"))
+                <div class="list-inline-item me-5">
+                  <a class="text-muted position-relative btn_showcart" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
+                    href="#offcanvasExample" role="button" aria-controls="offcanvasRight">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="feather feather-shopping-bag">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                      @if (Auth::check())
+                        <span class="fw-bold countCart" >
+                          @php
+                          if(Auth::user()->admin ==0){
+                            $sum=0;
+                            foreach (Auth::user()->Cart->where('order_code','=',null) as $key => $value) {
+                              $sum+=$value->amount;
+                            }
+                            echo $sum;
+                          }else{
+                            echo count($orders);
                           }
-                          echo $sum;
-                        }else{
-                          echo count($orders);
-                        }
-                        @endphp
-                      </span>
+                          @endphp
+                        </span>
+                        @endif
+                        @if (Session::has("cart"))
+                        <span class="fw-bold countCart" >
+                          @php
+                            $sum=0;
+                            foreach (Session::get('cart') as $key => $value) {
+                              $sum+=$value["amount"];
+                            }
+                            echo $sum;
+                          @endphp
+                        </span>
+                        @endif
+                      @if (!Auth::check() && !Session::has("cart"))
+                      <span class="fw-bold countCart" >0</span>
                       @endif
-                      @if (Session::has("cart"))
-                      <span class="fw-bold countCart" >
-                        @php
-                          $sum=0;
-                          foreach (Session::get('cart') as $key => $value) {
-                            $sum+=$value["amount"];
-                          }
-                          echo $sum;
-                        @endphp
-                      </span>
-                      @endif
-                    @if (!Auth::check() && !Session::has("cart"))
-                    <span class="fw-bold countCart" >0</span>
-                    @endif
-                  </span>
-                </a>
-              </div>
+                    </span>
+                  </a>
+                </div>
+              @endif
               <div class="list-inline-item dropdown dropdown-fullwidth">
                   @if (Auth::check())
                       <a class="text-muted dropdown-toggle user_dropdown" role="button" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
@@ -837,7 +842,7 @@
             <label for="pass1" class="form-label">Password</label>
             <input type="password" class="form-control" name="pass1"id="pass1" placeholder="Enter Your Password" >
           </div>
-
+          <div> Forgot password? <a href="{{route('send_ressetmail')}}">Reset It</a></div>
           <button type="submit" class="btn btn-primary">Sign In</button>
         </form>
       </div>
@@ -845,6 +850,12 @@
 
         If you don't have an account? <a href="{{route('signup')}}">Sign up</a>
       </div>
+      <a class="h4 fw-normal text-decoration-none text-center shadow p-2 rounded-pill" href="{{route('google-auth')}}" style="vertical-align: middle;font-family: 'Montserrat', sans-serif;">
+        <svg xmlns="http://www.w3.org/2000/svg" class="me-1" height="30" viewBox="0 0 24 24" width="30">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/>
+        </svg>
+          Sign in with Google
+      </a>
     </div>
   </div>
 </div>

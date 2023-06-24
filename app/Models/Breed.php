@@ -15,6 +15,6 @@ class Breed extends Model
         return $this->belongsTo(TypeProduct::class,'id_type_product','id_type');
     }
     public function Product(){
-        return $this->hasMany(Product::class, 'id_breeds','id_breed');
+        return $this->hasMany(Product::class, 'id_breed','id_breed');
     }
 }

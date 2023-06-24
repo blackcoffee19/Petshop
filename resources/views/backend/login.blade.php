@@ -13,6 +13,7 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.2.1/css/all.css">
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.2.1/css/sharp-solid.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins&display=swap" rel="stylesheet">
@@ -21,42 +22,66 @@
     
 </head>
 <body>
-    <div class="container-fluid" style="height: 620px;">
-        <div class="row h-100">
-            <div class="col-lg-6 col-md-10 col-sm-12 mx-auto my-auto card px-5 py-3 shadow">
-                <h1 class="text-center">Admin Site</h1>
-                <h3 class="text-center text-black-50">Login</h3>
-                <hr>
-                @if (Session::has('error'))
-                    <div class="alert alert-danger">{{Session::get('error')}}</div>
-                @endif
-                <form action="{{route('admin_login')}}" method="post" class="mt-4">
-                    @csrf
-                    <div class="mb-3 row">
-                        <label for="username" class="col-3 col-form-label text-end" >Admin email</label>
-                        <div class="col-8 ">
-                            <input type="text" name="username" id="username" class="form-control {{$errors->has('username')?'is-invalid':''}}">
+    <div class="main-wrapper mt-5">
+        <section class=" {{Session::has('permission_deinied') || Session::has('error')? 'my-lg-13 my-13':'my-lg-16 my-16'}}  mx-10">
+            <div class="container">
+                <div class="row justify-content-center align-items-center">
+                    @if (Session::has('permission_deinied'))
+                    <div class="col-12 row mb-5">
+                        <div class="alert alert-danger col-lg-6 col-md-12 mx-auto">{{Session::get('permission_deinied')}}</div>
+                    </div>
+                    @endif
+                    @if (Session::has('error'))
+                        <div class="col-12 row mb-5">
+                            <div class="alert alert-danger col-lg-6 col-md-12 mx-auto">{{Session::get('error')}}</div>
                         </div>
-                        @if ($errors->has('username'))
-                            <p class="text-danger text-center">{{$errors->first('username')}}</p>
+                    @endif
+                    <div class="col-12 col-md-6 col-lg-4 order-lg-1 order-2">
+                        @if (Session::has('permission_deinied') || Session::has('error'))
+                        <img src="{{ asset('resources/image/svg-graphics/security_fail.png') }}" alt="" class="img-fluid">
+                        @else
+                        <img src="{{ asset('resources/image/svg-graphics/security_on.svg') }}" alt="" class="img-fluid">
                         @endif
                     </div>
-                    <div class="mb-3 row">
-                        <label for="pass" class="col-3 col-form-label text-end">Password</label>
-                        <div class="col-8">
-                            <input type="password" name="pass" id="pass" class="form-control {{$errors->has('pass')?'is-invalid':''}}">
+                    <div class="col-12 col-md-6 offset-lg-1 col-lg-4 order-lg-2 order-1">
+                        <div class="mb-lg-9 mb-5">
+                            <h1 class="mb-1 h2 fw-bold">Sign in to Admin Site</h1>
+                            <p>Welcome back to Admin site. But to get in this site you must be an Admin.</p>
                         </div>
-                        @if ($errors->has('pass'))
-                            <p class="text-danger text-center">{{$errors->first('pass')}}</p>
-                        @endif
+                        <form action="{{ route('admin_login') }}" method="POST">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-12 form-floating">
+                                    <input type="email" name="username" id="username" class="form-control {{$errors->has('username')?'is-invalid':''}}" required>
+                                    <label for="username" class="ms-2">Email</label>
+                                    @if ($errors->has('username'))
+                                        <span class="text-danger">{{$errors->first('username')}}</span>
+                                    @endif
+                                </div>
+                                <div class="col-12 mb-5">
+                                    <div class="password-field position-relative form-floating">
+                                        <input type="password" name="pass" id="pass" class="form-control {{$errors->has('pass')?'is-invalid':''}}">
+                                        <label for="pass" >Password</label>
+                                    </div>
+                                    @if ($errors->has('pass'))
+                                        <span class="text-danger text-center">{{$errors->first('pass')}}</span>
+                                    @endif
+                                </div>
+                                <div class="col-5">
+                                    <a href="{{route('home')}}" class="btn btn-warning">Back to Pet Shop</a>
+                                </div>
+                                <div class="col-6 mx-auto d-grid"> 
+                                    <button type="submit" class="btn btn-primary">Sign In</button>
+                                </div>
+                            </div>
+                        </form>
+                        
                     </div>
-                    <div class="row mb-3">
-                        <input type="submit" value="Login" class="btn btn-primary text-uppercase col-4 mx-auto">
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
+    
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
 </body>
 </html>

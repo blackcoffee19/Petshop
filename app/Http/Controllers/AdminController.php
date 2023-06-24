@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use App\Mail\OrderShipped;
 use App\Models\Product;
 use App\Models\TypeProduct;
@@ -13,7 +14,13 @@ use App\Models\Slide;
 use App\Models\User;
 use App\Models\News;
 use App\Models\Coupon;
+use App\Models\Cart;
 use App\Models\Banner;
+use App\Models\Expense;
+use App\Models\Library;
+use App\Models\Address;
+use App\Models\Favourite;
+use App\Models\Groupmessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,12 +47,62 @@ class AdminController extends Controller
             return redirect()->back()->with(["error"=>"Your email was not allow to attend Admin site"]);
         }
     }
-    public function get_dashboard(){
+    public function get_dashboard(Request $req){
         $state= "DB";
-        $orders= Order::orderBy('created_at','desc')->limit(4)->get();
         $comments = Comment::orderBy('created_at','asc')->limit(5)->get();
-        
-        return view('backend.dashboard',compact('state','comments','orders'));
+        $recent_orders = Order::orderBy('created_at','desc')->limit(5)->get();
+        foreach($recent_orders as $order){
+            $total =0;
+            foreach($order->Cart as $cart){
+                $total += $cart->sale >0 ? $cart->price*(1-$cart->sale /100)*$cart->amount : $cart->price*$cart->amount;
+            };
+            $total = $order->code_coupon ? ($order->Coupon->discount >=10? $total*(1-$order->Coupon->discount/100): $total - $order->Coupon->discount): $total + 0;
+            $total += $order->shipping_fee;
+            $order->total = $total;
+        }
+        $year = isset($req['y'])? intval($req['y']): date('Y');
+        $month  = isset($req['y']) &&  intval($req['y']) <date('Y') ? 12 :intval(date('m'));
+        $income = array();
+        $expense = array();
+        for($i = 1; $i<=$month;$i++){
+            $month_orders = Order::whereYear("created_at",$year)->whereMonth('created_at','=',$i)->where('status','=','finished')->get();
+            $total =0;
+            $costs_m =0;
+            $month_expense = Expense::whereYear("created_at",$year)->whereMonth('created_at', '=', $i)->get();
+            foreach($month_expense as $exp){
+                $costs_m += $exp->costs;
+            };
+            array_push($expense,$costs_m);
+            foreach($month_orders as $order){
+                foreach($order->Cart as $cart){
+                    $total += $cart->sale >0 ? $cart->price*(1-$cart->sale /100)*$cart->amount : $cart->price*$cart->amount;
+                    
+                };
+                $total = $order->code_coupon ? ($order->Coupon->discount >=10? $total*(1-$order->Coupon->discount/100): $total - $order->Coupon->discount): $total + 0;
+            }
+            array_push($income,$total);
+        }
+        $order_y = count(Order::whereYear("created_at",$year)->get());
+        $sale_pro = count(Product::where('sale','>',0)->get());
+
+        $users = count(User::all());
+        $customer = count(User::where('admin','!=','2')->get()) +count(Order::where('id_user','=',null)->get());
+        $arr_order = [
+            count(Order::where('status','=','finished')->get()),
+            count(Order::where('status','=','cancel')->get()),
+            count(Order::where('status','=','transaction failed')->get()),
+            count(Order::where('status','=','unconfirmed')->orWhere('status','=','delivery')->get()),
+        ];
+        $order_currentYear = Order::select('order_code')->whereYear('updated_at',intval(date('Y')))->where('status','=','finished')->get()->toArray();
+        $hot_product = Cart::select('id_product',DB::raw('COUNT(*) AS number'))->whereIn('order_code',$order_currentYear)->groupBy('cart.id_product')->orderBy('number','desc')->limit(5)->get();
+        foreach($hot_product as $x){
+            $product_x = Product::find($x->id_product);
+            $x->name_product = $product_x->name;
+            $x->image = "<img src='resources/image/pet/".$product_x->Library[0]->image."'/>";
+            $x->route = route('productdetail', $x->id_product);
+        };
+        // dd($recent_orders,$income,$expense,$order_y,$sale_pro,$arr_order);
+        return view('backend.Dashboard.dashboard',compact('state','recent_orders','income','expense','order_y','sale_pro','users','customer','year','arr_order','hot_product'));
     }
     public function get_profie(){
         $state = "";
@@ -109,7 +166,8 @@ class AdminController extends Controller
 // TYPE PET
     public function get_listtype(){
         $state = "Type";
-        return view('backend.TypePet.list_type',compact('state'));
+        $types = TypeProduct::all(); 
+        return view('backend.TypePet.list_type',compact('state','types'));
     }
     public function get_addtype(){
         $site = "Add";
@@ -167,7 +225,8 @@ class AdminController extends Controller
 // BREED
     public function get_listbreed(){
         $state = 'Breed';
-        return view('backend.BreedPet.list_breed',compact('state'));
+        $breeds = Breed::all();
+        return view('backend.BreedPet.list_breed',compact('state','breeds'));
     }
     public function get_addbreed(){
         $site = "Add";
@@ -237,9 +296,9 @@ class AdminController extends Controller
         $sortType= $id;
         if($sortType != null && $sortType !=0){
             $list_breed = Breed::select('id_breed')->where('id_type_product','=',$sortType)->get();
-            $pets = Product::whereIn('id_breed',$list_breed)->paginate(5); 
+            $pets = Product::whereIn('id_breed',$list_breed)->paginate(10); 
         }else{
-            $pets = Product::paginate(5);
+            $pets = Product::orderBy('created_at','desc')->paginate(10);
         }
         return view('backend.Pets.list_pet',compact('pets','state','sortType'));
     }
@@ -247,13 +306,82 @@ class AdminController extends Controller
         $state = "Pet";
         $search = $req['q']? $req['q']:'';
         $sortType = null;
+        $no_pagi = true;
         if(isset($req['q'])){
-            $pets = Product::where('product_name','LIKE','%'.$req['q'].'%')->paginate(5);
+            $pets = Product::where('product_name','LIKE','%'.$req['q'].'%')->get();
         }else{
-            $pets = Product::paginate(5);
+            $pets = Product::paginate(10);
         };
-        return view('backend.Pets.list_pet',compact('pets','state','search','sortType'));
+        return view('backend.Pets.list_pet',compact('pets','state','search','sortType','no_pagi'));
 
+    }
+    public function sort_pet(Request $req){
+        $sort = $req['sortS'];
+        $state = "Pet";
+        $pets = [];
+        $no_pagi = true;
+        switch($sort){
+            case "dateL":
+                $pets = Product::orderBy('created_at','desc')->get();
+                break;
+            case "dateO":
+                $pets = Product::orderBy('created_at','asc')->get();
+                break;
+            case "descP":
+                $pets = Product::orderBy('per_price','desc')->get();
+                break;
+            case "ascP":
+                $pets = Product::orderBy('per_price','asc')->get();
+                break;
+            case "descR":
+                $pets = Product::orderBy('created_at','desc')->get()->sort(function ($a, $b) {
+                    $rating1 = 0;
+                    if (count($a->Comment->where('rating','!=',null)) >0) {
+                        foreach ($a->Comment->where('rating','!=',null) as $cmt1) {
+                            $rating1 += $cmt1->rating;
+                        }
+                        $rating1 /= count($a->Comment->where('rating','!=',null));
+                    }
+                    $rating2 = 0;
+                    if (count($b->Comment->where('rating','!=',null)) >0) {
+                    foreach ($b->Comment->where('rating','!=',null) as $cmt2) {
+                        $rating2 += $cmt2->rating;
+                    }
+                    $rating2 /= count($b->Comment->where('rating','!=',null));
+                    }
+                    if ($rating1 == $rating2) {
+                        return 0;
+                    }
+                    return ($rating1 > $rating2) ? -1 : 1;
+                });
+                break;
+            case "ascR":
+                $pets = Product::orderBy('created_at','desc')->get()->sort(function ($a, $b) {
+                    $rating1 = 0;
+                    if (count($a->Comment->where('rating','!=',null)) >0) {
+                        foreach ($a->Comment->where('rating','!=',null) as $cmt1) {
+                            $rating1 += $cmt1->rating;
+                        }
+                        $rating1 /= count($a->Comment->where('rating','!=',null));
+                    }
+                    $rating2 = 0;
+                    if (count($b->Comment->where('rating','!=',null)) >0) {
+                    foreach ($b->Comment->where('rating','!=',null) as $cmt2) {
+                        $rating2 += $cmt2->rating;
+                    }
+                    $rating2 /= count($b->Comment->where('rating','!=',null));
+                    }
+                    if ($rating1 == $rating2) {
+                        return 0;
+                    }
+                    return ($rating1 < $rating2) ? -1 : 1;
+                });
+                break;
+            default:
+                $pets = Product::orderBy('created_at','desc')->get();
+                break;
+        }
+        return view('backend.Pets.list_pet',compact('pets','state','sort','no_pagi'));
     }
     public function get_addpet(){
         $site="Add";
@@ -266,15 +394,17 @@ class AdminController extends Controller
             "age_pet"=>"regex:/([0-9])+/",
             "quantity_pet"=>"numeric",
             "price_pet"=>"numeric",
+            "original_price"=>"numeric",
             "breed_pet"=>"required",
-            "image_pet"=>"required"
+            "photos"=>"required"
         ],[
             "breed_pet.required"=>"Need choose type pet and breed for pet",
             "name_pet.regex"=>"Pet name invalid. It cannot contain numbers or speacial character and more than 2 characters",
             "age_pet.regex"=>"Pet age invalid",
+            "original_price.numeric"=>"Input orginal price of pet",
             "quantity_pet.numeric"=>"Input the number of pet availiable",
             "price_pet.numeric"=>"Input price for pet",
-            "image_pet.required"=>"Need add 1 picture of pet"
+            "photos.required"=>"Need add 1 picture of pet"
         ]);
         $new_pet = new Product();
         $new_pet->product_name = $req["name_pet"];
@@ -287,29 +417,50 @@ class AdminController extends Controller
         $new_pet->status=$req["status_pet"];
         $new_pet->description=$req["describe"];
         $new_pet->created_at=Carbon::now()->format('Y-m-d H:i:s');
-        if($req->hasFile('image_pet')){
-            $file = $req->file('image_pet');
-            $duoi = $file->getClientOriginalExtension();
-            if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
-                return redirect()->back()->with(['error'=>'File image must be jpg,png,jpeg,webp']);
-            }
-            $name=$file->getClientOriginalName();
-            $num=0;
-            $hinh = "hinhmoi_".$num."_".$name;
-            while(file_exists('resources/image/pet/'.$hinh)){
-                $num++;
-                $hinh = "hinhmoi_".$num."_".$name;
-            };
-            $file->move('resources/image/pet/',$hinh);
- 
-            $new_pet->image=$hinh;
-        }
         $new_pet->save();
+        $new_expent = new Expense();
+        $new_expent->id_product = $new_pet->id_product;
+        $new_expent->costs = $req['original_price'];
+        $new_expent->quantity =  $req['original_price'];
+        $new_expent->created_at = Carbon::now()->format('Y-m-d H:i:s');
+        $new_expent->save();
+        $news_pro = new News();
+        $news_pro->title = "New Product";
+        $news_pro->link = "products-details";
+        $news_pro->attr = $new_pet->id_product;
+        $news_pro->created_at=Carbon::now()->format('Y-m-d H:i:s');
+        $news_pro->save();
+        if($req->hasFile('photos')){
+            $files = $req->file('photos');
+            $imageNames = [];
+            foreach ($files as $file) {
+                $duoi = $file->getClientOriginalExtension();
+                if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
+                    return redirect()->back()->with(['error'=>'File image must be jpg,png,jpeg,webp']);
+                }
+                $name=$file->getClientOriginalName();
+                $num=0;
+                $hinh = "hinhmoi_".$num."_".$name;
+                while(file_exists('resources/image/pet/'.$hinh)){
+                    $num++;
+                    $hinh = "hinhmoi_".$num."_".$name;
+                };
+                $file->move('resources/image/pet/',$hinh);
+                $imageNames[] = $hinh;
+            }
+            foreach ($imageNames as $imageName) {
+                $library = new Library();
+                $library->image = $imageName;
+                $library->id_product = $new_pet->id_product;
+                $library->save();
+            }
+        }
         return redirect('admin/pets/list')->with(["message"=>"Add new pet successfully"]);
     }
     public function get_editpet($id){
         $state="Pet";
         $pet_edit = Product::where('id_product','=',$id)->first();
+        $pet_edit->original_price = $pet_edit->Expense->last()->costs;
         $site = "Edit";
         return view('backend.Pets.edit_pet',compact('site','pet_edit','state'));
     }
@@ -319,15 +470,25 @@ class AdminController extends Controller
             "age_pet"=>"regex:/([0-9])+/",
             "quantity_pet"=>"numeric",
             "price_pet"=>"numeric",
+            "original_price"=>"numeric",
             "breed_pet"=>"required"
         ],[
             "breed_pet.required"=>"Need choose type pet and breed for pet",
             "name_pet.regex"=>"Pet name invalid. It cannot contain numbers or speacial character and more than 2 characters",
             "age_pet.regex"=>"Pet age invalid",
+            "original_price.numeric"=>"Input orginal price of pet",
             "quantity_pet.numeric"=>"Input the number of pet availiable",
             "price_pet.numeric"=>"Input price for pet"
         ]);
         $edit_pet = Product::where('id_product','=',$id)->first();
+        if($edit_pet->quantity<$req["quantity_pet"]){
+            $new_expent = new Expense();
+            $new_expent->id_product =$edit_pet->id_product;
+            $new_expent->costs = $req['original_price'];
+            $new_expent->quantity =  $req["quantity_pet"]-$edit_pet->quantity;
+            $new_expent->created_at = Carbon::now()->format('Y-m-d H:i:s');
+            $new_expent->save();
+        }
         $edit_pet->product_name = $req["name_pet"];
         $edit_pet->id_breed = $req["breed_pet"];
         $edit_pet->gender = $req["gender_pet"];
@@ -338,23 +499,37 @@ class AdminController extends Controller
         $edit_pet->status=$req["status_pet"];
         $edit_pet->description=$req["describe"];
         $edit_pet->updated_at=Carbon::now()->format('Y-m-d H:i:s');
-        if($req->hasFile('image_pet')){
-            $file = $req->file('image_pet');
-            $duoi = $file->getClientOriginalExtension();
-            if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
-                return redirect()->back()->with(['error'=>'File image must be jpg,png,jpeg,webp']);
-            }
-            $name=$file->getClientOriginalName();
-            $num=0;
-            $hinh = "pet_".$num."_".$name;
-            while(file_exists('resources/image/pet/'.$hinh)){
-                $num++;
-                $hinh = "pet_".$num."_".$name;
-            };
-            $file->move('../resources/image/pet/',$hinh);
-            $edit_pet->image=$name;
-        }
         $edit_pet->save();
+        if($req->hasFile('photos')){
+            $files = $req->file('photos');
+            foreach ($files as $key=> $image ) {
+                $duoi = $image->getClientOriginalExtension();
+                if($duoi != 'jpg' && $duoi != 'png' && $duoi != 'jpeg' && $duoi != 'webp'){
+                    return redirect()->back()->with(['error'=>'File image must be jpg,png,jpeg,webp']);
+                }
+                $name=$image->getClientOriginalName();
+                $num=0;
+                $hinh = "hinhmoi_".$num."_".$name;
+                while(file_exists('resources/image/pet/'.$hinh)){
+                    $num++;
+                    $hinh = "hinhmoi_".$num."_".$name;
+                };
+                $image->move('resources/image/pet/',$hinh);
+                if(count($edit_pet->Library) > $key ){
+                    for($i =0; $i<count($edit_pet->Library);$i++){
+                        if($i == $key){
+                            $edit_pet->Library[$i]->image = $hinh;
+                            $edit_pet->Library[$i]->save();
+                        }
+                    }
+                }else{
+                    $img = new Library();
+                    $img->id_product = $edit_pet->id_product;
+                    $img->image = $hinh;
+                    $img->save();
+                }
+            }
+        }
         return redirect('admin/pets/list')->with(["message"=>"Edit pet successfully"]);
     }
     public function deletePet($id){
@@ -488,81 +663,60 @@ class AdminController extends Controller
         $state = "Order";
         switch($sort){
             case "created_at":
-                $orders = Order::orderBy("created_at","desc")->paginate(6);
+                $orders = Order::orderBy("created_at","desc")->paginate(10);
                 break;
             case "finished":
-                $orders = Order::where('status','=','finished')->paginate(6);
+                $orders = Order::where('status','=','finished')->paginate(10);
                 break;
             case "confirmed":
-                $orders = Order::where('status','=','confirmed')->paginate(6);
+                $orders = Order::where('status','=','confirmed')->paginate(10);
                 break;
             case "delivery":
-                $orders = Order::where('status','=','delivery')->paginate(6);
+                $orders = Order::where('status','=','delivery')->paginate(10);
                 break;
             case "unconfimred":
-                $orders = Order::where('status','=','unconfimred')->paginate(6);
+                $orders = Order::where('status','=','unconfimred')->paginate(10);
                 break;
             case "cancel":
-                $orders = Order::where('status','=','cancel')->paginate(6);
+                $orders = Order::where('status','=','cancel')->paginate(10);
                 break;
             case "transaction failed":
-                $orders = Order::where('status','=','transaction failed')->paginate(6);
+                $orders = Order::where('status','=','transaction failed')->paginate(10);
                 break;
             case "user":
-                $orders = Order::where("order_code",'LIKE','%user%')->paginate(6);
+                $orders = Order::where("order_code",'LIKE','%user%')->paginate(10);
                 break;
             case "guest":
-                $orders = Order::where("order_code",'LIKE','%guest%')->paginate(6);
+                $orders = Order::where("order_code",'LIKE','%guest%')->paginate(10);
                 break;
             case "cod":
-                $orders = Order::where("method",'=','cod')->paginate(6);
+                $orders = Order::where("method",'=','cod')->paginate(10);
                 break;
             case "credit":
-                $orders = Order::where("method",'=','credit')->paginate(6);
+                $orders = Order::where("method",'=','credit')->paginate(10);
                 break;
             case "all":
-                $orders = Order::paginate(6);
+                $orders = Order::paginate(10);
                 break;
             default:
-                $orders = Order::paginate(6);
+                $orders = Order::orderBy('created_at','desc')->paginate(10);
                 break;
+        }
+        foreach($orders as $order){
+            $amount = 0;
+            foreach($order->Cart as $cart){
+                $amount += $cart->price*(1-$cart->sale/100)*$cart->amount;
+            }
+            $amount = $order->code_coupon ?  ($order->Coupon->discount >=10? $amount *(1-$order->Coupon->discount/100):$amount-$order->Coupon->discount) : $amount;
+            $amount += $order->shipping_fee;
+            $order->total = $amount;
         }
         return view('backend.Orders.list_orders',compact('state','orders','sort'));      
     }
-    public function get_editorder($id){
+    public function get_orderdetail($id){
         $state = "Order";
         $order = Order::where('id_order','=',$id)->first();
-        return view('backend.Orders.edit_order',compact('state','order'));
-    }
-    public function post_editorder(Request $req,$id){
-        $order = Order::find($id);
-        $order->status = $req["order_status"];
-        $order->save();
-        if($order->status == 'delivery'){
-            Mail::to($order->cus_email)->send(new OrderShipped($order));
-        }
-        if($order->status == "finished"){
-            if($order->id_user == null){
-                foreach($order->Cart as $cart){
-                    $new_comment = new Comment();
-                    $new_comment->id_product = $cart->id_product;
-                    $new_comment->name = "Guest";
-                    $new_comment->verified = true;
-                    $new_comment->rating = 5;
-                    $new_comment->save();
-                }
-            }else{
-                $new_news = new News();
-                $new_news->id_user = $order->id_user;
-                $new_news->id_order = $id;
-                $new_news->title="How do you think about yours pets?";
-                $new_news->link="feedback";
-                $new_news->attr=$order->order_code;
-                $new_news->save();
-            }
-        }
-        return redirect('admin/orders/list')->with('message','Edit Order successfully');
-
+        return view('backend.Orders.order_detail',compact('state','order'));
     }
 //
 //SLIDE

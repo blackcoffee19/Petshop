@@ -379,7 +379,7 @@
   <div class="modal fade" id="viewModalOrder" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content ">
-        <form action="" method="POST">
+        <form action="{{route('confirm_order')}}" method="POST">
           @csrf
         <div class="modal-body p-8" >
           <div class="position-absolute top-0 end-0 me-3 mt-3">
@@ -458,7 +458,7 @@
   <div class="modal fade" id="viewModalOrder2" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content ">
-        <form action="" method="POST">
+        <form action="{{route('remove_notificate')}}" method="POST">
           @csrf
         <div class="modal-body p-8" >
           <div class="position-absolute top-0 end-0 me-3 mt-3">
@@ -636,26 +636,26 @@
                   @foreach ($check_orders[$i]->Cart as $cart)
                       <tr>
                         <td>{{$num}}</td>
-                        <td><img src="{{asset('images/products/'.$cart->Product->Library[0]->image)}}"  class='icon-shape icon-xl'  alt="{{$cart->Product->name}}"></td>
-                        <td>{{$cart->Product->name}}</td>
-                        <td>{{number_format($cart->price,0,'',' ')}} đ/kg</td>
+                        <td><img src="{{asset('images/products/'.$cart->Product->Library[0]->image)}}"  class='icon-shape icon-xl'  alt="{{$cart->Product->product_name}}"></td>
+                        <td>{{$cart->Product->product_name}}</td>
+                        <td>${{number_format($cart->price,2,'.',' ')}}</td>
                         <td>{{$cart->sale}}%</td>
-                        <td>{{$cart->amount}} grams</td>
+                        <td>{{$cart->amount}}</td>
                       </tr>
                       @php
                           $num++;
-                          $total += $cart->sale>0?$cart->price*(1 - $cart->sale/100)*($cart->amount/1000):$cart->price*($cart->amount/1000);
+                          $total += $cart->sale>0?$cart->price*(1 - $cart->sale/100)*$cart->amount:$cart->price*$cart->amount;
                       @endphp
                   @endforeach
                 </tbody>
                 <tfoot>
                   <tr>
                     <td colspan="2">Shipment Fee</td>
-                    <td colspan="3">{{number_format($check_orders[$i]->shipping_fee,0,'',' ')}} đ</td>
+                    <td colspan="3">$+{{number_format($check_orders[$i]->shipping_fee,2,'.',' ')}}</td>
                   </tr>
                   <tr>
                     <td colspan="2">Total</td>
-                    <td colspan="3">{{number_format($total+$check_orders[$i]->shipping_fee,0,'',' ')}} đ</td>
+                    <td colspan="3">${{number_format($total+$check_orders[$i]->shipping_fee,2,'.',' ')}}</td>
                   </tr>
                 </tfoot>
               </table>

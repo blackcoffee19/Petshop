@@ -161,7 +161,8 @@
         @include('layout.footer')
         @yield('modal')
         <!-- Libs JS -->
-        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.7/umd/popper.min.js"></script>
         <script src="node_modules/simplebar/dist/simplebar.min.js"></script>
         <script src="node_modules/slick-carousel/slick/slick.js"></script>
         <script src="node_modules/slick-carousel/slick/slick.min.js"></script>

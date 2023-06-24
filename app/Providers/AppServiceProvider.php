@@ -51,16 +51,35 @@ class AppServiceProvider extends ServiceProvider
         });
         view()->composer(['frontend.*','backend.*'],function($view){
             if(Auth::check()){
-                if(Auth::user()->admin == 0){
+                if(Auth::user()->admin == '0'){
+                     $num = 0;
                     $groups = Groupmessage::where('id_user','=',Auth::user()->id_user)->get();
+                    foreach($groups as $gr){
+                        $last_mess = $gr->Message->last();
+                        if(($last_mess->id_user != Auth::user()->id_user) && (!$last_mess->status)){
+                            $num++;
+                            $gr->new_mess = true;
+                        }
+                    }
                     // GET MESSAGES THAT ADMIN STILL NOT REPLY 
                     $messages_to_admin = Message::where('code_group','=',null)->where('id_user','=',Auth::user()->id_user)->get();
+                    $view->with('num_new',$num);
                     $view->with('groups',$groups);
                     $view->with('messages_to_admin',$messages_to_admin);
                 }else{
+                    $num = 0;
                     $groups = Groupmessage::where('id_admin','=',Auth::user()->id_user)->get();
+                    foreach($groups as $gr){
+                        $last_mess = $gr->Message->last();
+                        if(($last_mess->id_user != Auth::user()->id_user)&&(!$last_mess->status)){
+                            $num++;
+                            $gr->new_mess = true;
+                        }
+                    }
                     // GET ALL USER MESSAGE TO ADMIN THAT STILL NOT REPLY 
                     $user_mess=  User::whereIn('id_user',Message::select('id_user')->where('code_group','=',null)->distinct()->get())->get();
+                    $num += count($user_mess);
+                    $view->with('num_new',$num);
                     $view->with('groups',$groups);
                     $view->with('user_message',$user_mess);
                 }
@@ -99,8 +118,6 @@ class AppServiceProvider extends ServiceProvider
                         $new->image = isset($new->User->avatar)? $new->User->avatar: "user.png";
                     }
                     $view->with('news',$news);
-                }
-                if(Auth::user()->admin == '2'){
                     $orders = Order::where('status','=','unconfirmed')->orWhere('status','=','confirmed')->orWhere('status','=','delivery')->orderBy('status','desc')->get();
                     $view->with('orders',$orders);
                 }
@@ -112,5 +129,14 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('news',$news);
             }
 	    });
+        view()->composer('backend.header',function($view){
+            if(Auth::check() && Auth::user()->admin == '1'){
+                $notificates = News::where('send_admin','=',true)->get();
+                foreach($notificates as $new){
+                    $new->image = isset($new->User->avatar)? $new->User->avatar: "user.png";
+                }
+                $view->with('notificates',$notificates);
+            };
+        });
     }
 }
