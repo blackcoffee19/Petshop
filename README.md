@@ -14,7 +14,6 @@ Mục đích của project: Tìm việc làm
 Nguồn tham khảo: 
 Frontend: https://freshcart.codescandy.com/
 
-*ps: Do em thích sử dụng tiếng anh trong lập trình nên website sẽ dùng ngôn ngữ Tiếng Anh, cũng như đơn vị tính là dollar, tuy nhiên vùng vận chuyển order sản phẩm chỉ ở Việt Nam 
 ## Project feature
 - Lấy dữ liệu sản phẩm (pet) từ PHPserver
 - Sort, Filter, Search sản phẩm
@@ -36,7 +35,7 @@ Frontend: https://freshcart.codescandy.com/
 - Liệt kê sản phẩm yêu thích của khách hàng
 - Liệt kê lịch sử order của khách hàng
 - Liệt kê các comment của khách hàng
-
+... Chưa Liệt kê hết các tính năng
 
 ## Security Vulnerabilities
 
